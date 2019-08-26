@@ -110,7 +110,7 @@ func writeFile(name string, buf *bytes.Buffer) error {
 }
 
 // 插入文件内容
-func insertFileContent(name string, startPrefix, endContain, content string) error {
+func insertFileContent(name string, startPrefix, endContain, content string, excludeEnds ...string) error {
 	buf, err := readFile(name)
 	if err != nil {
 		return err
@@ -148,7 +148,17 @@ func insertFileContent(name string, startPrefix, endContain, content string) err
 			end = true
 		}
 
-		if end && !strings.Contains(tline, endContain) {
+		exclude := tline == ""
+		if !exclude {
+			for _, e := range excludeEnds {
+				if strings.HasPrefix(tline, e) {
+					exclude = true
+					break
+				}
+			}
+		}
+
+		if !(!end || exclude || strings.Contains(tline, endContain)) {
 			nbuf.WriteString(content)
 			complete = true
 		}
