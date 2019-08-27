@@ -11,7 +11,7 @@ func getModelInjectFileName(dir string) string {
 }
 
 // 插入model注入文件
-func insertModelInject(ctx context.Context, dir, name string) error {
+func insertModelInject(ctx context.Context, pkgName, dir, name, comment string) error {
 	fullname := getModelInjectFileName(dir)
 
 	err := insertFileContent(fullname, "func AutoMigrate", "entity.", fmt.Sprintf("new(entity.%s),\n", name))
@@ -23,6 +23,8 @@ func insertModelInject(ctx context.Context, dir, name string) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("文件[%s]写入成功\n", fullname)
 
 	return execGoFmt(fullname)
 }

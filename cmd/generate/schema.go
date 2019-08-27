@@ -62,8 +62,17 @@ func genSchema(ctx context.Context, dir, name, comment string, fields ...schemaF
 	buf.WriteString("}")
 	buf.WriteString(delimiter)
 
+	tbuf, err := execParseTpl(schemaTpl, map[string]interface{}{
+		"Name": name,
+	})
+	if err != nil {
+		return err
+	}
+
+	buf.Write(tbuf.Bytes())
+
 	fullname := getSchemaFileName(dir, name)
-	err := createFile(ctx, fullname, buf)
+	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err
 	}
@@ -72,3 +81,21 @@ func genSchema(ctx context.Context, dir, name, comment string, fields ...schemaF
 
 	return execGoFmt(fullname)
 }
+
+const schemaTpl = `
+// {{.Name}}QueryParam 查询条件
+type {{.Name}}QueryParam struct {
+}
+
+// {{.Name}}QueryOptions 查询可选参数项
+type {{.Name}}QueryOptions struct {
+	PageParam *PaginationParam // 分页参数
+}
+
+// {{.Name}}QueryResult 查询结果
+type {{.Name}}QueryResult struct {
+	Data       []*{{.Name}}
+	PageResult *PaginationResult
+}
+
+`

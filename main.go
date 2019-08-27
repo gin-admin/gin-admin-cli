@@ -15,6 +15,7 @@ func main() {
 	app.Version = "0.1.0"
 	app.Commands = []cli.Command{
 		cmd.NewCommand(),
+		cmd.GenerateCommand(),
 	}
 	err := app.Run(os.Args)
 	if err != nil {

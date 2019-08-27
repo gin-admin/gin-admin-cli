@@ -17,7 +17,7 @@ func genCtl(ctx context.Context, pkgName, dir, name, comment string) error {
 	data := map[string]interface{}{
 		"PkgName":    pkgName,
 		"Name":       name,
-		"PluralName": util.ToPlural(name),
+		"PluralName": util.ToPlural(util.ToLowerUnderlinedNamer(name)),
 		"Comment":    comment,
 	}
 
@@ -26,7 +26,7 @@ func genCtl(ctx context.Context, pkgName, dir, name, comment string) error {
 		return err
 	}
 
-	fullname := getBllFileName(dir, name)
+	fullname := getCtlFileName(dir, name)
 	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err
@@ -45,7 +45,6 @@ import (
 	"{{.PkgName}}/internal/app/errors"
 	"{{.PkgName}}/internal/app/ginplus"
 	"{{.PkgName}}/internal/app/schema"
-	"{{.PkgName}}/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 

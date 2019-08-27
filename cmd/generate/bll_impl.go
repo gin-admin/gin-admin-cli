@@ -84,7 +84,7 @@ func (a *{{.Name}}) getUpdate(ctx context.Context, recordID string) (*schema.{{.
 // Create 创建数据
 func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.{{.Name}}, error) {
 	item.RecordID = util.MustUUID()
-	err = a.{{.Name}}Model.Create(ctx, item)
+	err := a.{{.Name}}Model.Create(ctx, item)
 	if err != nil {
 		return nil, err
 	}

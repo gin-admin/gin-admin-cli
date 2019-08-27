@@ -47,11 +47,13 @@ func createFile(ctx context.Context, name string, buf *bytes.Buffer) error {
 	exists := true
 	_, err := os.Stat(name)
 	if err != nil {
-		if err != os.ErrNotExist {
+		if os.IsNotExist(err) {
+			exists = false
+		} else {
 			return err
 		}
-		exists = false
 	}
+
 	if exists {
 		return fmt.Errorf("文件[%s]已经存在", name)
 	}
@@ -144,10 +146,6 @@ func insertFileContent(name string, startPrefix, endContain, content string, exc
 			start = true
 		}
 
-		if !end && start && strings.Contains(tline, endContain) {
-			end = true
-		}
-
 		exclude := tline == ""
 		if !exclude {
 			for _, e := range excludeEnds {
@@ -156,6 +154,10 @@ func insertFileContent(name string, startPrefix, endContain, content string, exc
 					break
 				}
 			}
+		}
+
+		if !end && start && !exclude && strings.Contains(tline, endContain) {
+			end = true
 		}
 
 		if !(!end || exclude || strings.Contains(tline, endContain)) {

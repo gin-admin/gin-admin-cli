@@ -104,6 +104,9 @@ func (a *Command) gitClone(dir string) error {
 
 func (a *Command) gitInit(dir string) error {
 	os.RemoveAll(filepath.Join(dir, ".git"))
+	os.Remove(filepath.Join(dir, "screenshot_wechat.jpeg"))
+	os.Remove(filepath.Join(dir, "screenshot_swagger.png"))
+
 	err := a.execGit(dir, "init")
 	if err != nil {
 		return err
