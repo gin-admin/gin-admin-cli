@@ -55,11 +55,11 @@ func GenerateCommand() cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
-				Name:  "name",
+				Name:  "name, n",
 				Usage: "模块名称(结构体名称)",
 			},
 			&cli.StringFlag{
-				Name:  "comment",
+				Name:  "comment, c",
 				Usage: "模块注释",
 			},
 			&cli.StringFlag{
