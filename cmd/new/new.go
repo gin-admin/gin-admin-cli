@@ -5,12 +5,11 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/LyricTian/logger"
 )
 
 const (
@@ -43,7 +42,7 @@ func (a *Command) Exec() error {
 	if err != nil {
 		return err
 	}
-	logger.Infof("项目生成目录：%s", dir)
+	log.Printf("项目生成目录：%s", dir)
 
 	isClone := false
 	_, err = os.Stat(dir)
@@ -59,6 +58,11 @@ func (a *Command) Exec() error {
 
 	if pkgName := a.cfg.PkgName; pkgName != "" {
 		err := a.changePkgName(dir, a.cfg.PkgName)
+		if err != nil {
+			return err
+		}
+
+		err = a.readAndReplaceFile(a.cfg.PkgName, fmt.Sprintf("%s/%s", dir, "go.mod"))
 		if err != nil {
 			return err
 		}
@@ -98,7 +102,7 @@ func (a *Command) gitClone(dir string) error {
 	args = append(args, source)
 	args = append(args, dir)
 
-	logger.Infof("执行命令：git %s", strings.Join(args, " "))
+	log.Printf("执行命令：git %s", strings.Join(args, " "))
 	return a.execGit("", args...)
 }
 
@@ -146,12 +150,16 @@ func (a *Command) changePkgName(dir, pkgName string) error {
 			return nil
 		}
 
-		buf, err := a.readAndReplace(pkgName, path)
-		if err != nil {
-			return err
-		}
-		return ioutil.WriteFile(path, buf.Bytes(), 0644)
+		return a.readAndReplaceFile(pkgName, path)
 	})
+}
+
+func (a *Command) readAndReplaceFile(pkgName, name string) error {
+	buf, err := a.readAndReplace(pkgName, name)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(name, buf.Bytes(), 0644)
 }
 
 func (a *Command) readAndReplace(pkgName, name string) (*bytes.Buffer, error) {
