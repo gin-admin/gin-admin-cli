@@ -11,7 +11,14 @@ $ go get -u -v github.com/LyricTian/gin-admin-cli
 ### 创建项目
 
 ```bash
-$ gin-admin-cli new -m -d 项目目录 -p 包名
+USAGE:
+   gin-admin-cli new [command options] [arguments...]
+
+OPTIONS:
+   --dir value, -d value  项目生成目录
+   --pkg value, -p value  项目包名
+   --mirror, -m           使用国内镜像(gitee.com)
+   --web, -w              包含web项目
 ```
 
 > 使用示例
@@ -25,7 +32,15 @@ $ gin-admin-cli new -m -d ~/go/src/test-gin-admin -p test-gin-admin
 #### 指定模块名称和说明生成模块
 
 ```bash
-$ gin-admin-cli g -d 项目目录 -p 包名 -n 结构体名称 -c 结构体注释说明
+USAGE:
+   gin-admin-cli generate [command options] [arguments...]
+
+OPTIONS:
+   --dir value, -d value      项目生成目录
+   --pkg value, -p value      项目包名
+   --name value, -n value     模块名称(结构体名称)
+   --comment value, -c value  模块注释
+   --file value, -f value     指定模板文件(.json，模板配置可参考说明)
 ```
 
 > 使用示例
