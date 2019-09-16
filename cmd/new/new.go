@@ -13,16 +13,19 @@ import (
 )
 
 const (
-	githubSource   = "https://github.com/LyricTian/gin-admin.git"
-	giteeSource    = "https://gitee.com/lyric/gin-admin.git"
-	defaultPkgName = "github.com/LyricTian/gin-admin"
+	githubSource    = "https://github.com/LyricTian/gin-admin.git"
+	giteeSource     = "https://gitee.com/lyric/gin-admin.git"
+	githubWebSource = "https://github.com/LyricTian/gin-admin-react.git"
+	giteeWebSource  = "https://gitee.com/lyric/gin-admin-react.git"
+	defaultPkgName  = "github.com/LyricTian/gin-admin"
 )
 
 // Config 配置参数
 type Config struct {
-	Dir       string
-	PkgName   string
-	UseMirror bool
+	Dir        string
+	PkgName    string
+	UseMirror  bool
+	IncludeWeb bool
 }
 
 // Exec 执行创建项目命令
@@ -48,10 +51,26 @@ func (a *Command) Exec() error {
 	_, err = os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			err = a.gitClone(dir)
+			source := githubSource
+			if a.cfg.UseMirror {
+				source = giteeSource
+			}
+			err = a.gitClone(dir, source)
 			if err != nil {
 				return err
 			}
+
+			if a.cfg.IncludeWeb {
+				ws := githubWebSource
+				if a.cfg.UseMirror {
+					ws = giteeWebSource
+				}
+				err = a.gitClone(filepath.Join(dir, "web"), ws)
+				if err != nil {
+					return err
+				}
+			}
+
 			isClone = true
 		}
 	}
@@ -89,16 +108,12 @@ func (a *Command) execGit(dir string, args ...string) error {
 	return cmd.Run()
 }
 
-func (a *Command) gitClone(dir string) error {
+func (a *Command) gitClone(dir, source string) error {
 	var args []string
 	args = append(args, "clone")
 	args = append(args, "-q")
 	args = append(args, "-b", "master")
 
-	source := githubSource
-	if a.cfg.UseMirror {
-		source = giteeSource
-	}
 	args = append(args, source)
 	args = append(args, dir)
 
@@ -108,6 +123,9 @@ func (a *Command) gitClone(dir string) error {
 
 func (a *Command) gitInit(dir string) error {
 	os.RemoveAll(filepath.Join(dir, ".git"))
+	if a.cfg.IncludeWeb {
+		os.RemoveAll(filepath.Join(dir, "web", ".git"))
+	}
 	os.Remove(filepath.Join(dir, "screenshot_wechat.jpeg"))
 	os.Remove(filepath.Join(dir, "screenshot_swagger.png"))
 

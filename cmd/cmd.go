@@ -26,12 +26,17 @@ func NewCommand() cli.Command {
 				Name:  "mirror, m",
 				Usage: "使用国内镜像(gitee.com)",
 			},
+			&cli.BoolFlag{
+				Name:  "web, w",
+				Usage: "包含web项目",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			cfg := new.Config{
-				Dir:       c.String("dir"),
-				PkgName:   c.String("pkg"),
-				UseMirror: c.Bool("mirror"),
+				Dir:        c.String("dir"),
+				PkgName:    c.String("pkg"),
+				UseMirror:  c.Bool("mirror"),
+				IncludeWeb: c.Bool("web"),
 			}
 			return new.Exec(cfg)
 		},
