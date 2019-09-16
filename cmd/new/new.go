@@ -139,7 +139,7 @@ func (a *Command) gitInit(dir string) error {
 		return err
 	}
 
-	err = a.execGit(dir, "commit", "-m", "'Initial commit'")
+	err = a.execGit(dir, "commit", "-m", "Initial commit")
 	if err != nil {
 		return err
 	}
