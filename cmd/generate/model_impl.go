@@ -15,9 +15,10 @@ func getModelImplFileName(dir, name string) string {
 // 生成model实现文件
 func genModelImpl(ctx context.Context, pkgName, dir, name, comment string) error {
 	data := map[string]interface{}{
-		"PkgName": pkgName,
-		"Name":    name,
-		"Comment": comment,
+		"PkgName":    pkgName,
+		"Name":       name,
+		"PluralName": util.ToPlural(name),
+		"Comment":    comment,
 	}
 
 	buf, err := execParseTpl(modelImplTpl, data)
@@ -73,14 +74,14 @@ func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam
 	db = db.Order("id DESC")
 
 	opt := a.getQueryOption(opts...)
-	var list entity.{{.Name}}s
+	var list entity.{{.PluralName}}
 	pr, err := WrapPageQuery(db, opt.PageParam, &list)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	qr := &schema.{{.Name}}QueryResult{
 		PageResult: pr,
-		Data:       list.ToSchema{{.Name}}s(),
+		Data:       list.ToSchema{{.PluralName}}(),
 	}
 
 	return qr, nil
