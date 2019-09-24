@@ -63,7 +63,9 @@ func genSchema(ctx context.Context, dir, name, comment string, fields ...schemaF
 	buf.WriteString(delimiter)
 
 	tbuf, err := execParseTpl(schemaTpl, map[string]interface{}{
-		"Name": name,
+		"Name":       name,
+		"PluralName": util.ToPlural(name),
+		"Comment":    comment,
 	})
 	if err != nil {
 		return err
@@ -94,8 +96,11 @@ type {{.Name}}QueryOptions struct {
 
 // {{.Name}}QueryResult 查询结果
 type {{.Name}}QueryResult struct {
-	Data       []*{{.Name}}
+	Data       {{.PluralName}}
 	PageResult *PaginationResult
 }
+
+// {{.PluralName}} {{.Comment}}列表
+type {{.PluralName}} []*{{.Name}}
 
 `

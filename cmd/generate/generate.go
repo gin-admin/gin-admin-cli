@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"path/filepath"
+	"strings"
 )
 
 // Config 配置参数
@@ -13,6 +14,7 @@ type Config struct {
 	Name    string
 	Comment string
 	File    string
+	Modules string
 }
 
 // Exec 执行生成模块命令
@@ -24,6 +26,20 @@ func Exec(cfg Config) error {
 // Command 生成命令
 type Command struct {
 	cfg *Config
+}
+
+func (a *Command) hasModule(m string) bool {
+	if v := a.cfg.Modules; v == "" || v == "all" {
+		return true
+	}
+
+	for _, s := range strings.Split(a.cfg.Modules, ",") {
+		if s == m {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Exec 执行命令
@@ -52,59 +68,72 @@ func (a *Command) Exec() error {
 	pkgName := a.cfg.PkgName
 
 	ctx := context.Background()
-	err = genSchema(ctx, dir, item.StructName, item.Comment, item.toSchemaFields()...)
-	if err != nil {
-		return err
+
+	if a.hasModule("schema") {
+		err = genSchema(ctx, dir, item.StructName, item.Comment, item.toSchemaFields()...)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = genEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityFields()...)
-	if err != nil {
-		return err
+	if a.hasModule("entity") {
+		err = genEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityFields()...)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = genModelImpl(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
+	if a.hasModule("model") {
+		err = genModelImpl(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
+
+		err = genModel(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
+
+		err = insertModelInject(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = genModel(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
+	if a.hasModule("bll") {
+		err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
+
+		err = genBll(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
+
+		err = insertBllInject(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = insertModelInject(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
+	if a.hasModule("ctl") {
+		err = genCtl(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
+
+		err = insertCtlInject(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
-	}
-
-	err = genBll(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
-	}
-
-	err = insertBllInject(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
-	}
-
-	err = genCtl(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
-	}
-
-	err = insertCtlInject(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
-	}
-
-	err = insertAPI(ctx, pkgName, dir, item.StructName, item.Comment)
-	if err != nil {
-		return err
+	if a.hasModule("api") {
+		err = insertAPI(ctx, pkgName, dir, item.StructName, item.Comment)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

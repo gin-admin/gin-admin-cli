@@ -71,6 +71,10 @@ func GenerateCommand() cli.Command {
 				Name:  "file, f",
 				Usage: "指定模板文件(.json，模板配置可参考说明)",
 			},
+			&cli.StringFlag{
+				Name:  "module, m",
+				Usage: "生成模块（以逗号分隔，支持：all,schema,entity,model,bll,ctl,api）",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			cfg := generate.Config{
@@ -79,6 +83,7 @@ func GenerateCommand() cli.Command {
 				Name:    c.String("name"),
 				Comment: c.String("comment"),
 				File:    c.String("file"),
+				Modules: c.String("module"),
 			}
 
 			if cfg.Dir == "" {
