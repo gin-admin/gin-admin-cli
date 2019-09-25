@@ -150,7 +150,7 @@ func (a *Command) gitInit(dir string) error {
 func (a *Command) checkInDirs(dir, path string) bool {
 	includeDirs := []string{"cmd", "internal", "pkg"}
 	for _, d := range includeDirs {
-		p := fmt.Sprintf("%s/%s", dir, d)
+		p := filepath.Join(dir, d)
 		if strings.HasPrefix(path, p) {
 			return true
 		}
