@@ -46,17 +46,17 @@ import (
 	"{{.PkgName}}/internal/app/errors"
 	"{{.PkgName}}/internal/app/model/impl/gorm/internal/entity"
 	"{{.PkgName}}/internal/app/schema"
-	"{{.PkgName}}/pkg/gormplus"
+	"github.com/jinzhu/gorm"
 )
 
 // New{{.Name}} 创建{{.Comment}}存储实例
-func New{{.Name}}(db *gormplus.DB) *{{.Name}} {
+func New{{.Name}}(db *gorm.DB) *{{.Name}} {
 	return &{{.Name}}{db}
 }
 
 // {{.Name}} {{.Comment}}存储
 type {{.Name}} struct {
-	db *gormplus.DB
+	db *gorm.DB
 }
 
 func (a *{{.Name}}) getQueryOption(opts ...schema.{{.Name}}QueryOptions) schema.{{.Name}}QueryOptions {
@@ -69,13 +69,13 @@ func (a *{{.Name}}) getQueryOption(opts ...schema.{{.Name}}QueryOptions) schema.
 
 // Query 查询数据
 func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}QueryResult, error) {
-	db := entity.Get{{.Name}}DB(ctx, a.db).DB
+	db := entity.Get{{.Name}}DB(ctx, a.db)
 	
 	db = db.Order("id DESC")
 
 	opt := a.getQueryOption(opts...)
 	var list entity.{{.PluralName}}
-	pr, err := WrapPageQuery(db, opt.PageParam, &list)
+	pr, err := WrapPageQuery(ctx, db, opt.PageParam, &list)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -91,7 +91,7 @@ func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam
 func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
 	db := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID)
 	var item entity.{{.Name}}
-	ok, err := a.db.FindOne(db, &item)
+	ok, err := FindOne(ctx, db, &item)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	} else if !ok {

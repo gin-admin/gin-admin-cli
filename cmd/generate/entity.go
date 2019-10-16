@@ -34,13 +34,13 @@ func genEntity(ctx context.Context, pkgName, dir, name, comment string, fields .
 	var imports []string
 	imports = append(imports, `"context"`)
 	imports = append(imports, fmt.Sprintf(`"%s/internal/app/schema"`, pkgName))
-	imports = append(imports, fmt.Sprintf(`"%s/pkg/gormplus"`, pkgName))
+	imports = append(imports, `"github.com/jinzhu/gorm"`)
 
 	buf.Write(getModuleHeader("entity", imports...).Bytes())
 
 	buf.WriteString(fmt.Sprintf("// Get%sDB %s", name, comment))
 	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf("func Get%sDB(ctx context.Context, defDB *gormplus.DB) *gormplus.DB {", name))
+	buf.WriteString(fmt.Sprintf("func Get%sDB(ctx context.Context, defDB *gorm.DB) *gorm.DB {", name))
 	buf.WriteString(delimiter)
 	buf.WriteString(fmt.Sprintf("return getDBWithModel(ctx, defDB, %s{})", name))
 	buf.WriteString(delimiter)
