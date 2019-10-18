@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/LyricTian/gin-admin-cli/util"
 )
@@ -23,6 +24,8 @@ func insertAPI(ctx context.Context, pkgName, dir, name, comment string) error {
 	}
 
 	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
+	pname = strings.Replace(pname, "_", "-", -1)
+
 	buf := new(bytes.Buffer)
 	buf.WriteString(delimiter)
 	buf.WriteString(fmt.Sprintf("// 注册/api/v1/%s", pname))
