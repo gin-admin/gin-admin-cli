@@ -9,14 +9,14 @@ import (
 	"github.com/LyricTian/gin-admin-cli/util"
 )
 
-func getAPIFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/routers/api/api.go", dir)
+func getAPIFileName(dir, routerName string) string {
+	fullname := fmt.Sprintf("%s/internal/app/routers/%s/%s.go", dir, routerName, routerName)
 	return fullname
 }
 
 // 插入api文件
-func insertAPI(ctx context.Context, pkgName, dir, name, comment string) error {
-	fullname := getAPIFileName(dir)
+func insertAPI(ctx context.Context, pkgName, dir, routerName, name, comment string) error {
+	fullname := getAPIFileName(dir, routerName)
 
 	err := insertFileContent(fullname, "return container.Invoke", "*ctl.", fmt.Sprintf("c%s *ctl.%s,\n", name, name))
 	if err != nil {
@@ -28,7 +28,7 @@ func insertAPI(ctx context.Context, pkgName, dir, name, comment string) error {
 
 	buf := new(bytes.Buffer)
 	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf("// 注册/api/v1/%s", pname))
+	buf.WriteString(fmt.Sprintf("// 注册/%s/v1/%s", routerName, pname))
 	buf.WriteString(delimiter)
 	buf.WriteString(fmt.Sprintf(`v1.GET("/%s", c%s.Query)`, pname, name))
 	buf.WriteString(delimiter)

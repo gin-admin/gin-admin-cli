@@ -60,6 +60,11 @@ func GenerateCommand() cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
+				Name:  "router",
+				Usage: "路由模块名称",
+				Value: "api",
+			},
+			&cli.StringFlag{
 				Name:  "name, n",
 				Usage: "模块名称(结构体名称)",
 			},
@@ -78,12 +83,13 @@ func GenerateCommand() cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			cfg := generate.Config{
-				Dir:     c.String("dir"),
-				PkgName: c.String("pkg"),
-				Name:    c.String("name"),
-				Comment: c.String("comment"),
-				File:    c.String("file"),
-				Modules: c.String("module"),
+				Dir:        c.String("dir"),
+				PkgName:    c.String("pkg"),
+				RouterName: c.String("router"),
+				Name:       c.String("name"),
+				Comment:    c.String("comment"),
+				File:       c.String("file"),
+				Modules:    c.String("module"),
 			}
 
 			if cfg.Dir == "" {

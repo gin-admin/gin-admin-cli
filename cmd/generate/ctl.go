@@ -8,13 +8,13 @@ import (
 	"github.com/LyricTian/gin-admin-cli/util"
 )
 
-func getCtlFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/routers/api/ctl/c_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+func getCtlFileName(dir, routerName, name string) string {
+	fullname := fmt.Sprintf("%s/internal/app/routers/%s/ctl/c_%s.go", dir, routerName, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
 // 生成ctl文件
-func genCtl(ctx context.Context, pkgName, dir, name, comment string) error {
+func genCtl(ctx context.Context, pkgName, dir, routerName, name, comment string) error {
 	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
 	pname = strings.Replace(pname, "_", "-", -1)
 
@@ -30,7 +30,7 @@ func genCtl(ctx context.Context, pkgName, dir, name, comment string) error {
 		return err
 	}
 
-	fullname := getCtlFileName(dir, name)
+	fullname := getCtlFileName(dir, routerName, name)
 	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err

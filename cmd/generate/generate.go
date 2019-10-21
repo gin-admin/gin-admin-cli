@@ -10,12 +10,13 @@ import (
 
 // Config 配置参数
 type Config struct {
-	Dir     string
-	PkgName string
-	Name    string
-	Comment string
-	File    string
-	Modules string
+	Dir        string
+	PkgName    string
+	RouterName string
+	Name       string
+	Comment    string
+	File       string
+	Modules    string
 }
 
 // Exec 执行生成模块命令
@@ -73,6 +74,7 @@ func (a *Command) Exec() error {
 	}
 
 	pkgName := a.cfg.PkgName
+	routerName := a.cfg.RouterName
 
 	ctx := context.Background()
 
@@ -111,15 +113,15 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("ctl") {
-		err = genCtl(ctx, pkgName, dir, item.StructName, item.Comment)
+		err = genCtl(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
 		a.handleError(err, "生成ctl")
 
-		err = insertCtlInject(ctx, pkgName, dir, item.StructName, item.Comment)
+		err = insertCtlInject(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
 		a.handleError(err, "生成ctl inject")
 	}
 
 	if a.hasModule("api") {
-		err = insertAPI(ctx, pkgName, dir, item.StructName, item.Comment)
+		err = insertAPI(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
 		a.handleError(err, "生成api")
 	}
 
