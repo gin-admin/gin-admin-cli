@@ -75,7 +75,7 @@ type {{.Name}} struct {
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
 // @Router /{{.RouterName}}/v1/{{.PluralName}} [get]
-func (a *Demo) Query(c *gin.Context) {
+func (a *{{.Name}}) Query(c *gin.Context) {
 	var params schema.{{.Name}}QueryParam
 
 	result, err := a.DemoBll.Query(ginplus.NewContext(c), params, schema.{{.Name}}QueryOptions{
@@ -99,7 +99,7 @@ func (a *Demo) Query(c *gin.Context) {
 // @Failure 404 {object} schema.HTTPError "{error:{code:0,message:资源不存在}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
 // @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [get]
-func (a *Demo) Get(c *gin.Context) {
+func (a *{{.Name}}) Get(c *gin.Context) {
 	item, err := a.DemoBll.Get(ginplus.NewContext(c), c.Param("id"))
 	if err != nil {
 		ginplus.ResError(c, err)
@@ -118,7 +118,7 @@ func (a *Demo) Get(c *gin.Context) {
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
 // @Router /{{.RouterName}}/v1/{{.PluralName}} [post]
-func (a *Demo) Create(c *gin.Context) {
+func (a *{{.Name}}) Create(c *gin.Context) {
 	var item schema.{{.Name}}
 	if err := ginplus.ParseJSON(c, &item); err != nil {
 		ginplus.ResError(c, err)
@@ -145,7 +145,7 @@ func (a *Demo) Create(c *gin.Context) {
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
 // @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [put]
-func (a *Demo) Update(c *gin.Context) {
+func (a *{{.Name}}) Update(c *gin.Context) {
 	var item schema.{{.Name}}
 	if err := ginplus.ParseJSON(c, &item); err != nil {
 		ginplus.ResError(c, err)
@@ -169,7 +169,7 @@ func (a *Demo) Update(c *gin.Context) {
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
 // @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [delete]
-func (a *Demo) Delete(c *gin.Context) {
+func (a *{{.Name}}) Delete(c *gin.Context) {
 	err := a.DemoBll.Delete(ginplus.NewContext(c), c.Param("id"))
 	if err != nil {
 		ginplus.ResError(c, err)
