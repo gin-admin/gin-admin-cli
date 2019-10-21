@@ -3,6 +3,7 @@ package generate
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
 )
@@ -42,6 +43,12 @@ func (a *Command) hasModule(m string) bool {
 	return false
 }
 
+func (a *Command) handleError(err error, desc string) {
+	if err != nil {
+		fmt.Printf("%s:%s", desc, err.Error())
+	}
+}
+
 // Exec 执行命令
 func (a *Command) Exec() error {
 	var item TplItem
@@ -78,62 +85,42 @@ func (a *Command) Exec() error {
 
 	if a.hasModule("entity") {
 		err = genEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityFields()...)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成entity")
 	}
 
 	if a.hasModule("model") {
 		err = genModelImpl(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成mode impl")
 
 		err = genModel(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成model")
 
 		err = insertModelInject(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成model inject")
 	}
 
 	if a.hasModule("bll") {
 		err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成bll impl")
 
 		err = genBll(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成bll")
 
 		err = insertBllInject(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成bll inject")
 	}
 
 	if a.hasModule("ctl") {
 		err = genCtl(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成ctl")
 
 		err = insertCtlInject(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成ctl inject")
 	}
 
 	if a.hasModule("api") {
 		err = insertAPI(ctx, pkgName, dir, item.StructName, item.Comment)
-		if err != nil {
-			return err
-		}
+		a.handleError(err, "生成api")
 	}
 
 	return nil
