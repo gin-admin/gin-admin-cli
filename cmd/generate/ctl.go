@@ -20,6 +20,7 @@ func genCtl(ctx context.Context, pkgName, dir, routerName, name, comment string)
 
 	data := map[string]interface{}{
 		"PkgName":    pkgName,
+		"RouterName": routerName,
 		"Name":       name,
 		"PluralName": pname,
 		"Comment":    comment,
@@ -73,7 +74,7 @@ type {{.Name}} struct {
 // @Success 200 {array} schema.{{.Name}} "查询结果：{list:列表数据,pagination:{current:页索引,pageSize:页大小,total:总数量}}"
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
-// @Router /api/v1/{{.PluralName}} [get]
+// @Router /{{.RouterName}}/v1/{{.PluralName}} [get]
 func (a *Demo) Query(c *gin.Context) {
 	var params schema.{{.Name}}QueryParam
 
@@ -97,7 +98,7 @@ func (a *Demo) Query(c *gin.Context) {
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 404 {object} schema.HTTPError "{error:{code:0,message:资源不存在}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
-// @Router /api/v1/{{.PluralName}}/{id} [get]
+// @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [get]
 func (a *Demo) Get(c *gin.Context) {
 	item, err := a.DemoBll.Get(ginplus.NewContext(c), c.Param("id"))
 	if err != nil {
@@ -116,7 +117,7 @@ func (a *Demo) Get(c *gin.Context) {
 // @Failure 400 {object} schema.HTTPError "{error:{code:0,message:无效的请求参数}}"
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
-// @Router /api/v1/{{.PluralName}} [post]
+// @Router /{{.RouterName}}/v1/{{.PluralName}} [post]
 func (a *Demo) Create(c *gin.Context) {
 	var item schema.{{.Name}}
 	if err := ginplus.ParseJSON(c, &item); err != nil {
@@ -143,7 +144,7 @@ func (a *Demo) Create(c *gin.Context) {
 // @Failure 400 {object} schema.HTTPError "{error:{code:0,message:无效的请求参数}}"
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
-// @Router /api/v1/{{.PluralName}}/{id} [put]
+// @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [put]
 func (a *Demo) Update(c *gin.Context) {
 	var item schema.{{.Name}}
 	if err := ginplus.ParseJSON(c, &item); err != nil {
@@ -167,7 +168,7 @@ func (a *Demo) Update(c *gin.Context) {
 // @Success 200 {object} schema.HTTPStatus "{status:OK}"
 // @Failure 401 {object} schema.HTTPError "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
-// @Router /api/v1/{{.PluralName}}/{id} [delete]
+// @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [delete]
 func (a *Demo) Delete(c *gin.Context) {
 	err := a.DemoBll.Delete(ginplus.NewContext(c), c.Param("id"))
 	if err != nil {
