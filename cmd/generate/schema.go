@@ -48,14 +48,8 @@ func genSchema(ctx context.Context, dir, name, comment string, fields ...schemaF
 			buf.WriteString(fmt.Sprintf(`binding:"required"`))
 		}
 
-		swagRequired := "false"
-		if field.IsRequired {
-			swagRequired = "true"
-		}
-		buf.WriteByte(' ')
-		buf.WriteString(fmt.Sprintf(`swaggo:"%s,%s"`, swagRequired, field.Comment))
-
 		buf.WriteByte('`')
+		buf.WriteString(fmt.Sprintf("// %s", field.Comment))
 		buf.WriteString(delimiter)
 	}
 
