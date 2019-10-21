@@ -78,7 +78,7 @@ type {{.Name}} struct {
 func (a *{{.Name}}) Query(c *gin.Context) {
 	var params schema.{{.Name}}QueryParam
 
-	result, err := a.DemoBll.Query(ginplus.NewContext(c), params, schema.{{.Name}}QueryOptions{
+	result, err := a.{{.Name}}Bll.Query(ginplus.NewContext(c), params, schema.{{.Name}}QueryOptions{
 		PageParam: ginplus.GetPaginationParam(c),
 	})
 	if err != nil {
@@ -100,7 +100,7 @@ func (a *{{.Name}}) Query(c *gin.Context) {
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
 // @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [get]
 func (a *{{.Name}}) Get(c *gin.Context) {
-	item, err := a.DemoBll.Get(ginplus.NewContext(c), c.Param("id"))
+	item, err := a.{{.Name}}Bll.Get(ginplus.NewContext(c), c.Param("id"))
 	if err != nil {
 		ginplus.ResError(c, err)
 		return
@@ -126,7 +126,7 @@ func (a *{{.Name}}) Create(c *gin.Context) {
 	}
 
 	item.Creator = ginplus.GetUserID(c)
-	nitem, err := a.DemoBll.Create(ginplus.NewContext(c), item)
+	nitem, err := a.{{.Name}}Bll.Create(ginplus.NewContext(c), item)
 	if err != nil {
 		ginplus.ResError(c, err)
 		return
@@ -152,7 +152,7 @@ func (a *{{.Name}}) Update(c *gin.Context) {
 		return
 	}
 
-	nitem, err := a.DemoBll.Update(ginplus.NewContext(c), c.Param("id"), item)
+	nitem, err := a.{{.Name}}Bll.Update(ginplus.NewContext(c), c.Param("id"), item)
 	if err != nil {
 		ginplus.ResError(c, err)
 		return
@@ -170,7 +170,7 @@ func (a *{{.Name}}) Update(c *gin.Context) {
 // @Failure 500 {object} schema.HTTPError "{error:{code:0,message:服务器错误}}"
 // @Router /{{.RouterName}}/v1/{{.PluralName}}/{id} [delete]
 func (a *{{.Name}}) Delete(c *gin.Context) {
-	err := a.DemoBll.Delete(ginplus.NewContext(c), c.Param("id"))
+	err := a.{{.Name}}Bll.Delete(ginplus.NewContext(c), c.Param("id"))
 	if err != nil {
 		ginplus.ResError(c, err)
 		return
