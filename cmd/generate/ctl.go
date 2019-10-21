@@ -49,7 +49,6 @@ import (
 	"{{.PkgName}}/internal/app/bll"
 	"{{.PkgName}}/internal/app/ginplus"
 	"{{.PkgName}}/internal/app/schema"
-	"{{.PkgName}}/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
