@@ -67,7 +67,8 @@ $ gin-admin-cli g -d 项目目录 -p 包名 -f 配置文件(json)
       "comment": "结构体字段注释",
       "struct_field_required": "结构体字段是否是必选项",
       "struct_field_type": "结构体字段类型",
-      "gorm_options": "gorm配置项"
+      "gorm_options": "gorm配置项",
+      "binding_options": "binding配置项"
     }
   ]
 }

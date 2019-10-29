@@ -1,7 +1,6 @@
 package generate
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"strings"
@@ -18,29 +17,61 @@ func getAPIFileName(dir, routerName string) string {
 func insertAPI(ctx context.Context, pkgName, dir, routerName, name, comment string) error {
 	fullname := getAPIFileName(dir, routerName)
 
-	err := insertFileContent(fullname, "return container.Invoke", "*ctl.", fmt.Sprintf("c%s *ctl.%s,\n", name, name))
+	injectContent := fmt.Sprintf("c%s *ctl.%s,", name, name)
+	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
+	pname = strings.Replace(pname, "_", "-", -1)
+	apiContent, err := execParseTpl(apiTpl, map[string]string{
+		"Name":       name,
+		"PluralName": pname,
+	})
 	if err != nil {
 		return err
 	}
 
-	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
-	pname = strings.Replace(pname, "_", "-", -1)
+	var injectStart, apiStart int
+	apiStack := -1
+	insertFn := func(line string) (data string, flag int, ok bool) {
+		if injectStart == 0 && strings.Contains(line, "container.Invoke") {
+			injectStart = 1
+			return
+		}
 
-	buf := new(bytes.Buffer)
-	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf("// 注册/%s/v1/%s", routerName, pname))
-	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf(`v1.GET("/%s", c%s.Query)`, pname, name))
-	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf(`v1.GET("/%s/:id", c%s.Get)`, pname, name))
-	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf(`v1.POST("/%s", c%s.Create)`, pname, name))
-	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf(`v1.PUT("/%s/:id", c%s.Update)`, pname, name))
-	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf(`v1.DELETE("/%s/:id", c%s.Delete)`, pname, name))
+		if injectStart == 1 && strings.Contains(line, "error") {
+			injectStart = -1
+			data = injectContent
+			flag = -1
+			ok = true
+			return
+		}
 
-	err = insertFileContent(fullname, "v1 := g.Group", "v1.", buf.String(), "//", "pub")
+		if apiStart == 0 && strings.Contains(line, "v1 := g.Group") {
+			apiStart = 1
+			return
+		}
+
+		if apiStart == 1 {
+			if v := strings.TrimSpace(line); v == "{" {
+				if apiStack == -1 {
+					apiStack = 0
+				}
+				apiStack++
+			} else if v == "}" {
+				apiStack--
+			}
+
+			if apiStack == 0 {
+				apiStack = -1
+				data = apiContent.String()
+				flag = -1
+				ok = true
+				return
+			}
+		}
+
+		return "", 0, false
+	}
+
+	err = insertContent(fullname, insertFn)
 	if err != nil {
 		return err
 	}
@@ -49,3 +80,16 @@ func insertAPI(ctx context.Context, pkgName, dir, routerName, name, comment stri
 
 	return execGoFmt(fullname)
 }
+
+const apiTpl = `
+// 注册/api/v1/{{.PluralName}}
+g{{.Name}} := v1.Group("{{.PluralName}}")
+{
+	g{{.Name}}.GET("", c{{.Name}}.Query)
+	g{{.Name}}.GET(":id", c{{.Name}}.Get)
+	g{{.Name}}.POST("", c{{.Name}}.Create)
+	g{{.Name}}.PUT(":id", c{{.Name}}.Update)
+	g{{.Name}}.DELETE(":id", c{{.Name}}.Delete)
+}
+
+`

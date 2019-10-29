@@ -11,10 +11,11 @@ func (t TplItem) toSchemaFields() []schemaField {
 	var items []schemaField
 	for _, f := range t.Fields {
 		items = append(items, schemaField{
-			Name:       f.StructFieldName,
-			Comment:    f.Comment,
-			Type:       f.StructFieldType,
-			IsRequired: f.StructFieldRequired,
+			Name:           f.StructFieldName,
+			Comment:        f.Comment,
+			Type:           f.StructFieldType,
+			IsRequired:     f.StructFieldRequired,
+			BindingOptions: f.BindingOptions,
 		})
 	}
 	return items
@@ -40,6 +41,7 @@ type TplFieldItem struct {
 	Comment             string `json:"comment"`               // 注释
 	StructFieldType     string `json:"struct_field_type"`     // 结构体字段类型
 	GormOptions         string `json:"gorm_options"`          // gorm配置项
+	BindingOptions      string `json:"binding_options"`       // binding配置项
 }
 
 // {

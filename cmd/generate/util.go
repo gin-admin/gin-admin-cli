@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strings"
 	"text/template"
 )
 
@@ -111,66 +110,37 @@ func writeFile(name string, buf *bytes.Buffer) error {
 	return nil
 }
 
-// 插入文件内容
-func insertFileContent(name string, startPrefix, endContain, content string, excludeEnds ...string) error {
+// insertContent 插入文件内容
+// fn 回调当前行数据，返回-1为插入当前行之前，1为插入当前行之后
+func insertContent(name string, fn func(string) (string, int, bool)) error {
 	buf, err := readFile(name)
 	if err != nil {
 		return err
 	}
 
-	pstart := false
-	start := false
-	end := false
-	complete := false
-
-	var pline string
-
 	nbuf := new(bytes.Buffer)
 	scanner := bufio.NewScanner(buf)
+
 	for scanner.Scan() {
 		cline := scanner.Text()
-
-		if pstart {
-			nbuf.WriteString(pline)
+		data, flag, ok := fn(cline)
+		if ok {
+			if flag == -1 {
+				nbuf.WriteString(data)
+				nbuf.WriteString(delimiter)
+				nbuf.WriteString(cline)
+				nbuf.WriteString(delimiter)
+				continue
+			}
+			nbuf.WriteString(cline)
 			nbuf.WriteString(delimiter)
-		}
-		pstart = true
-		pline = cline
-
-		if complete {
+			nbuf.WriteString(data)
+			nbuf.WriteString(delimiter)
 			continue
 		}
-
-		tline := strings.TrimSpace(cline)
-		if !start && strings.HasPrefix(tline, startPrefix) {
-			start = true
-		}
-
-		exclude := tline == ""
-		if !exclude {
-			for _, e := range excludeEnds {
-				if strings.HasPrefix(tline, e) {
-					exclude = true
-					break
-				}
-			}
-		}
-
-		if !end && start && !exclude && strings.Contains(tline, endContain) {
-			end = true
-		}
-
-		if !(!end || exclude || strings.Contains(tline, endContain)) {
-			nbuf.WriteString(content)
-			complete = true
-		}
+		nbuf.WriteString(cline)
+		nbuf.WriteString(delimiter)
 	}
-
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-
-	nbuf.WriteString(pline)
 
 	return writeFile(name, nbuf)
 }
