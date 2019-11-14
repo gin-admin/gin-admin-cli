@@ -71,7 +71,7 @@ $ gin-admin-cli g -d 项目目录 -p 包名 -f 配置文件(json)
       "struct_field_required": "结构体字段是否是必选项",
       "struct_field_type": "结构体字段类型",
       "gorm_options": "gorm配置项",
-      "binding_options": "binding配置项"
+      "binding_options": "binding配置项（不包含required，required由struct_field_required控制）"
     }
   ]
 }
@@ -91,28 +91,40 @@ $ gin-admin-cli g -d 项目目录 -p 包名 -f 配置文件(json)
       "comment": "记录ID",
       "struct_field_required": false,
       "struct_field_type": "string",
-      "gorm_options": "size:36;index;"
+      "gorm_options": "size:36;index;",
+      "binding_options": ""
     },
     {
       "struct_field_name": "Name",
       "comment": "任务名称",
       "struct_field_required": true,
       "struct_field_type": "string",
-      "gorm_options": "size:50;index;"
+      "gorm_options": "size:200;index;",
+      "binding_options": ""
     },
     {
       "struct_field_name": "Memo",
       "comment": "备注",
       "struct_field_required": false,
       "struct_field_type": "string",
-      "gorm_options": "size:500;"
+      "gorm_options": "size:1024;",
+      "binding_options": ""
+    },
+    {
+      "struct_field_name": "Status",
+      "comment": "状态(1:启用 2:停用)",
+      "struct_field_required": true,
+      "struct_field_type": "int",
+      "gorm_options": "",
+      "binding_options": "max=2,min=1"
     },
     {
       "struct_field_name": "Creator",
       "comment": "创建者",
       "struct_field_required": false,
       "struct_field_type": "string",
-      "gorm_options": "size:36;index;"
+      "gorm_options": "size:36;index;",
+      "binding_options": ""
     }
   ]
 }
