@@ -36,11 +36,14 @@ USAGE:
    gin-admin-cli generate [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value      项目生成目录
-   --pkg value, -p value      项目包名
-   --name value, -n value     模块名称(结构体名称)
-   --comment value, -c value  模块注释
-   --file value, -f value     指定模板文件(.json，模板配置可参考说明)
+    --dir value, -d value      项目生成目录
+    --pkg value, -p value      项目包名
+    --ctl value                控制器模板(不指定使用默认，可选：tb)
+    --router value             路由模块名称 (default: "api")
+    --name value, -n value     模块名称(结构体名称)
+    --comment value, -c value  模块注释
+    --file value, -f value     指定模板文件(.json，模板配置可参考说明)
+    --module value, -m value   生成模块（以逗号分隔，支持：all,schema,entity,model,bll,ctl,api）
 ```
 
 > 使用示例
