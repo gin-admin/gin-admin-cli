@@ -22,7 +22,7 @@ func getSchemaFileName(dir, name string) string {
 }
 
 // 生成schema文件
-func genSchema(ctx context.Context, dir, name, comment string, fields ...schemaField) error {
+func genSchema(ctx context.Context, dir, name, comment string, tplType CTLTplType, fields ...schemaField) error {
 	if len(fields) == 0 {
 		fields = []schemaField{
 			{Name: "RecordID", Comment: "记录ID", Type: "string"},
@@ -48,13 +48,22 @@ func genSchema(ctx context.Context, dir, name, comment string, fields ...schemaF
 		if field.IsRequired {
 			bindingOpts = "required"
 		}
+
 		if v := field.BindingOptions; v != "" {
-			bindingOpts = bindingOpts + "," + field.BindingOptions
+			if bindingOpts != "" {
+				bindingOpts += ","
+			}
+			bindingOpts = bindingOpts + v
 		}
 
 		if bindingOpts != "" {
 			buf.WriteByte(' ')
 			buf.WriteString(fmt.Sprintf(`binding:"%s"`, bindingOpts))
+		}
+
+		if tplType == TBCtlTpl {
+			buf.WriteByte(' ')
+			buf.WriteString(fmt.Sprintf(`swaggo:"false,%s"`, field.Comment))
 		}
 
 		buf.WriteByte('`')

@@ -80,7 +80,7 @@ func (a *Command) Exec() error {
 	ctx := context.Background()
 
 	if a.hasModule("schema") {
-		err = genSchema(ctx, dir, item.StructName, item.Comment, item.toSchemaFields()...)
+		err = genSchema(ctx, dir, item.StructName, item.Comment, NewCTLTplType(a.cfg.CtlTpl), item.toSchemaFields()...)
 		if err != nil {
 			return err
 		}
