@@ -63,7 +63,7 @@ func createFile(ctx context.Context, name string, buf *bytes.Buffer) error {
 	}
 	defer file.Close()
 
-	io.Copy(file, buf)
+	_, _ = io.Copy(file, buf)
 	return nil
 }
 
@@ -94,7 +94,7 @@ func readFile(name string) (*bytes.Buffer, error) {
 	defer file.Close()
 
 	buf := new(bytes.Buffer)
-	io.Copy(buf, file)
+	_, _ = io.Copy(buf, file)
 	return buf, nil
 }
 
@@ -106,7 +106,7 @@ func writeFile(name string, buf *bytes.Buffer) error {
 	}
 	defer file.Close()
 
-	io.Copy(file, buf)
+	_, _ = io.Copy(file, buf)
 	return nil
 }
 

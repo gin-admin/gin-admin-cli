@@ -60,6 +60,10 @@ func GenerateCommand() cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
+				Name:  "ctl",
+				Usage: "控制器模板(不指定使用默认，可选：tb)",
+			},
+			&cli.StringFlag{
 				Name:  "router",
 				Usage: "路由模块名称",
 				Value: "api",
@@ -85,6 +89,7 @@ func GenerateCommand() cli.Command {
 			cfg := generate.Config{
 				Dir:        c.String("dir"),
 				PkgName:    c.String("pkg"),
+				CtlTpl:     c.String("ctl"),
 				RouterName: c.String("router"),
 				Name:       c.String("name"),
 				Comment:    c.String("comment"),

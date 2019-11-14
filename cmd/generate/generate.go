@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Dir        string
 	PkgName    string
+	CtlTpl     string
 	RouterName string
 	Name       string
 	Comment    string
@@ -113,7 +114,7 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("ctl") {
-		err = genCtl(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
+		err = genCtl(ctx, pkgName, dir, routerName, item.StructName, item.Comment, NewCTLTplType(a.cfg.CtlTpl))
 		a.handleError(err, "生成ctl")
 
 		err = insertCtlInject(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
