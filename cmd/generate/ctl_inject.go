@@ -15,7 +15,7 @@ func getCtlInjectFileName(dir, routerName string) string {
 func insertCtlInject(ctx context.Context, pkgName, dir, routerName, name, comment string) error {
 	fullname := getCtlInjectFileName(dir, routerName)
 
-	injectContent := fmt.Sprintf("container.Provide(New%s)", name)
+	injectContent := fmt.Sprintf("_ = container.Provide(New%s)", name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
 		if injectStart == 0 && strings.Contains(line, "container *dig.Container") {

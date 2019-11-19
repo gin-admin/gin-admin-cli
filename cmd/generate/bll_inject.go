@@ -15,7 +15,7 @@ func getBllInjectFileName(dir string) string {
 func insertBllInject(ctx context.Context, pkgName, dir, name, comment string) error {
 	fullname := getBllInjectFileName(dir)
 
-	injectContent := fmt.Sprintf("container.Provide(internal.New%s, dig.As(new(bll.I%s)))", name, name)
+	injectContent := fmt.Sprintf("_ = container.Provide(internal.New%s, dig.As(new(bll.I%s)))", name, name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
 		if injectStart == 0 && strings.Contains(line, "container *dig.Container") {

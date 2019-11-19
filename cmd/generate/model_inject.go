@@ -16,7 +16,7 @@ func insertModelInject(ctx context.Context, pkgName, dir, name, comment string) 
 	fullname := getModelInjectFileName(dir)
 
 	migrateContent := fmt.Sprintf("new(entity.%s),", name)
-	injectContent := fmt.Sprintf("container.Provide(imodel.New%s, dig.As(new(model.I%s)))", name, name)
+	injectContent := fmt.Sprintf("_ = container.Provide(imodel.New%s, dig.As(new(model.I%s)))", name, name)
 
 	migrateStart := 0
 	injectStart := 0

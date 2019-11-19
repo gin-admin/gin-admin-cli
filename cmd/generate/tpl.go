@@ -43,38 +43,3 @@ type TplFieldItem struct {
 	GormOptions         string `json:"gorm_options"`          // gorm配置项
 	BindingOptions      string `json:"binding_options"`       // binding配置项
 }
-
-// {
-// 	"struct_name": "Task",
-// 	"comment": "任务管理",
-// 	"fields": [
-// 	  {
-// 		"struct_field_name": "RecordID",
-// 		"comment": "记录ID",
-// 		"struct_field_required": false,
-// 		"struct_field_type": "string",
-// 		"gorm_options": "size:36;index;"
-// 	  },
-// 	  {
-// 		"struct_field_name": "Name",
-// 		"comment": "任务名称",
-// 		"struct_field_required": true,
-// 		"struct_field_type": "string",
-// 		"gorm_options": "size:50;index;"
-// 	  },
-// 	  {
-// 		"struct_field_name": "Memo",
-// 		"comment": "备注",
-// 		"struct_field_required": false,
-// 		"struct_field_type": "string",
-// 		"gorm_options": "size:500;"
-// 	  },
-// 	  {
-// 		"struct_field_name": "Creator",
-// 		"comment": "创建者",
-// 		"struct_field_required": false,
-// 		"struct_field_type": "string",
-// 		"gorm_options": "size:36;index;"
-// 	  }
-// 	]
-//   }
