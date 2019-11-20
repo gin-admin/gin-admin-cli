@@ -34,7 +34,7 @@ func genSchema(ctx context.Context, dir, name, comment string, tplType CTLTplTyp
 
 	buf.Write(getModuleHeader("schema").Bytes())
 
-	buf.WriteString(fmt.Sprintf("// %s %s", name, comment))
+	buf.WriteString(fmt.Sprintf("// %s %s对象", name, comment))
 	buf.WriteString(delimiter)
 	buf.WriteString(fmt.Sprintf("type %s struct {", name))
 	buf.WriteString(delimiter)
