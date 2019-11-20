@@ -103,8 +103,8 @@ func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.
 
 // Create 创建数据
 func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) error {
-	{{.Name}} := entity.Schema{{.Name}}(item).To{{.Name}}()
-	result := entity.Get{{.Name}}DB(ctx, a.db).Create({{.Name}})
+	eitem := entity.Schema{{.Name}}(item).To{{.Name}}()
+	result := entity.Get{{.Name}}DB(ctx, a.db).Create(eitem)
 	if err := result.Error; err != nil {
 		return errors.WithStack(err)
 	}
@@ -113,8 +113,8 @@ func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) error {
 
 // Update 更新数据
 func (a *{{.Name}}) Update(ctx context.Context, recordID string, item schema.{{.Name}}) error {
-	{{.Name}} := entity.Schema{{.Name}}(item).To{{.Name}}()
-	result := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID).Omit("record_id", "creator").Updates({{.Name}})
+	eitem := entity.Schema{{.Name}}(item).To{{.Name}}()
+	result := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID).Omit("record_id", "creator").Updates(eitem)
 	if err := result.Error; err != nil {
 		return errors.WithStack(err)
 	}
