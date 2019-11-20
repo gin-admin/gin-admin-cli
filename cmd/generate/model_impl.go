@@ -114,7 +114,7 @@ func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) error {
 // Update 更新数据
 func (a *{{.Name}}) Update(ctx context.Context, recordID string, item schema.{{.Name}}) error {
 	eitem := entity.Schema{{.Name}}(item).To{{.Name}}()
-	result := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID).Omit("record_id", "creator").Updates(eitem)
+	result := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID).Omit("record_id").Updates(eitem)
 	if err := result.Error; err != nil {
 		return errors.WithStack(err)
 	}
