@@ -69,11 +69,11 @@ func (a *{{.Name}}) getQueryOption(opts ...schema.{{.Name}}QueryOptions) schema.
 
 // Query 查询数据
 func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}QueryResult, error) {
+	opt := a.getQueryOption(opts...)
 	db := entity.Get{{.Name}}DB(ctx, a.db)
-	
+	// TODO: 查询条件
 	db = db.Order("id DESC")
 
-	opt := a.getQueryOption(opts...)
 	var list entity.{{.PluralName}}
 	pr, err := WrapPageQuery(ctx, db, opt.PageParam, &list)
 	if err != nil {
