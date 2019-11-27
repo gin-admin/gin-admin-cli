@@ -61,20 +61,21 @@ func GenerateCommand() cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "ctl",
-				Usage: "控制器模板(不指定使用默认，可选：tb)",
+				Usage: "控制器swagger模板(支持default(基于github.com/swaggo/swag)和tb(基于github.com/teambition/swaggo))",
+				Value: "default",
 			},
 			&cli.StringFlag{
 				Name:  "router",
-				Usage: "路由模块名称",
+				Usage: "路由模块(routers/api/api.go)",
 				Value: "api",
 			},
 			&cli.StringFlag{
 				Name:  "name, n",
-				Usage: "模块名称(结构体名称)",
+				Usage: "业务模块名称(结构体名称)",
 			},
 			&cli.StringFlag{
 				Name:  "comment, c",
-				Usage: "模块注释",
+				Usage: "业务模块注释(结构体注释)",
 			},
 			&cli.StringFlag{
 				Name:  "file, f",
@@ -82,7 +83,7 @@ func GenerateCommand() cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "module, m",
-				Usage: "生成模块（以逗号分隔，支持：all,schema,entity,model,bll,ctl,api）",
+				Usage: "指定生成模块（以逗号分隔，支持：all,schema,entity,model,bll,ctl,api）",
 			},
 		},
 		Action: func(c *cli.Context) error {
