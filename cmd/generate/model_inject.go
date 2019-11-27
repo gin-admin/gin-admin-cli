@@ -35,12 +35,12 @@ func insertModelInject(ctx context.Context, pkgName, dir, name, comment string) 
 			return
 		}
 
-		if injectStart == 0 && strings.Contains(line, "container *dig.Container") {
+		if injectStart == 0 && strings.Contains(line, "func Inject(container *dig.Container)") {
 			injectStart = 1
 			return
 		}
 
-		if injectStart == 1 && strings.Contains(line, "return") {
+		if injectStart == 1 && strings.Contains(line, "return nil") {
 			injectStart = -1
 			data = injectContent
 			flag = -1

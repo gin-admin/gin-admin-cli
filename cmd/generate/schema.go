@@ -30,9 +30,11 @@ func genSchema(ctx context.Context, dir, name, comment string, tplType CTLTplTyp
 		}
 	}
 
-	buf := new(bytes.Buffer)
+	fields = append(fields, schemaField{Name: "CreatedAt", Comment: "创建时间", Type: "time.Time"})
+	fields = append(fields, schemaField{Name: "UpdatedAt", Comment: "更新时间", Type: "time.Time"})
 
-	buf.Write(getModuleHeader("schema").Bytes())
+	buf := new(bytes.Buffer)
+	buf.Write(getModuleHeader("schema", `"time"`).Bytes())
 
 	buf.WriteString(fmt.Sprintf("// %s %s对象", name, comment))
 	buf.WriteString(delimiter)

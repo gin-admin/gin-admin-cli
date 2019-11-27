@@ -122,6 +122,10 @@ func genEntity(ctx context.Context, pkgName, dir, name, comment string, fields .
 		buf.WriteString(fmt.Sprintf("%s:  *a.%s,", field.Name, field.Name))
 		buf.WriteString(delimiter)
 	}
+	buf.WriteString(fmt.Sprintf("CreatedAt:  a.CreatedAt,"))
+	buf.WriteString(delimiter)
+	buf.WriteString(fmt.Sprintf("UpdatedAt:  a.UpdatedAt,"))
+	buf.WriteString(delimiter)
 
 	buf.WriteByte('}')
 	buf.WriteString(delimiter)
