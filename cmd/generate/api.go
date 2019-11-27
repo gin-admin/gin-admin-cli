@@ -23,6 +23,7 @@ func insertAPI(ctx context.Context, pkgName, dir, routerName, name, comment stri
 	apiContent, err := execParseTpl(apiTpl, map[string]string{
 		"Name":       name,
 		"PluralName": pname,
+		"RouterName": routerName,
 	})
 	if err != nil {
 		return err
@@ -82,7 +83,7 @@ func insertAPI(ctx context.Context, pkgName, dir, routerName, name, comment stri
 }
 
 const apiTpl = `
-// 注册/api/v1/{{.PluralName}}
+// 注册/{{.RouterName}}/v1/{{.PluralName}}
 g{{.Name}} := v1.Group("{{.PluralName}}")
 {
 	g{{.Name}}.GET("", c{{.Name}}.Query)
