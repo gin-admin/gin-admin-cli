@@ -113,15 +113,13 @@ func (a *Command) Exec() error {
 		a.handleError(err, "生成bll inject")
 	}
 
-	if a.hasModule("ctl") {
+	if a.hasModule("router") {
 		err = genCtl(ctx, pkgName, dir, routerName, item.StructName, item.Comment, NewCTLTplType(a.cfg.CtlTpl))
 		a.handleError(err, "生成ctl")
 
 		err = insertCtlInject(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
 		a.handleError(err, "生成ctl inject")
-	}
 
-	if a.hasModule("api") {
 		err = insertAPI(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
 		a.handleError(err, "生成api")
 	}

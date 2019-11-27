@@ -83,7 +83,7 @@ func GenerateCommand() cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "module, m",
-				Usage: "指定生成模块（以逗号分隔，支持：all,schema,entity,model,bll,ctl,api）",
+				Usage: "指定生成模块（以逗号分隔，支持：all,schema,entity,model,bll,router）",
 			},
 		},
 		Action: func(c *cli.Context) error {
