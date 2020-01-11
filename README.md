@@ -17,8 +17,9 @@ USAGE:
 OPTIONS:
    --dir value, -d value  项目生成目录
    --pkg value, -p value  项目包名
+   --core, -c             使用core分支
    --mirror, -m           使用国内镜像(gitee.com)
-   --web, -w              包含web项目(下载gin-admin-react项目到web目录)
+   --web, -w              包含web项目
 ```
 
 > 使用示例
