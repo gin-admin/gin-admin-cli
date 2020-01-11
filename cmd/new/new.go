@@ -25,6 +25,7 @@ type Config struct {
 	Dir        string
 	PkgName    string
 	UseMirror  bool
+	UseCore    bool
 	IncludeWeb bool
 }
 
@@ -112,7 +113,12 @@ func (a *Command) gitClone(dir, source string) error {
 	var args []string
 	args = append(args, "clone")
 	args = append(args, "-q")
-	args = append(args, "-b", "master")
+
+	branch := "master"
+	if a.cfg.UseCore {
+		branch = "core"
+	}
+	args = append(args, "-b", branch)
 
 	args = append(args, source)
 	args = append(args, dir)

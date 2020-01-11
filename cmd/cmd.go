@@ -23,6 +23,10 @@ func NewCommand() cli.Command {
 				Usage: "项目包名",
 			},
 			&cli.BoolFlag{
+				Name:  "core, c",
+				Usage: "使用core分支",
+			},
+			&cli.BoolFlag{
 				Name:  "mirror, m",
 				Usage: "使用国内镜像(gitee.com)",
 			},
@@ -36,6 +40,7 @@ func NewCommand() cli.Command {
 				Dir:        c.String("dir"),
 				PkgName:    c.String("pkg"),
 				UseMirror:  c.Bool("mirror"),
+				UseCore:    c.Bool("core"),
 				IncludeWeb: c.Bool("web"),
 			}
 			return new.Exec(cfg)
