@@ -46,33 +46,38 @@ func (a *Command) Exec() error {
 	if err != nil {
 		return err
 	}
+
 	log.Printf("项目生成目录：%s", dir)
 
-	isClone := false
+	notExist := false
 	_, err = os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			source := githubSource
+			notExist = true
+		} else {
+			return err
+		}
+	}
+
+	if notExist {
+		source := githubSource
+		if a.cfg.UseMirror {
+			source = giteeSource
+		}
+		err = a.gitClone(dir, source)
+		if err != nil {
+			return err
+		}
+
+		if a.cfg.IncludeWeb {
+			ws := githubWebSource
 			if a.cfg.UseMirror {
-				source = giteeSource
+				ws = giteeWebSource
 			}
-			err = a.gitClone(dir, source)
+			err = a.gitClone(filepath.Join(dir, "web"), ws)
 			if err != nil {
 				return err
 			}
-
-			if a.cfg.IncludeWeb {
-				ws := githubWebSource
-				if a.cfg.UseMirror {
-					ws = giteeWebSource
-				}
-				err = a.gitClone(filepath.Join(dir, "web"), ws)
-				if err != nil {
-					return err
-				}
-			}
-
-			isClone = true
 		}
 	}
 
@@ -88,7 +93,7 @@ func (a *Command) Exec() error {
 		}
 	}
 
-	if isClone {
+	if notExist {
 		err = a.gitInit(dir)
 		if err != nil {
 			return err
