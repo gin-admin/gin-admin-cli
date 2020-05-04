@@ -31,7 +31,7 @@ func genMongoEntity(ctx context.Context, pkgName, dir, name, comment string, fie
 	for _, field := range tfields {
 		buf.WriteString(fmt.Sprintf("%s \t %s \t", field.Name, field.Type))
 		buf.WriteByte('`')
-		if field.Name == "" {
+		if field.Type == "" {
 			buf.WriteString(`bson:",inline"`)
 		} else {
 			buf.WriteString(fmt.Sprintf(`bson:"%s"`, util.ToLowerUnderlinedNamer(field.Name)))
@@ -72,7 +72,6 @@ package entity
 
 import (
 	"context"
-	"time"
 
 	"{{.PkgName}}/internal/app/schema"
 	"{{.PkgName}}/pkg/util"

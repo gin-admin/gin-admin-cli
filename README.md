@@ -15,17 +15,17 @@ USAGE:
    gin-admin-cli new [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value  项目生成目录
-   --pkg value, -p value  项目包名
-   --core, -c             使用core分支
-   --mirror, -m           使用国内镜像(gitee.com)
-   --web, -w              包含web项目
+   --dir value, -d value     项目生成目录(默认GOPATH)
+   --pkg value, -p value     项目包名
+   --branch value, -b value  指定分支(默认master)
+   --mirror, -m              使用国内镜像(gitee.com)
+   --web, -w                 包含web项目
 ```
 
 > 使用示例
 
 ```
-$ gin-admin-cli new -m -d ~/go/src/test-gin-admin -p test-gin-admin
+$ gin-admin-cli new -p test-gin-admin -m
 ```
 
 ### 生成业务模块
@@ -37,26 +37,25 @@ USAGE:
    gin-admin-cli generate [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value      项目生成目录
+   --dir value, -d value      项目生成目录(默认GOPATH)
    --pkg value, -p value      项目包名
-   --ctl value                控制器swagger模板(支持default(基于github.com/swaggo/swag)和tb(基于github.com/teambition/swaggo)) (default: "default")
-   --router value             路由模块(routers/api/api.go) (default: "api")
    --name value, -n value     业务模块名称(结构体名称)
    --comment value, -c value  业务模块注释(结构体注释)
-   --file value, -f value     指定模板文件(.json，模板配置可参考说明)
-   --module value, -m value   指定生成模块（以逗号分隔，支持：all,schema,entity,model,bll,ctl,api）
+   --file value, -f value     指定模板文件(.yaml，模板配置可参考说明)
+   --module value, -m value   指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,model,bll,api,mock,router）
+   --storage value, -s value  指定model的实现存储（默认gorm，支持：mongo/gorm）
 ```
 
 > 使用示例
 
 ```bash
-$ gin-admin-cli g -d ./test-gin-admin -p test-gin-admin -n Task -c '任务管理'
+$ gin-admin-cli g -p test-gin-admin -n Task -c '任务管理'
 ```
 
 #### 指定配置文件生成模块
 
 ```bash
-$ gin-admin-cli g -d 项目目录 -p 包名 -f 配置文件(yaml)
+$ gin-admin-cli g -p 包名 -f 配置文件(yaml)
 ```
 
 > 配置文件说明
@@ -79,28 +78,27 @@ fields:
 > 创建`task.yaml`文件
 
 ``` yaml
----
 name: Task
 comment: 任务管理
 fields:
-- name: Code
-  type: string
-  comment: 任务编号
-  required: true
-  binding_options: ""
-  gorm_options: "size:50;index;"
-- name: Name
-  type: string
-  comment: 任务名称
-  required: true
-  binding_options: ""
-  gorm_options: "size:50;index;"
-- name: Memo
-  type: string
-  comment: 任务备注
-  required: false
-  binding_options: ""
-  gorm_options: "size:1024;"
+  - name: Code
+    type: string
+    comment: 任务编号
+    required: true
+    binding_options: ""
+    gorm_options: "size:50;index;"
+  - name: Name
+    type: string
+    comment: 任务名称
+    required: true
+    binding_options: ""
+    gorm_options: "size:50;index;"
+  - name: Memo
+    type: string
+    comment: 任务备注
+    required: false
+    binding_options: ""
+    gorm_options: "size:1024;"
 ```
 
 ```bash
@@ -109,4 +107,4 @@ $ gin-admin-cli g -p test-gin-admin -f task.yaml
 
 ## MIT License
 
-    Copyright (c) 2019 Lyric
+    Copyright (c) 2020 Lyric

@@ -2,9 +2,9 @@ package generate
 
 // TplItem 模板项
 type TplItem struct {
-	StructName string         `json:"struct_name"` // 结构体名称
-	Comment    string         `json:"comment"`     // 注释
-	Fields     []TplFieldItem `json:"fields"`      // 字段项
+	StructName string         `yaml:"name"`    // 结构体名称
+	Comment    string         `yaml:"comment"` // 注释
+	Fields     []TplFieldItem `yaml:"fields"`  // 字段项
 }
 
 func (t TplItem) toSchemaFields() []schemaField {
@@ -48,10 +48,10 @@ func (t TplItem) toEntityMongoFields() []entityMongoField {
 
 // TplFieldItem 模板字段项
 type TplFieldItem struct {
-	StructFieldName     string `json:"struct_field_name"`     // 结构体字段名称
-	StructFieldRequired bool   `json:"struct_field_required"` // 结构字段必选项
-	Comment             string `json:"comment"`               // 注释
-	StructFieldType     string `json:"struct_field_type"`     // 结构体字段类型
-	GormOptions         string `json:"gorm_options"`          // gorm配置项
-	BindingOptions      string `json:"binding_options"`       // binding配置项
+	StructFieldName     string `yaml:"name"`            // 结构体字段名称
+	StructFieldRequired bool   `yaml:"required"`        // 结构字段必选项
+	Comment             string `yaml:"comment"`         // 注释
+	StructFieldType     string `yaml:"type"`            // 结构体字段类型
+	GormOptions         string `yaml:"gorm_options"`    // gorm配置项
+	BindingOptions      string `yaml:"binding_options"` // binding配置项
 }
