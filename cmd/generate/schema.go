@@ -22,26 +22,17 @@ func getSchemaFileName(dir, name string) string {
 }
 
 // 生成schema文件
-func genSchema(ctx context.Context, dir, name, comment string, tplType CTLTplType, fields ...schemaField) error {
-	if len(fields) == 0 {
-		fields = []schemaField{
-			{Name: "RecordID", Comment: "记录ID", Type: "string"},
-			{Name: "Creator", Comment: "创建者", Type: "string"},
-		}
-	}
+func genSchema(ctx context.Context, pkgName, dir, name, comment string, fields ...schemaField) error {
+	var tfields []schemaField
 
-	fields = append(fields, schemaField{Name: "CreatedAt", Comment: "创建时间", Type: "time.Time"})
-	fields = append(fields, schemaField{Name: "UpdatedAt", Comment: "更新时间", Type: "time.Time"})
+	tfields = append(tfields, schemaField{Name: "RecordID", Comment: "记录ID", Type: "string"})
+	tfields = append(tfields, fields...)
+	tfields = append(tfields, schemaField{Name: "Creator", Comment: "创建者", Type: "string"})
+	tfields = append(tfields, schemaField{Name: "CreatedAt", Comment: "创建时间", Type: "time.Time"})
+	tfields = append(tfields, schemaField{Name: "UpdatedAt", Comment: "更新时间", Type: "time.Time"})
 
 	buf := new(bytes.Buffer)
-	buf.Write(getModuleHeader("schema", `"time"`).Bytes())
-
-	buf.WriteString(fmt.Sprintf("// %s %s对象", name, comment))
-	buf.WriteString(delimiter)
-	buf.WriteString(fmt.Sprintf("type %s struct {", name))
-	buf.WriteString(delimiter)
-
-	for _, field := range fields {
+	for _, field := range tfields {
 		buf.WriteString(fmt.Sprintf("%s \t %s \t", field.Name, field.Type))
 		buf.WriteByte('`')
 		buf.WriteString(fmt.Sprintf(`json:"%s"`, util.ToLowerUnderlinedNamer(field.Name)))
@@ -50,45 +41,38 @@ func genSchema(ctx context.Context, dir, name, comment string, tplType CTLTplTyp
 		if field.IsRequired {
 			bindingOpts = "required"
 		}
-
 		if v := field.BindingOptions; v != "" {
 			if bindingOpts != "" {
 				bindingOpts += ","
 			}
 			bindingOpts = bindingOpts + v
 		}
-
 		if bindingOpts != "" {
 			buf.WriteByte(' ')
 			buf.WriteString(fmt.Sprintf(`binding:"%s"`, bindingOpts))
 		}
 
-		if tplType == TBCtlTpl {
-			buf.WriteByte(' ')
-			buf.WriteString(fmt.Sprintf(`swaggo:"false,%s"`, field.Comment))
-		}
-
 		buf.WriteByte('`')
-		buf.WriteString(fmt.Sprintf("// %s", field.Comment))
+
+		if field.Comment != "" {
+			buf.WriteString(fmt.Sprintf("// %s", field.Comment))
+		}
 		buf.WriteString(delimiter)
 	}
 
-	buf.WriteString("}")
-	buf.WriteString(delimiter)
-
 	tbuf, err := execParseTpl(schemaTpl, map[string]interface{}{
+		"PkgName":    pkgName,
 		"Name":       name,
 		"PluralName": util.ToPlural(name),
+		"Fields":     buf.String(),
 		"Comment":    comment,
 	})
 	if err != nil {
 		return err
 	}
 
-	buf.Write(tbuf.Bytes())
-
 	fullname := getSchemaFileName(dir, name)
-	err = createFile(ctx, fullname, buf)
+	err = createFile(ctx, fullname, tbuf)
 	if err != nil {
 		return err
 	}
@@ -99,13 +83,35 @@ func genSchema(ctx context.Context, dir, name, comment string, tplType CTLTplTyp
 }
 
 const schemaTpl = `
+package schema
+
+import (
+	"time"
+
+	"{{.PkgName}}/pkg/util"
+)
+
+// {{.Name}} {{.Comment}}对象
+type {{.Name}} struct {
+	{{.Fields}}
+}
+
+func (a *{{.Name}}) String() string {
+	return util.JSONMarshalToString(a)
+}
+
 // {{.Name}}QueryParam 查询条件
 type {{.Name}}QueryParam struct {
+	PaginationParam
 }
 
 // {{.Name}}QueryOptions 查询可选参数项
 type {{.Name}}QueryOptions struct {
-	PageParam *PaginationParam // 分页参数
+	OrderFields []*OrderField // 排序字段
+}
+
+// {{.Name}}GetOptions Get查询可选参数项
+type {{.Name}}GetOptions struct {
 }
 
 // {{.Name}}QueryResult 查询结果

@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/LyricTian/gin-admin-cli/cmd/generate"
 	"github.com/LyricTian/gin-admin-cli/cmd/new"
@@ -16,15 +19,15 @@ func NewCommand() cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "dir, d",
-				Usage: "项目生成目录",
+				Usage: "项目生成目录(默认GOPATH)",
 			},
 			&cli.StringFlag{
 				Name:  "pkg, p",
 				Usage: "项目包名",
 			},
-			&cli.BoolFlag{
-				Name:  "core, c",
-				Usage: "使用core分支",
+			&cli.StringFlag{
+				Name:  "branch, b",
+				Usage: "指定分支(默认master)",
 			},
 			&cli.BoolFlag{
 				Name:  "mirror, m",
@@ -40,9 +43,24 @@ func NewCommand() cli.Command {
 				Dir:        c.String("dir"),
 				PkgName:    c.String("pkg"),
 				UseMirror:  c.Bool("mirror"),
-				UseCore:    c.Bool("core"),
+				Branch:     c.String("branch"),
 				IncludeWeb: c.Bool("web"),
 			}
+
+			if cfg.PkgName == "" {
+				return errors.New("请指定包名")
+			}
+
+			if cfg.Dir == "" {
+				vpath := os.Getenv("GOPATH")
+				if vpath == "" {
+					return errors.New("请指定dir或者设置GOPATH")
+				}
+				cfg.Dir = filepath.Join(vpath, "src", cfg.PkgName)
+			}
+
+			cfg.AppName = filepath.Base(cfg.PkgName)
+
 			return new.Exec(cfg)
 		},
 	}
@@ -55,24 +73,13 @@ func GenerateCommand() cli.Command {
 		Aliases: []string{"g"},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "dir, d",
-				Usage:    "项目生成目录",
-				Required: true,
+				Name:  "dir, d",
+				Usage: "项目生成目录(默认GOPATH)",
 			},
 			&cli.StringFlag{
 				Name:     "pkg, p",
 				Usage:    "项目包名",
 				Required: true,
-			},
-			&cli.StringFlag{
-				Name:  "ctl",
-				Usage: "控制器swagger模板(支持default(基于github.com/swaggo/swag)和tb(基于github.com/teambition/swaggo))",
-				Value: "default",
-			},
-			&cli.StringFlag{
-				Name:  "router",
-				Usage: "路由模块(routers/api/api.go)",
-				Value: "api",
 			},
 			&cli.StringFlag{
 				Name:  "name, n",
@@ -84,33 +91,41 @@ func GenerateCommand() cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "file, f",
-				Usage: "指定模板文件(.json，模板配置可参考说明)",
+				Usage: "指定模板文件(.yaml，模板配置可参考说明)",
 			},
 			&cli.StringFlag{
 				Name:  "module, m",
-				Usage: "指定生成模块（以逗号分隔，支持：all,schema,entity,model,bll,router）",
+				Usage: "指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,model,bll,api,mock,router）",
+			},
+			&cli.StringFlag{
+				Name:  "storage, s",
+				Usage: "指定model的实现存储（默认gorm，支持：mongo/gorm）",
 			},
 		},
 		Action: func(c *cli.Context) error {
 			cfg := generate.Config{
-				Dir:        c.String("dir"),
-				PkgName:    c.String("pkg"),
-				CtlTpl:     c.String("ctl"),
-				RouterName: c.String("router"),
-				Name:       c.String("name"),
-				Comment:    c.String("comment"),
-				File:       c.String("file"),
-				Modules:    c.String("module"),
+				Dir:     c.String("dir"),
+				PkgName: c.String("pkg"),
+				Name:    c.String("name"),
+				Comment: c.String("comment"),
+				File:    c.String("file"),
+				Modules: c.String("module"),
+				Storage: c.String("storage"),
 			}
 
 			if cfg.Dir == "" {
-				fmt.Println("请指定项目目录")
-				return nil
-			} else if cfg.PkgName == "" {
+				vpath := os.Getenv("GOPATH")
+				if vpath == "" {
+					return errors.New("请指定dir或者设置GOPATH")
+				}
+				cfg.Dir = filepath.Join(vpath, "src", cfg.PkgName)
+			}
+
+			if cfg.PkgName == "" {
 				fmt.Println("请指定包名")
 				return nil
 			} else if cfg.Name == "" && cfg.File == "" {
-				fmt.Println("请指定模块名称或模板文件")
+				fmt.Println("请指定模块名称或模板配置文件")
 				return nil
 			} else if cfg.Name != "" && cfg.Comment == "" {
 				fmt.Println("请指定模块说明")

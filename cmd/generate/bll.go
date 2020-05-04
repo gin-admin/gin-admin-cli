@@ -50,11 +50,11 @@ type I{{.Name}} interface {
 	// 查询数据
 	Query(ctx context.Context, params schema.{{.Name}}QueryParam, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}QueryResult, error)
 	// 查询指定数据
-	Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error)
+	Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}GetOptions) (*schema.{{.Name}}, error)
 	// 创建数据
-	Create(ctx context.Context, item schema.{{.Name}}) (*schema.{{.Name}}, error)
+	Create(ctx context.Context, item schema.{{.Name}}) (*schema.RecordIDResult, error)
 	// 更新数据
-	Update(ctx context.Context, recordID string, item schema.{{.Name}}) (*schema.{{.Name}}, error)
+	Update(ctx context.Context, recordID string, item schema.{{.Name}}) error
 	// 删除数据
 	Delete(ctx context.Context, recordID string) error
 }

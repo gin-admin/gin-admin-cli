@@ -6,24 +6,24 @@ import (
 	"strings"
 )
 
-func getBllInjectFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/bll/impl/bll/bll.go", dir)
+func getEntityInjectMongoFileName(dir string) string {
+	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/mongo.go", dir)
 	return fullname
 }
 
-// 插入bll注入文件
-func insertBllInject(ctx context.Context, dir, name string) error {
-	fullname := getBllInjectFileName(dir)
+func insertEntityInjectMongo(ctx context.Context, dir, name string) error {
+	fullname := getEntityInjectMongoFileName(dir)
 
-	injectContent := fmt.Sprintf("%sSet,", name)
+	injectContent := fmt.Sprintf("new(entity.%s),", name)
+
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
-		if injectStart == 0 && strings.Contains(line, "var BllSet = wire.NewSet(") {
+		if injectStart == 0 && strings.Contains(line, "return createIndexes(") {
 			injectStart = 1
 			return
 		}
 
-		if injectStart == 1 && strings.Contains(line, ")") {
+		if injectStart == 1 && strings.TrimSpace(line) == ")" {
 			injectStart = -1
 			data = injectContent
 			flag = -1

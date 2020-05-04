@@ -8,7 +8,7 @@ import (
 )
 
 func getBllImplFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/bll/impl/internal/b_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/bll/impl/bll/b_%s.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -37,25 +37,25 @@ func genBllImpl(ctx context.Context, pkgName, dir, name, comment string) error {
 }
 
 const bllImplTpl = `
-package internal
+package bll
 
 import (
 	"context"
 
-	"{{.PkgName}}/internal/app/errors"
+	"{{.PkgName}}/internal/app/bll"
 	"{{.PkgName}}/internal/app/model"
 	"{{.PkgName}}/internal/app/schema"
+	"{{.PkgName}}/pkg/errors"
 	"{{.PkgName}}/pkg/util"
+	"github.com/google/wire"
 )
 
-// New{{.Name}} 创建{{.Comment}}
-func New{{.Name}}(m{{.Name}} model.I{{.Name}}) *{{.Name}} {
-	return &{{.Name}}{
-		{{.Name}}Model: m{{.Name}},
-	}
-}
+var _ bll.I{{.Name}} = (*{{.Name}})(nil)
 
-// {{.Name}} {{.Comment}}业务逻辑
+// {{.Name}}Set 注入{{.Name}}
+var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"), wire.Bind(new(bll.I{{.Name}}), new(*{{.Name}})))
+
+// {{.Name}} {{.Comment}}
 type {{.Name}} struct {
 	{{.Name}}Model model.I{{.Name}}
 }
@@ -66,7 +66,7 @@ func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam
 }
 
 // Get 查询指定数据
-func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
+func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}GetOptions) (*schema.{{.Name}}, error) {
 	item, err := a.{{.Name}}Model.Get(ctx, recordID, opts...)
 	if err != nil {
 		return nil, err
@@ -77,34 +77,30 @@ func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.
 	return item, nil
 }
 
-func (a *{{.Name}}) getUpdate(ctx context.Context, recordID string) (*schema.{{.Name}}, error) {
-	return a.Get(ctx, recordID)
-}
-
 // Create 创建数据
-func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.{{.Name}}, error) {
-	item.RecordID = util.MustUUID()
+func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.RecordIDResult, error) {
+	item.RecordID = util.NewRecordID()
 	err := a.{{.Name}}Model.Create(ctx, item)
 	if err != nil {
 		return nil, err
 	}
-	return a.getUpdate(ctx, item.RecordID)
+
+	return schema.NewRecordIDResult(item.RecordID), nil
 }
 
 // Update 更新数据
-func (a *{{.Name}}) Update(ctx context.Context, recordID string, item schema.{{.Name}}) (*schema.{{.Name}}, error) {
+func (a *{{.Name}}) Update(ctx context.Context, recordID string, item schema.{{.Name}}) error {
 	oldItem, err := a.{{.Name}}Model.Get(ctx, recordID)
 	if err != nil {
-		return nil, err
+		return err
 	} else if oldItem == nil {
-		return nil, errors.ErrNotFound
+		return errors.ErrNotFound
 	}
+	item.RecordID = oldItem.RecordID
+	item.Creator = oldItem.Creator
+	item.CreatedAt = oldItem.CreatedAt
 
-	err = a.{{.Name}}Model.Update(ctx, recordID, item)
-	if err != nil {
-		return nil, err
-	}
-	return a.getUpdate(ctx, recordID)
+	return a.{{.Name}}Model.Update(ctx, recordID, item)
 }
 
 // Delete 删除数据

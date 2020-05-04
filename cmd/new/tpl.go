@@ -2,32 +2,38 @@ package new
 
 // TplProjectStructure 项目结构
 const TplProjectStructure = `
-├── cmd
-│   └── server：主服务
-├── configs：配置文件目录
-├── docs：文档目录
-├── internal：内部应用
-│   └── app：主应用目录
-│       ├── bll：业务逻辑层接口
-│       │   └── impl：业务逻辑层的接口实现
-│       ├── config：配置参数（与配置文件一一映射）
-│       ├── context：统一上下文
-│       ├── errors：统一的错误定义
-│       ├── ginplus：gin的扩展函数库
-│       ├── middleware：gin中间件
-│       ├── model：存储层接口
-│       │   └── impl：存储层接口实现
-│       ├── routers：路由层
-│       │   └── api：/api路由模块
-│       │       └── ctl：/api路由模块对应的控制器层
-│       ├── schema：对象模型
-│       ├── swagger：swagger静态目录
-│       └── test：单元测试
-├── pkg：公共模块
-│   ├── auth：认证模块
-│   │   └── jwtauth：JWT认证模块实现
-│   ├── gormplus：gorm扩展实现
-│   ├── logger：日志模块
-│   └── util：工具库
-└── scripts：执行脚本
+├── cmd # 主服务（程序入口）
+├── configs # 配置文件目录(包含运行配置参数及casbin模型配置)
+├── docs # 文档目录
+├── internal # 内部代码模块
+│   └── app # 内部应用模块入口
+│       ├── api # API控制器模块
+│       │   └── mock # API Mock模块(包括swagger的注释描述)
+│       ├── bll # 业务逻辑模块接口
+│       │   └── impl
+│       │       └── bll # 业务逻辑模块接口的实现
+│       ├── config # 配置参数(与config.toml一一映射)
+│       ├── context # 统一上下文模块
+│       ├── ginplus # gin的扩展模块
+│       ├── initialize # 初始化模块（提供依赖模块的初始化函数及依赖注入的初始化）
+│       ├── middleware # gin中间件模块
+│       ├── model # 存储层模块接口
+│       │   └── impl
+│       │       └── gorm
+│       │           ├── entity # 与数据库表及字段的映射实体
+│       │           └── model # 存储层模块接口的gorm实现
+│       │       └── mongo
+│       │           ├── entity # 与数据库表及字段的映射实体
+│       │           └── model # 存储层模块接口的mongo实现
+│       ├── module # 内部模块间依赖的公共模块
+│       ├── router # gin的路由模块
+│       ├── schema # 提供Request/Response的对象模块
+│       ├── swagger # swagger配置及自动生成的文件
+│       └── test # API的单元测试
+├── pkg # 公共模块
+│   ├── auth # JWT认证模块
+│   ├── errors # 统一错误处理模块
+│   ├── logger # 日志模块
+│   └── util # 工具库模块
+├── scripts # 脚本目录
 `

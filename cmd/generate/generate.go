@@ -2,22 +2,22 @@ package generate
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 // Config 配置参数
 type Config struct {
-	Dir        string
-	PkgName    string
-	CtlTpl     string
-	RouterName string
-	Name       string
-	Comment    string
-	File       string
-	Modules    string
+	Dir     string
+	PkgName string
+	Name    string
+	Comment string
+	File    string
+	Storage string
+	Modules string
 }
 
 // Exec 执行生成模块命令
@@ -60,7 +60,8 @@ func (a *Command) Exec() error {
 		if err != nil {
 			return err
 		}
-		err = json.Unmarshal(b.Bytes(), &item)
+
+		err = yaml.Unmarshal(b.Bytes(), &item)
 		if err != nil {
 			return err
 		}
@@ -75,53 +76,79 @@ func (a *Command) Exec() error {
 	}
 
 	pkgName := a.cfg.PkgName
-	routerName := a.cfg.RouterName
-
 	ctx := context.Background()
 
 	if a.hasModule("schema") {
-		err = genSchema(ctx, dir, item.StructName, item.Comment, NewCTLTplType(a.cfg.CtlTpl), item.toSchemaFields()...)
+		err = genSchema(ctx, pkgName, dir, item.StructName, item.Comment, item.toSchemaFields()...)
 		if err != nil {
 			return err
 		}
 	}
 
-	if a.hasModule("entity") {
-		err = genEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityFields()...)
-		a.handleError(err, "生成entity")
-	}
-
 	if a.hasModule("model") {
-		err = genModelImpl(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "生成mode impl")
-
 		err = genModel(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "生成model")
+		a.handleError(err, "Generate model interface")
+		switch a.cfg.Storage {
+		case "mongo":
+			err = genMongoEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityMongoFields()...)
+			a.handleError(err, "Generate mongo entity")
 
-		err = insertModelInject(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "生成model inject")
+			err = insertEntityInjectMongo(ctx, dir, item.StructName)
+			a.handleError(err, "Insert mongo entity inject")
+
+			err = genModelImplMongo(ctx, pkgName, dir, item.StructName, item.Comment)
+			a.handleError(err, "Generate mongo model")
+
+			err = insertModelInjectMongo(ctx, dir, item.StructName)
+			a.handleError(err, "Insert mongo model inject")
+		default:
+			err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityGormFields()...)
+			a.handleError(err, "Generate gorm entity")
+
+			err = insertEntityInjectGorm(ctx, dir, item.StructName)
+			a.handleError(err, "Insert gorm entity inject")
+
+			err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment)
+			a.handleError(err, "Generate gorm model")
+
+			err = insertModelInjectGorm(ctx, dir, item.StructName)
+			a.handleError(err, "Insert gorm model inject")
+		}
 	}
 
 	if a.hasModule("bll") {
-		err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "生成bll impl")
-
 		err = genBll(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "生成bll")
+		a.handleError(err, "Generate bll interface")
 
-		err = insertBllInject(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "生成bll inject")
+		err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
+		a.handleError(err, "Generate bll impl")
+
+		err = insertBllInject(ctx, dir, item.StructName)
+		a.handleError(err, "Insert bll inject")
+	}
+
+	if a.hasModule("api") {
+		err = genAPI(ctx, pkgName, dir, item.StructName, item.Comment)
+		a.handleError(err, "Generate api")
+
+		err = insertAPIInject(ctx, dir, item.StructName)
+		a.handleError(err, "Insert api inject")
+	}
+
+	if a.hasModule("mock") {
+		err = genAPIMock(ctx, pkgName, dir, item.StructName, item.Comment)
+		a.handleError(err, "Generate api mock")
+
+		err = insertAPIMockInject(ctx, dir, item.StructName)
+		a.handleError(err, "Insert api mock inject")
 	}
 
 	if a.hasModule("router") {
-		err = genCtl(ctx, pkgName, dir, routerName, item.StructName, item.Comment, NewCTLTplType(a.cfg.CtlTpl))
-		a.handleError(err, "生成ctl")
+		err = insertRouterAPI(ctx, dir, item.StructName)
+		a.handleError(err, "Insert router api")
 
-		err = insertCtlInject(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
-		a.handleError(err, "生成ctl inject")
-
-		err = insertAPI(ctx, pkgName, dir, routerName, item.StructName, item.Comment)
-		a.handleError(err, "生成api")
+		err = insertRouterInject(ctx, dir, item.StructName)
+		a.handleError(err, "Insert router inject")
 	}
 
 	return nil

@@ -7,13 +7,13 @@ import (
 	"github.com/LyricTian/gin-admin-cli/util"
 )
 
-func getModelImplFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/impl/gorm/internal/model/m_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+func getModelImplMongoFileName(dir, name string) string {
+	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/model/m_%s.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
 // 生成model实现文件
-func genModelImpl(ctx context.Context, pkgName, dir, name, comment string) error {
+func genModelImplMongo(ctx context.Context, pkgName, dir, name, comment string) error {
 	data := map[string]interface{}{
 		"PkgName":    pkgName,
 		"Name":       name,
@@ -21,12 +21,12 @@ func genModelImpl(ctx context.Context, pkgName, dir, name, comment string) error
 		"Comment":    comment,
 	}
 
-	buf, err := execParseTpl(modelImplTpl, data)
+	buf, err := execParseTpl(modelImplMongoTpl, data)
 	if err != nil {
 		return err
 	}
 
-	fullname := getModelImplFileName(dir, name)
+	fullname := getModelImplMongoFileName(dir, name)
 	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err
@@ -37,26 +37,30 @@ func genModelImpl(ctx context.Context, pkgName, dir, name, comment string) error
 	return execGoFmt(fullname)
 }
 
-const modelImplTpl = `
+const modelImplMongoTpl = `
 package model
 
 import (
 	"context"
+	"time"
 
-	"{{.PkgName}}/internal/app/errors"
-	"{{.PkgName}}/internal/app/model/impl/gorm/internal/entity"
+	"{{.PkgName}}/internal/app/model"
+	"{{.PkgName}}/internal/app/model/impl/mongo/entity"
 	"{{.PkgName}}/internal/app/schema"
-	"github.com/jinzhu/gorm"
+	"{{.PkgName}}/pkg/errors"
+	"github.com/google/wire"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// New{{.Name}} 创建{{.Comment}}存储实例
-func New{{.Name}}(db *gorm.DB) *{{.Name}} {
-	return &{{.Name}}{db}
-}
+var _ model.I{{.Name}} = (*{{.Name}})(nil)
+
+// {{.Name}}Set 注入{{.Name}}
+var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"), wire.Bind(new(model.I{{.Name}}), new(*{{.Name}})))
 
 // {{.Name}} {{.Comment}}存储
 type {{.Name}} struct {
-	db *gorm.DB
+	Client *mongo.Client
 }
 
 func (a *{{.Name}}) getQueryOption(opts ...schema.{{.Name}}QueryOptions) schema.{{.Name}}QueryOptions {
@@ -70,12 +74,16 @@ func (a *{{.Name}}) getQueryOption(opts ...schema.{{.Name}}QueryOptions) schema.
 // Query 查询数据
 func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}QueryResult, error) {
 	opt := a.getQueryOption(opts...)
-	db := entity.Get{{.Name}}DB(ctx, a.db)
+
+	c := entity.Get{{.Name}}Collection(ctx, a.Client)
+	filter := DefaultFilter(ctx)
+
 	// TODO: 查询条件
-	db = db.Order("id DESC")
+
+	opt.OrderFields = append(opt.OrderFields, schema.NewOrderField("_id", schema.OrderByDESC))
 
 	var list entity.{{.PluralName}}
-	pr, err := WrapPageQuery(ctx, db, opt.PageParam, &list)
+	pr, err := WrapPageQuery(ctx, c, params.PaginationParam, filter, &list, options.Find().SetSort(ParseOrder(opt.OrderFields)))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -88,10 +96,11 @@ func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam
 }
 
 // Get 查询指定数据
-func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
-	db := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID)
+func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}GetOptions) (*schema.{{.Name}}, error) {
+	c := entity.Get{{.Name}}Collection(ctx, a.Client)
+	filter := DefaultFilter(ctx, Filter("_id", recordID))
 	var item entity.{{.Name}}
-	ok, err := FindOne(ctx, db, &item)
+	ok, err := FindOne(ctx, c, filter, &item)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	} else if !ok {
@@ -104,8 +113,11 @@ func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.
 // Create 创建数据
 func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) error {
 	eitem := entity.Schema{{.Name}}(item).To{{.Name}}()
-	result := entity.Get{{.Name}}DB(ctx, a.db).Create(eitem)
-	if err := result.Error; err != nil {
+	eitem.CreatedAt = time.Now()
+	eitem.UpdatedAt = time.Now()
+	c := entity.Get{{.Name}}Collection(ctx, a.Client)
+	err := Insert(ctx, c, eitem)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
@@ -114,8 +126,10 @@ func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) error {
 // Update 更新数据
 func (a *{{.Name}}) Update(ctx context.Context, recordID string, item schema.{{.Name}}) error {
 	eitem := entity.Schema{{.Name}}(item).To{{.Name}}()
-	result := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID).Omit("record_id").Updates(eitem)
-	if err := result.Error; err != nil {
+	eitem.UpdatedAt = time.Now()
+	c := entity.Get{{.Name}}Collection(ctx, a.Client)
+	err := Update(ctx, c, DefaultFilter(ctx, Filter("_id", recordID)), eitem)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
@@ -123,8 +137,9 @@ func (a *{{.Name}}) Update(ctx context.Context, recordID string, item schema.{{.
 
 // Delete 删除数据
 func (a *{{.Name}}) Delete(ctx context.Context, recordID string) error {
-	result := entity.Get{{.Name}}DB(ctx, a.db).Where("record_id=?", recordID).Delete(entity.{{.Name}}{})
-	if err := result.Error; err != nil {
+	c := entity.Get{{.Name}}Collection(ctx, a.Client)
+	err := Delete(ctx, c, DefaultFilter(ctx, Filter("_id", recordID)))
+	if err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
