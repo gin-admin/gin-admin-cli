@@ -21,14 +21,26 @@ func (t TplItem) toSchemaFields() []schemaField {
 	return items
 }
 
-func (t TplItem) toEntityFields() []entityField {
-	var items []entityField
+func (t TplItem) toEntityGormFields() []entityGormField {
+	var items []entityGormField
 	for _, f := range t.Fields {
-		items = append(items, entityField{
+		items = append(items, entityGormField{
 			Name:        f.StructFieldName,
 			Comment:     f.Comment,
 			Type:        f.StructFieldType,
 			GormOptions: f.GormOptions,
+		})
+	}
+	return items
+}
+
+func (t TplItem) toEntityMongoFields() []entityMongoField {
+	var items []entityMongoField
+	for _, f := range t.Fields {
+		items = append(items, entityMongoField{
+			Name:    f.StructFieldName,
+			Comment: f.Comment,
+			Type:    f.StructFieldType,
 		})
 	}
 	return items

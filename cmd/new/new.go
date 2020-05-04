@@ -18,14 +18,16 @@ const (
 	githubWebSource = "https://github.com/LyricTian/gin-admin-react.git"
 	giteeWebSource  = "https://gitee.com/lyric/gin-admin-react.git"
 	defaultPkgName  = "github.com/LyricTian/gin-admin"
+	defaultAppName  = "gin-admin"
 )
 
 // Config 配置参数
 type Config struct {
 	Dir        string
 	PkgName    string
+	AppName    string
+	Branch     string
 	UseMirror  bool
-	UseCore    bool
 	IncludeWeb bool
 }
 
@@ -81,16 +83,39 @@ func (a *Command) Exec() error {
 		}
 	}
 
-	if pkgName := a.cfg.PkgName; pkgName != "" {
-		err := a.changePkgName(dir, a.cfg.PkgName)
+	if pkgName := a.cfg.PkgName; pkgName != "" && pkgName != defaultPkgName {
+		err := a.changeDirPkgName(dir)
 		if err != nil {
 			return err
 		}
 
-		err = a.readAndReplaceFile(a.cfg.PkgName, fmt.Sprintf("%s/%s", dir, "go.mod"))
+		err = a.changeFilePkgName(fmt.Sprintf("%s/go.mod", a.cfg.Dir))
 		if err != nil {
 			return err
 		}
+
+		err = a.changeFileAppNames(
+			fmt.Sprintf("%s/Makefile", a.cfg.Dir),
+			fmt.Sprintf("%s/configs/config.toml", a.cfg.Dir),
+			fmt.Sprintf("%s/scripts/init_mysql.sql", a.cfg.Dir),
+			fmt.Sprintf("%s/scripts/init_postgres.sql", a.cfg.Dir),
+		)
+		if err != nil {
+			return err
+		}
+
+		err = a.readAndReplaceFile(fmt.Sprintf("%s/cmd/%s/main.go", a.cfg.Dir, defaultAppName), func(line string) string {
+			if strings.Contains(line, fmt.Sprintf(`app.Name = "%s"`, defaultAppName)) {
+				return strings.Replace(line, defaultAppName, a.cfg.AppName, 1)
+			}
+			return line
+		})
+		if err != nil {
+			return err
+		}
+
+		// change app name
+		os.Rename(fmt.Sprintf("%s/cmd/%s", a.cfg.Dir, defaultAppName), fmt.Sprintf("%s/cmd/%s", a.cfg.Dir, a.cfg.AppName))
 	}
 
 	if notExist {
@@ -120,8 +145,8 @@ func (a *Command) gitClone(dir, source string) error {
 	args = append(args, "-q")
 
 	branch := "master"
-	if a.cfg.UseCore {
-		branch = "core"
+	if v := a.cfg.Branch; v != "" {
+		branch = v
 	}
 	args = append(args, "-b", branch)
 
@@ -137,8 +162,6 @@ func (a *Command) gitInit(dir string) error {
 	if a.cfg.IncludeWeb {
 		os.RemoveAll(filepath.Join(dir, "web", ".git"))
 	}
-	os.Remove(filepath.Join(dir, "screenshot_wechat.jpeg"))
-	os.Remove(filepath.Join(dir, "screenshot_swagger.png"))
 
 	err := a.execGit(dir, "init")
 	if err != nil {
@@ -169,7 +192,35 @@ func (a *Command) checkInDirs(dir, path string) bool {
 	return false
 }
 
-func (a *Command) changePkgName(dir, pkgName string) error {
+func (a *Command) changeFileAppNames(names ...string) error {
+	for _, name := range names {
+		err := a.changeFileAppName(name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (a *Command) changeFileAppName(name string) error {
+	return a.readAndReplaceFile(name, func(line string) string {
+		if strings.Contains(line, defaultAppName) {
+			return strings.Replace(line, defaultAppName, a.cfg.AppName, 1)
+		}
+		return line
+	})
+}
+
+func (a *Command) changeFilePkgName(name string) error {
+	return a.readAndReplaceFile(name, func(line string) string {
+		if strings.Contains(line, defaultPkgName) {
+			return strings.Replace(line, defaultPkgName, a.cfg.PkgName, 1)
+		}
+		return line
+	})
+}
+
+func (a *Command) changeDirPkgName(dir string) error {
 	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -179,19 +230,24 @@ func (a *Command) changePkgName(dir, pkgName string) error {
 			return nil
 		}
 
-		return a.readAndReplaceFile(pkgName, path)
+		return a.readAndReplaceFile(path, func(line string) string {
+			if strings.Contains(line, defaultPkgName) {
+				return strings.Replace(line, defaultPkgName, a.cfg.PkgName, 1)
+			}
+			return line
+		})
 	})
 }
 
-func (a *Command) readAndReplaceFile(pkgName, name string) error {
-	buf, err := a.readAndReplace(pkgName, name)
+func (a *Command) readAndReplaceFile(name string, call func(string) string) error {
+	buf, err := a.readFileAndReplace(name, call)
 	if err != nil {
 		return err
 	}
 	return ioutil.WriteFile(name, buf.Bytes(), 0644)
 }
 
-func (a *Command) readAndReplace(pkgName, name string) (*bytes.Buffer, error) {
+func (a *Command) readFileAndReplace(name string, call func(string) string) (*bytes.Buffer, error) {
 	file, err := os.Open(name)
 	if err != nil {
 		return nil, err
@@ -201,7 +257,7 @@ func (a *Command) readAndReplace(pkgName, name string) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := strings.Replace(scanner.Text(), defaultPkgName, pkgName, 1)
+		line := call(scanner.Text())
 		buf.WriteString(line)
 		buf.WriteByte('\n')
 	}

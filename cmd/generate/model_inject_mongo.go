@@ -6,19 +6,19 @@ import (
 	"strings"
 )
 
-func getBllInjectFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/bll/impl/bll/bll.go", dir)
+func getModelInjectMongoFileName(dir string) string {
+	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/model/model.go", dir)
 	return fullname
 }
 
-// 插入bll注入文件
-func insertBllInject(ctx context.Context, dir, name string) error {
-	fullname := getBllInjectFileName(dir)
+// 插入model注入文件
+func insertModelInjectMongo(ctx context.Context, dir, name string) error {
+	fullname := getModelInjectMongoFileName(dir)
 
 	injectContent := fmt.Sprintf("%sSet,", name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
-		if injectStart == 0 && strings.Contains(line, "var BllSet = wire.NewSet(") {
+		if injectStart == 0 && strings.Contains(line, "var ModelSet = wire.NewSet(") {
 			injectStart = 1
 			return
 		}
