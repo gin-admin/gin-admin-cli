@@ -17,7 +17,7 @@ const (
 	giteeSource     = "https://gitee.com/lyric/gin-admin.git"
 	githubWebSource = "https://github.com/LyricTian/gin-admin-react.git"
 	giteeWebSource  = "https://gitee.com/lyric/gin-admin-react.git"
-	defaultPkgName  = "github.com/LyricTian/gin-admin"
+	defaultPkgName  = "github.com/LyricTian/gin-admin/v6"
 	defaultAppName  = "gin-admin"
 )
 
