@@ -34,6 +34,7 @@ const TplProjectStructure = `
 │   ├── auth # JWT认证模块
 │   ├── errors # 统一错误处理模块
 │   ├── logger # 日志模块
+│   |── unique # 唯一ID
 │   └── util # 工具库模块
 ├── scripts # 脚本目录
 `
