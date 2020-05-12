@@ -95,6 +95,7 @@ func (a *Command) Exec() error {
 		}
 
 		err = a.changeFileAppNames(
+			fmt.Sprintf("%s/internal/app/swagger.go", a.cfg.Dir),
 			fmt.Sprintf("%s/Makefile", a.cfg.Dir),
 			fmt.Sprintf("%s/.air.conf", a.cfg.Dir),
 			fmt.Sprintf("%s/configs/config.toml", a.cfg.Dir),
