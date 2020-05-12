@@ -73,7 +73,7 @@ func (a *{{.Name}}) Query(c *gin.Context) {
 // @Tags {{.Comment}}
 // @Summary 查询指定数据
 // @Param Authorization header string false "Bearer 用户令牌"
-// @Param id path string true "记录ID"
+// @Param id path string true "唯一标识"
 // @Success 200 {object} schema.{{.Name}}
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 404 {object} schema.ErrorResult "{error:{code:0,message:资源不存在}}"
@@ -87,7 +87,7 @@ func (a *{{.Name}}) Get(c *gin.Context) {
 // @Summary 创建数据
 // @Param Authorization header string false "Bearer 用户令牌"
 // @Param body body schema.{{.Name}} true "创建数据"
-// @Success 200 {object} schema.RecordIDResult
+// @Success 200 {object} schema.IDResult
 // @Failure 400 {object} schema.ErrorResult "{error:{code:0,message:无效的请求参数}}"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
@@ -99,7 +99,7 @@ func (a *{{.Name}}) Create(c *gin.Context) {
 // @Tags {{.Comment}}
 // @Summary 更新数据
 // @Param Authorization header string false "Bearer 用户令牌"
-// @Param id path string true "记录ID"
+// @Param id path string true "唯一标识"
 // @Param body body schema.{{.Name}} true "更新数据"
 // @Success 200 {object} schema.StatusResult "{status:OK}"
 // @Failure 400 {object} schema.ErrorResult "{error:{code:0,message:无效的请求参数}}"
@@ -113,7 +113,7 @@ func (a *{{.Name}}) Update(c *gin.Context) {
 // @Tags {{.Comment}}
 // @Summary 删除数据
 // @Param Authorization header string false "Bearer 用户令牌"
-// @Param id path string true "记录ID"
+// @Param id path string true "唯一标识"
 // @Success 200 {object} schema.StatusResult "{status:OK}"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"

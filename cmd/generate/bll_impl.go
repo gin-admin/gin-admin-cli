@@ -66,8 +66,8 @@ func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam
 }
 
 // Get 查询指定数据
-func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.Name}}GetOptions) (*schema.{{.Name}}, error) {
-	item, err := a.{{.Name}}Model.Get(ctx, recordID, opts...)
+func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}GetOptions) (*schema.{{.Name}}, error) {
+	item, err := a.{{.Name}}Model.Get(ctx, id, opts...)
 	if err != nil {
 		return nil, err
 	} else if item == nil {
@@ -78,41 +78,41 @@ func (a *{{.Name}}) Get(ctx context.Context, recordID string, opts ...schema.{{.
 }
 
 // Create 创建数据
-func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.RecordIDResult, error) {
-	item.RecordID = util.NewRecordID()
+func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.IDResult, error) {
+	item.ID = util.NewID()
 	err := a.{{.Name}}Model.Create(ctx, item)
 	if err != nil {
 		return nil, err
 	}
 
-	return schema.NewRecordIDResult(item.RecordID), nil
+	return schema.NewIDResult(item.ID), nil
 }
 
 // Update 更新数据
-func (a *{{.Name}}) Update(ctx context.Context, recordID string, item schema.{{.Name}}) error {
-	oldItem, err := a.{{.Name}}Model.Get(ctx, recordID)
+func (a *{{.Name}}) Update(ctx context.Context, id string, item schema.{{.Name}}) error {
+	oldItem, err := a.{{.Name}}Model.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if oldItem == nil {
 		return errors.ErrNotFound
 	}
-	item.RecordID = oldItem.RecordID
+	item.ID = oldItem.ID
 	item.Creator = oldItem.Creator
 	item.CreatedAt = oldItem.CreatedAt
 
-	return a.{{.Name}}Model.Update(ctx, recordID, item)
+	return a.{{.Name}}Model.Update(ctx, id, item)
 }
 
 // Delete 删除数据
-func (a *{{.Name}}) Delete(ctx context.Context, recordID string) error {
-	oldItem, err := a.{{.Name}}Model.Get(ctx, recordID)
+func (a *{{.Name}}) Delete(ctx context.Context, id string) error {
+	oldItem, err := a.{{.Name}}Model.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if oldItem == nil {
 		return errors.ErrNotFound
 	}
 
-	return a.{{.Name}}Model.Delete(ctx, recordID)
+	return a.{{.Name}}Model.Delete(ctx, id)
 }
 
 `

@@ -25,7 +25,7 @@ func getSchemaFileName(dir, name string) string {
 func genSchema(ctx context.Context, pkgName, dir, name, comment string, fields ...schemaField) error {
 	var tfields []schemaField
 
-	tfields = append(tfields, schemaField{Name: "RecordID", Comment: "记录ID", Type: "string"})
+	tfields = append(tfields, schemaField{Name: "ID", Comment: "唯一标识", Type: "string"})
 	tfields = append(tfields, fields...)
 	tfields = append(tfields, schemaField{Name: "Creator", Comment: "创建者", Type: "string"})
 	tfields = append(tfields, schemaField{Name: "CreatedAt", Comment: "创建时间", Type: "time.Time"})
