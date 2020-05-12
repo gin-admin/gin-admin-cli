@@ -19,7 +19,7 @@ func NewCommand() cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "dir, d",
-				Usage: "项目生成目录(默认GOPATH)",
+				Usage: "项目生成目录(默认GOPATH+包名)",
 			},
 			&cli.StringFlag{
 				Name:  "pkg, p",
