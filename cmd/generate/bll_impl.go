@@ -45,8 +45,8 @@ import (
 	"{{.PkgName}}/internal/app/bll"
 	"{{.PkgName}}/internal/app/model"
 	"{{.PkgName}}/internal/app/schema"
+	"{{.PkgName}}/internal/app/iutil"
 	"{{.PkgName}}/pkg/errors"
-	"{{.PkgName}}/pkg/util"
 	"github.com/google/wire"
 )
 
@@ -79,7 +79,7 @@ func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}
 
 // Create 创建数据
 func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.IDResult, error) {
-	item.ID = util.NewID()
+	item.ID = iutil.NewID()
 	err := a.{{.Name}}Model.Create(ctx, item)
 	if err != nil {
 		return nil, err
