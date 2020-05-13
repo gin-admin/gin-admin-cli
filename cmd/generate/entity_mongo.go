@@ -81,7 +81,7 @@ import (
 
 // Get{{.Name}}Collection 获取{{.Name}}集合
 func Get{{.Name}}Collection(ctx context.Context, cli *mongo.Client) *mongo.Collection {
-	return getCollection(ctx, cli, {{.Name}}{})
+	return GetCollection(ctx, cli, {{.Name}}{})
 }
 
 // Schema{{.Name}} {{.Comment}}
@@ -97,10 +97,6 @@ func (a Schema{{.Name}}) To{{.Name}}() *{{.Name}} {
 // {{.Name}} {{.Comment}}实体
 type {{.Name}} struct {
 	{{.Fields}}
-}
-
-func (a {{.Name}}) String() string {
-	return toString(a)
 }
 
 // CollectionName 集合名

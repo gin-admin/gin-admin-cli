@@ -82,7 +82,7 @@ import (
 
 // Get{{.Name}}DB 获取{{.Name}}存储
 func Get{{.Name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
-	return getDBWithModel(ctx, defDB, new({{.Name}}))
+	return GetDBWithModel(ctx, defDB, new({{.Name}}))
 }
 
 // Schema{{.Name}} {{.Comment}}对象
@@ -99,10 +99,6 @@ func (a Schema{{.Name}}) To{{.Name}}() *{{.Name}} {
 type {{.Name}} struct {
 	Model
 	{{.Fields}}
-}
-
-func (a {{.Name}}) String() string {
-	return toString(a)
 }
 
 // TableName 表名
