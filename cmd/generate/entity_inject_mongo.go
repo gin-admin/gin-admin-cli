@@ -23,7 +23,7 @@ func insertEntityInjectMongo(ctx context.Context, dir, name string) error {
 			return
 		}
 
-		if injectStart == 1 && strings.TrimSpace(line) == ").Error" {
+		if injectStart == 1 && strings.TrimSpace(line) == ")" {
 			injectStart = -1
 			data = injectContent
 			flag = -1
