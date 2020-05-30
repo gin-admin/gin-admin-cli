@@ -5,7 +5,7 @@
 ## 下载并使用
 
 ```bash
-$ go get -u -v github.com/LyricTian/gin-admin-cli
+$ go get -u github.com/gin-admin/gin-admin-cli
 ```
 
 ### 创建项目

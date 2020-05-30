@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/LyricTian/gin-admin-cli/util"
+	"github.com/gin-admin/gin-admin-cli/util"
 )
 
 func getBllFileName(dir, name string) string {

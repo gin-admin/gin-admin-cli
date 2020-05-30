@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/LyricTian/gin-admin-cli/util"
+	"github.com/gin-admin/gin-admin-cli/util"
 )
 
 func getAPIFileName(dir, name string) string {
