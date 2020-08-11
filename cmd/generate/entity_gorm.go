@@ -101,11 +101,6 @@ type {{.Name}} struct {
 	{{.Fields}}
 }
 
-// TableName 表名
-func (a {{.Name}}) TableName() string {
-	return a.Model.TableName("{{.UnderLineName}}")
-}
-
 // ToSchema{{.Name}} 转换为demo对象
 func (a {{.Name}}) ToSchema{{.Name}}() *schema.{{.Name}} {
 	item := new(schema.{{.Name}})
