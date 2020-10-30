@@ -55,7 +55,7 @@ var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
 
 // {{.Name}} {{.Comment}}
 type {{.Name}} struct {
-	{{.Name}}Bll bll.{{.Name}}
+	{{.Name}}Bll *bll.{{.Name}}
 }
 
 // Query 查询数据
