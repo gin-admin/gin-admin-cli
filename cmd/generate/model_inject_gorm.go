@@ -7,7 +7,7 @@ import (
 )
 
 func getModelInjectGormFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/impl/gorm/model/model.go", dir)
+	fullname := fmt.Sprintf("%s/internal/app/model/gormx/model/model.go", dir)
 	return fullname
 }
 

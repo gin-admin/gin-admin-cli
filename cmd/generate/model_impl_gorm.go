@@ -8,7 +8,7 @@ import (
 )
 
 func getModelImplGormFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/impl/gorm/model/m_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/model/gormx/model/m_%s.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -43,18 +43,17 @@ package model
 import (
 	"context"
 
-	"{{.PkgName}}/internal/app/model"
-	"{{.PkgName}}/internal/app/model/impl/gorm/entity"
+	"{{.PkgName}}/internal/app/model/gormx/entity"
 	"{{.PkgName}}/internal/app/schema"
 	"{{.PkgName}}/pkg/errors"
 	"github.com/google/wire"
 	"github.com/jinzhu/gorm"
 )
 
-var _ model.I{{.Name}} = (*{{.Name}})(nil)
+// var _ model.I{{.Name}} = (*{{.Name}})(nil)
 
 // {{.Name}}Set 注入{{.Name}}
-var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"), wire.Bind(new(model.I{{.Name}}), new(*{{.Name}})))
+var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
 
 // {{.Name}} {{.Comment}}存储
 type {{.Name}} struct {
@@ -93,7 +92,7 @@ func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam
 }
 
 // Get 查询指定数据
-func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}GetOptions) (*schema.{{.Name}}, error) {
+func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
 	db := entity.Get{{.Name}}DB(ctx, a.DB).Where("id=?", id)
 	var item entity.{{.Name}}
 	ok, err := FindOne(ctx, db, &item)

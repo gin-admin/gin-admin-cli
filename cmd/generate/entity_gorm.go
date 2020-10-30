@@ -16,7 +16,7 @@ type entityGormField struct {
 }
 
 func getEntityGormFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/impl/gorm/entity/e_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/model/gormx/entity/e_%s.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -53,6 +53,7 @@ func genGormEntity(ctx context.Context, pkgName, dir, name, comment string, fiel
 		"Fields":        buf.String(),
 		"Comment":       comment,
 		"UnderLineName": util.ToLowerUnderlinedNamer(name),
+		"BackQuote":     "`",
 	})
 	if err != nil {
 		return err
@@ -74,9 +75,10 @@ package entity
 
 import (
 	"context"
+	"time"
 
 	"{{.PkgName}}/internal/app/schema"
-	"{{.PkgName}}/pkg/util"
+	"{{.PkgName}}/pkg/util/structure"
 	"github.com/jinzhu/gorm"
 )
 
@@ -91,20 +93,23 @@ type Schema{{.Name}} schema.{{.Name}}
 // To{{.Name}} 转换为实体
 func (a Schema{{.Name}}) To{{.Name}}() *{{.Name}} {
 	item := new({{.Name}})
-	util.StructMapToStruct(a, item)
+	structure.Copy(a, item)
 	return item
 }
 
 // {{.Name}} {{.Comment}}实体
 type {{.Name}} struct {
-	Model
+	ID        string     {{.BackQuote}}gorm:"column:id;primary_key;size:36;"{{.BackQuote}}
 	{{.Fields}}
+	CreatedAt time.Time  {{.BackQuote}}gorm:"column:created_at;index;"{{.BackQuote}}
+	UpdatedAt time.Time  {{.BackQuote}}gorm:"column:updated_at;index;"{{.BackQuote}}
+	DeletedAt *time.Time {{.BackQuote}}gorm:"column:deleted_at;index;"{{.BackQuote}}
 }
 
 // ToSchema{{.Name}} 转换为demo对象
 func (a {{.Name}}) ToSchema{{.Name}}() *schema.{{.Name}} {
 	item := new(schema.{{.Name}})
-	util.StructMapToStruct(a, item)
+	structure.Copy(a, item)
 	return item
 }
 
