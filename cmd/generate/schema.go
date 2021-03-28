@@ -85,19 +85,11 @@ func genSchema(ctx context.Context, pkgName, dir, name, comment string, fields .
 const schemaTpl = `
 package schema
 
-import (
-	"time"
-
-	"{{.PkgName}}/pkg/util"
-)
+import "time"
 
 // {{.Name}} {{.Comment}}对象
 type {{.Name}} struct {
 	{{.Fields}}
-}
-
-func (a *{{.Name}}) String() string {
-	return util.JSONMarshalToString(a)
 }
 
 // {{.Name}}QueryParam 查询条件

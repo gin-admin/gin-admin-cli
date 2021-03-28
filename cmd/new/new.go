@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,7 +18,7 @@ const (
 	giteeSource     = "https://gitee.com/lyric/gin-admin.git"
 	githubWebSource = "https://github.com/LyricTian/gin-admin-react.git"
 	giteeWebSource  = "https://gitee.com/lyric/gin-admin-react.git"
-	defaultPkgName  = "github.com/LyricTian/gin-admin/v6"
+	defaultPkgName  = "github.com/LyricTian/gin-admin/v7"
 	defaultAppName  = "gin-admin"
 )
 
@@ -95,23 +96,13 @@ func (a *Command) Exec() error {
 		}
 
 		err = a.changeFileAppNames(
-			fmt.Sprintf("%s/internal/app/swagger.go", a.cfg.Dir),
 			fmt.Sprintf("%s/Makefile", a.cfg.Dir),
 			fmt.Sprintf("%s/.air.conf", a.cfg.Dir),
 			fmt.Sprintf("%s/configs/config.toml", a.cfg.Dir),
 			fmt.Sprintf("%s/scripts/init_mysql.sql", a.cfg.Dir),
 			fmt.Sprintf("%s/scripts/init_postgres.sql", a.cfg.Dir),
+			fmt.Sprintf("%s/cmd/%s/main.go", a.cfg.Dir, defaultAppName),
 		)
-		if err != nil {
-			return err
-		}
-
-		err = a.readAndReplaceFile(fmt.Sprintf("%s/cmd/%s/main.go", a.cfg.Dir, defaultAppName), func(line string) string {
-			if strings.Contains(line, fmt.Sprintf(`app.Name = "%s"`, defaultAppName)) {
-				return strings.Replace(line, defaultAppName, a.cfg.AppName, 1)
-			}
-			return line
-		})
 		if err != nil {
 			return err
 		}
@@ -138,13 +129,28 @@ func (a *Command) execGit(dir string, args ...string) error {
 	if dir != "" {
 		cmd.Dir = dir
 	}
-	return cmd.Run()
+
+	stdoutIn, _ := cmd.StdoutPipe()
+	stderrIn, _ := cmd.StderrPipe()
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		io.Copy(os.Stdout, stdoutIn)
+	}()
+
+	go func() {
+		io.Copy(os.Stderr, stderrIn)
+	}()
+
+	return cmd.Wait()
 }
 
 func (a *Command) gitClone(dir, source string) error {
 	var args []string
 	args = append(args, "clone")
-	args = append(args, "-q")
 
 	branch := "master"
 	if v := a.cfg.Branch; v != "" {
@@ -207,7 +213,7 @@ func (a *Command) changeFileAppNames(names ...string) error {
 func (a *Command) changeFileAppName(name string) error {
 	return a.readAndReplaceFile(name, func(line string) string {
 		if strings.Contains(line, defaultAppName) {
-			return strings.Replace(line, defaultAppName, a.cfg.AppName, 1)
+			return strings.Replace(line, defaultAppName, a.cfg.AppName, -1)
 		}
 		return line
 	})
