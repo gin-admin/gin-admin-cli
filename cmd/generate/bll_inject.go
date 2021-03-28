@@ -7,7 +7,7 @@ import (
 )
 
 func getBllInjectFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/bll/impl/bll/bll.go", dir)
+	fullname := fmt.Sprintf("%s/internal/app/bll/bll.go", dir)
 	return fullname
 }
 

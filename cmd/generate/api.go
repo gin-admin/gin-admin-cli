@@ -44,7 +44,7 @@ package api
 
 import (
 	"{{.PkgName}}/internal/app/bll"
-	"{{.PkgName}}/internal/app/ginplus"
+	"{{.PkgName}}/internal/app/ginx"
 	"{{.PkgName}}/internal/app/schema"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
@@ -55,26 +55,26 @@ var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
 
 // {{.Name}} {{.Comment}}
 type {{.Name}} struct {
-	{{.Name}}Bll bll.I{{.Name}}
+	{{.Name}}Bll *bll.{{.Name}}
 }
 
 // Query 查询数据
 func (a *{{.Name}}) Query(c *gin.Context) {
 	ctx := c.Request.Context()
 	var params schema.{{.Name}}QueryParam
-	if err := ginplus.ParseQuery(c, &params); err != nil {
-		ginplus.ResError(c, err)
+	if err := ginx.ParseQuery(c, &params); err != nil {
+		ginx.ResError(c, err)
 		return
 	}
 
 	params.Pagination = true
 	result, err := a.{{.Name}}Bll.Query(ctx, params)
 	if err != nil {
-		ginplus.ResError(c, err)
+		ginx.ResError(c, err)
 		return
 	}
 
-	ginplus.ResPage(c, result.Data, result.PageResult)
+	ginx.ResPage(c, result.Data, result.PageResult)
 }
 
 // Get 查询指定数据
@@ -82,45 +82,45 @@ func (a *{{.Name}}) Get(c *gin.Context) {
 	ctx := c.Request.Context()
 	item, err := a.{{.Name}}Bll.Get(ctx, c.Param("id"))
 	if err != nil {
-		ginplus.ResError(c, err)
+		ginx.ResError(c, err)
 		return
 	}
-	ginplus.ResSuccess(c, item)
+	ginx.ResSuccess(c, item)
 }
 
 // Create 创建数据
 func (a *{{.Name}}) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
-	if err := ginplus.ParseJSON(c, &item); err != nil {
-		ginplus.ResError(c, err)
+	if err := ginx.ParseJSON(c, &item); err != nil {
+		ginx.ResError(c, err)
 		return
 	}
 
-	item.Creator = ginplus.GetUserID(c)
+	item.Creator = ginx.GetUserID(c)
 	result, err := a.{{.Name}}Bll.Create(ctx, item)
 	if err != nil {
-		ginplus.ResError(c, err)
+		ginx.ResError(c, err)
 		return
 	}
-	ginplus.ResSuccess(c, result)
+	ginx.ResSuccess(c, result)
 }
 
 // Update 更新数据
 func (a *{{.Name}}) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
-	if err := ginplus.ParseJSON(c, &item); err != nil {
-		ginplus.ResError(c, err)
+	if err := ginx.ParseJSON(c, &item); err != nil {
+		ginx.ResError(c, err)
 		return
 	}
 
 	err := a.{{.Name}}Bll.Update(ctx, c.Param("id"), item)
 	if err != nil {
-		ginplus.ResError(c, err)
+		ginx.ResError(c, err)
 		return
 	}
-	ginplus.ResOK(c)
+	ginx.ResOK(c)
 }
 
 // Delete 删除数据
@@ -128,10 +128,10 @@ func (a *{{.Name}}) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
 	err := a.{{.Name}}Bll.Delete(ctx, c.Param("id"))
 	if err != nil {
-		ginplus.ResError(c, err)
+		ginx.ResError(c, err)
 		return
 	}
-	ginplus.ResOK(c)
+	ginx.ResOK(c)
 }
 
 `

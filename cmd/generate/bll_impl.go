@@ -8,7 +8,7 @@ import (
 )
 
 func getBllImplFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/bll/impl/bll/b_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/bll/b_%s.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -42,22 +42,21 @@ package bll
 import (
 	"context"
 
-	"{{.PkgName}}/internal/app/bll"
-	"{{.PkgName}}/internal/app/model"
+	"{{.PkgName}}/internal/app/model/gormx/model"
 	"{{.PkgName}}/internal/app/schema"
-	"{{.PkgName}}/internal/app/iutil"
 	"{{.PkgName}}/pkg/errors"
+	"{{.PkgName}}/pkg/util/uuid"
 	"github.com/google/wire"
 )
 
-var _ bll.I{{.Name}} = (*{{.Name}})(nil)
+// var _ bll.I{{.Name}} = (*{{.Name}})(nil)
 
 // {{.Name}}Set 注入{{.Name}}
-var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"), wire.Bind(new(bll.I{{.Name}}), new(*{{.Name}})))
+var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
 
 // {{.Name}} {{.Comment}}
 type {{.Name}} struct {
-	{{.Name}}Model model.I{{.Name}}
+	{{.Name}}Model *model.{{.Name}}
 }
 
 // Query 查询数据
@@ -66,7 +65,7 @@ func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam
 }
 
 // Get 查询指定数据
-func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}GetOptions) (*schema.{{.Name}}, error) {
+func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
 	item, err := a.{{.Name}}Model.Get(ctx, id, opts...)
 	if err != nil {
 		return nil, err
@@ -79,7 +78,8 @@ func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}
 
 // Create 创建数据
 func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.IDResult, error) {
-	item.ID = iutil.NewID()
+	// TODO: check?
+	item.ID = uuid.MustString()
 	err := a.{{.Name}}Model.Create(ctx, item)
 	if err != nil {
 		return nil, err
@@ -96,6 +96,7 @@ func (a *{{.Name}}) Update(ctx context.Context, id string, item schema.{{.Name}}
 	} else if oldItem == nil {
 		return errors.ErrNotFound
 	}
+	// TODO: check?
 	item.ID = oldItem.ID
 	item.Creator = oldItem.Creator
 	item.CreatedAt = oldItem.CreatedAt

@@ -86,8 +86,8 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("model") {
-		err = genModel(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "Generate model interface")
+		// err = genModel(ctx, pkgName, dir, item.StructName, item.Comment)
+		// a.handleError(err, "Generate model interface")
 		switch a.cfg.Storage {
 		case "mongo":
 			err = genMongoEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityMongoFields()...)
@@ -117,8 +117,8 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("bll") {
-		err = genBll(ctx, pkgName, dir, item.StructName, item.Comment)
-		a.handleError(err, "Generate bll interface")
+		//err = genBll(ctx, pkgName, dir, item.StructName, item.Comment)
+		//a.handleError(err, "Generate bll interface")
 
 		err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
 		a.handleError(err, "Generate bll impl")

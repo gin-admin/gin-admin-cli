@@ -110,10 +110,6 @@ type {{.Name}}QueryOptions struct {
 	OrderFields []*OrderField // 排序字段
 }
 
-// {{.Name}}GetOptions Get查询可选参数项
-type {{.Name}}GetOptions struct {
-}
-
 // {{.Name}}QueryResult 查询结果
 type {{.Name}}QueryResult struct {
 	Data       {{.PluralName}}
