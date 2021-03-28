@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gin-admin/gin-admin-cli/util"
+	"github.com/gin-admin/gin-admin-cli/v4/util"
 )
 
 type schemaField struct {

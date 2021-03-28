@@ -1,4 +1,4 @@
-module github.com/gin-admin/gin-admin-cli
+module github.com/gin-admin/gin-admin-cli/v4
 
 go 1.13
 

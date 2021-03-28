@@ -1,11 +1,11 @@
 # gin-admin-cli - [gin-admin](https://github.com/LyricTian/gin-admin)
 
-> GinAdmin辅助工具，提供创建项目、快速生成功能模块的功能
+> GinAdmin 辅助工具，提供创建项目、快速生成功能模块的功能
 
 ## 下载并使用
 
 ```bash
-$ go get -u github.com/gin-admin/gin-admin-cli
+go get -u github.com/gin-admin/gin-admin-cli/v4
 ```
 
 ### 创建项目
@@ -24,8 +24,8 @@ OPTIONS:
 
 > 使用示例
 
-```
-$ gin-admin-cli new -p test-gin-admin -m
+```bash
+gin-admin-cli new -p test-gin-admin -m
 ```
 
 ### 生成业务模块
@@ -49,13 +49,13 @@ OPTIONS:
 > 使用示例
 
 ```bash
-$ gin-admin-cli g -p test-gin-admin -n Task -c '任务管理'
+gin-admin-cli g -p test-gin-admin -n Task -c '任务管理'
 ```
 
 #### 指定配置文件生成模块
 
 ```bash
-$ gin-admin-cli g -p 包名 -f 配置文件(yaml)
+gin-admin-cli g -p 包名 -f 配置文件(yaml)
 ```
 
 > 配置文件说明
@@ -65,19 +65,19 @@ $ gin-admin-cli g -p 包名 -f 配置文件(yaml)
 name: 结构体名称
 comment: 结构体注释说明
 fields:
-- name: 结构体字段名称
-  type: 结构体字段类型
-  comment: 结构体字段注释
-  required: 结构体字段是否是必选项
-  binding_options: binding配置项（不包含required，required由required字段控制）
-  gorm_options: gorm配置项
+  - name: 结构体字段名称
+    type: 结构体字段类型
+    comment: 结构体字段注释
+    required: 结构体字段是否是必选项
+    binding_options: binding配置项（不包含required，required由required字段控制）
+    gorm_options: gorm配置项
 ```
 
-> 使用示例
+##### 使用示例
 
 > 创建`task.yaml`文件
 
-``` yaml
+```yaml
 name: Task
 comment: 任务管理
 fields:
@@ -102,9 +102,9 @@ fields:
 ```
 
 ```bash
-$ gin-admin-cli g -p test-gin-admin -f task.yaml
+gin-admin-cli g -p test-gin-admin -f task.yaml
 ```
 
 ## MIT License
 
-    Copyright (c) 2020 Lyric
+  Copyright (c) 2021 Lyric

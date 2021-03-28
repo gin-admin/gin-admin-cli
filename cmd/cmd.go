@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gin-admin/gin-admin-cli/cmd/generate"
-	"github.com/gin-admin/gin-admin-cli/cmd/new"
+	"github.com/gin-admin/gin-admin-cli/v4/cmd/generate"
+	"github.com/gin-admin/gin-admin-cli/v4/cmd/new"
 	"github.com/urfave/cli"
 )
 
