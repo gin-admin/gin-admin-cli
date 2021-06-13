@@ -8,7 +8,7 @@ import (
 )
 
 func getBllImplFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/bll/b_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/service/%s.srv.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -20,7 +20,7 @@ func genBllImpl(ctx context.Context, pkgName, dir, name, comment string) error {
 		"Comment": comment,
 	}
 
-	buf, err := execParseTpl(bllImplTpl, data)
+	buf, err := execParseTpl(srvImplTpl, data)
 	if err != nil {
 		return err
 	}
@@ -36,27 +36,27 @@ func genBllImpl(ctx context.Context, pkgName, dir, name, comment string) error {
 	return execGoFmt(fullname)
 }
 
-const bllImplTpl = `
-package bll
+const srvImplTpl = `
+package service
 
 import (
 	"context"
 
-	"{{.PkgName}}/internal/app/model/gormx/model"
+	"{{.PkgName}}/internal/app/model/gormx/entity"
 	"{{.PkgName}}/internal/app/schema"
 	"{{.PkgName}}/pkg/errors"
 	"{{.PkgName}}/pkg/util/uuid"
 	"github.com/google/wire"
 )
 
-// var _ bll.I{{.Name}} = (*{{.Name}})(nil)
+// var _ srv.I{{.Name}} = (*{{.Name}})(nil)
 
 // {{.Name}}Set 注入{{.Name}}
 var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
 
 // {{.Name}} {{.Comment}}
 type {{.Name}} struct {
-	{{.Name}}Model *model.{{.Name}}
+	{{.Name}}Model *entity.{{.Name}}
 }
 
 // Query 查询数据

@@ -8,7 +8,7 @@ import (
 )
 
 func getBllFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/bll/b_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/service/%s.srv.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -37,7 +37,7 @@ func genBll(ctx context.Context, pkgName, dir, name, comment string) error {
 }
 
 const bllTpl = `
-package bll
+package service
 
 import (
 	"context"
