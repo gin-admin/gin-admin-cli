@@ -16,7 +16,7 @@ type entityGormField struct {
 }
 
 func getEntityGormFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/gormx/entity/e_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/model/gormx/entity/%s.entity.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 

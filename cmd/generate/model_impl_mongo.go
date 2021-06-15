@@ -8,7 +8,7 @@ import (
 )
 
 func getModelImplMongoFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/model/m_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/repo/%s.repo.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -38,7 +38,7 @@ func genModelImplMongo(ctx context.Context, pkgName, dir, name, comment string) 
 }
 
 const modelImplMongoTpl = `
-package model
+package repo
 
 import (
 	"context"

@@ -9,7 +9,7 @@ import (
 )
 
 func getAPIFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/api/a_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/api/%s.api.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -43,7 +43,7 @@ const apiTpl = `
 package api
 
 import (
-	"{{.PkgName}}/internal/app/bll"
+	"{{.PkgName}}/internal/app/service"
 	"{{.PkgName}}/internal/app/ginx"
 	"{{.PkgName}}/internal/app/schema"
 	"github.com/gin-gonic/gin"
@@ -55,7 +55,7 @@ var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
 
 // {{.Name}} {{.Comment}}
 type {{.Name}} struct {
-	{{.Name}}Bll *bll.{{.Name}}
+	{{.Name}}Srv *service.{{.Name}}
 }
 
 // Query 查询数据
@@ -68,7 +68,7 @@ func (a *{{.Name}}) Query(c *gin.Context) {
 	}
 
 	params.Pagination = true
-	result, err := a.{{.Name}}Bll.Query(ctx, params)
+	result, err := a.{{.Name}}Srv.Query(ctx, params)
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -80,7 +80,7 @@ func (a *{{.Name}}) Query(c *gin.Context) {
 // Get 查询指定数据
 func (a *{{.Name}}) Get(c *gin.Context) {
 	ctx := c.Request.Context()
-	item, err := a.{{.Name}}Bll.Get(ctx, c.Param("id"))
+	item, err := a.{{.Name}}Srv.Get(ctx, c.Param("id"))
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -98,7 +98,7 @@ func (a *{{.Name}}) Create(c *gin.Context) {
 	}
 
 	item.Creator = ginx.GetUserID(c)
-	result, err := a.{{.Name}}Bll.Create(ctx, item)
+	result, err := a.{{.Name}}Srv.Create(ctx, item)
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -115,7 +115,7 @@ func (a *{{.Name}}) Update(c *gin.Context) {
 		return
 	}
 
-	err := a.{{.Name}}Bll.Update(ctx, c.Param("id"), item)
+	err := a.{{.Name}}Srv.Update(ctx, c.Param("id"), item)
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -126,7 +126,7 @@ func (a *{{.Name}}) Update(c *gin.Context) {
 // Delete 删除数据
 func (a *{{.Name}}) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	err := a.{{.Name}}Bll.Delete(ctx, c.Param("id"))
+	err := a.{{.Name}}Srv.Delete(ctx, c.Param("id"))
 	if err != nil {
 		ginx.ResError(c, err)
 		return

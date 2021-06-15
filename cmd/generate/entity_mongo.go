@@ -15,7 +15,7 @@ type entityMongoField struct {
 }
 
 func getEntityMongoFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/entity/e_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/entity/%s.entity.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 

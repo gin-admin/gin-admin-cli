@@ -8,7 +8,7 @@ import (
 )
 
 func getModelImplGormFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/gormx/model/m_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/model/gormx/repo/%s.repo.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -38,7 +38,7 @@ func genModelImplGorm(ctx context.Context, pkgName, dir, name, comment string) e
 }
 
 const modelImplGormTpl = `
-package model
+package repo
 
 import (
 	"context"

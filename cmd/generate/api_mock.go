@@ -9,7 +9,7 @@ import (
 )
 
 func getAPIMockFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/api/mock/mock_%s.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/api/mock/%s.mock.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 

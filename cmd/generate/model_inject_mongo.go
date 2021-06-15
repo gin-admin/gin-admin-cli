@@ -7,7 +7,7 @@ import (
 )
 
 func getModelInjectMongoFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/model/model.go", dir)
+	fullname := fmt.Sprintf("%s/internal/app/model/impl/mongo/repo/main.go", dir)
 	return fullname
 }
 
@@ -18,7 +18,7 @@ func insertModelInjectMongo(ctx context.Context, dir, name string) error {
 	injectContent := fmt.Sprintf("%sSet,", name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
-		if injectStart == 0 && strings.Contains(line, "var ModelSet = wire.NewSet(") {
+		if injectStart == 0 && strings.Contains(line, "var RepoSet = wire.NewSet(") {
 			injectStart = 1
 			return
 		}
