@@ -20,7 +20,7 @@ func insertAPIMockInject(ctx context.Context, dir, name string) error {
 			return
 		}
 
-		if injectStart == 1 && strings.Contains(line, ")") {
+		if injectStart == 1 && strings.Contains(line, ") // end") {
 			injectStart = -1
 			data = injectContent
 			flag = -1
@@ -37,7 +37,7 @@ func insertAPIMockInject(ctx context.Context, dir, name string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", filename)
+	fmt.Printf("File write success: %s\n", filename)
 
 	return execGoFmt(filename)
 }

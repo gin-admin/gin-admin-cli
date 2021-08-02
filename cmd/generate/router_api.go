@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gin-admin/gin-admin-cli/v4/util"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
 func getRouterAPIFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/router/r_api.go", dir)
+	fullname := fmt.Sprintf("%s/internal/app/router/router.go", dir)
 	return fullname
 }
 
@@ -18,7 +18,7 @@ func insertRouterAPI(ctx context.Context, dir, name string) error {
 
 	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
 	pname = strings.Replace(pname, "_", "-", -1)
-	apiContent, err := execParseTpl(routerAPITpl, map[string]string{
+	injectContent, err := execParseTpl(routerAPITpl, map[string]string{
 		"Name":       name,
 		"PluralName": pname,
 	})
@@ -26,27 +26,19 @@ func insertRouterAPI(ctx context.Context, dir, name string) error {
 		return err
 	}
 
-	var apiStart int
-	apiStack := 0
+	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
-		if apiStart == 0 && strings.Contains(line, "v1 := g.Group") {
-			apiStart = 1
+		if injectStart == 0 && strings.Contains(line, "v1 := g.Group") {
+			injectStart = 1
 			return
 		}
 
-		if apiStart == 1 {
-			if v := strings.TrimSpace(line); v == "{" {
-				apiStack++
-			} else if v == "}" {
-				apiStack--
-			}
-
-			if apiStack == 0 {
-				data = apiContent.String()
-				flag = -1
-				ok = true
-				return
-			}
+		if injectStart == 1 && strings.Contains(line, "} // v1 end") {
+			injectStart = -1
+			data = injectContent.String()
+			flag = -1
+			ok = true
+			return
 		}
 
 		return "", 0, false
@@ -57,7 +49,7 @@ func insertRouterAPI(ctx context.Context, dir, name string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", fullname)
+	fmt.Printf("File write success: %s\n", fullname)
 
 	return execGoFmt(fullname)
 }
@@ -71,5 +63,7 @@ g{{.Name}} := v1.Group("{{.PluralName}}")
 	g{{.Name}}.POST("", a.{{.Name}}API.Create)
 	g{{.Name}}.PUT(":id", a.{{.Name}}API.Update)
 	g{{.Name}}.DELETE(":id", a.{{.Name}}API.Delete)
+	g{{.Name}}.PATCH(":id/enable", a.{{.Name}}API.Enable)
+	g{{.Name}}.PATCH(":id/disable", a.{{.Name}}API.Disable)
 }
 `

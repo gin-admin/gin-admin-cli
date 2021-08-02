@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gin-admin/gin-admin-cli/v4/util"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
 type schemaField struct {
@@ -17,7 +17,7 @@ type schemaField struct {
 }
 
 func getSchemaFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/schema/%s.sch.go", dir, util.ToLowerUnderlinedNamer(name))
+	fullname := fmt.Sprintf("%s/internal/app/schema/%s.go", dir, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
@@ -25,9 +25,10 @@ func getSchemaFileName(dir, name string) string {
 func genSchema(ctx context.Context, pkgName, dir, name, comment string, fields ...schemaField) error {
 	var tfields []schemaField
 
-	tfields = append(tfields, schemaField{Name: "ID", Comment: "唯一标识", Type: "string"})
+	tfields = append(tfields, schemaField{Name: "ID", Comment: "唯一标识", Type: "uint64"})
 	tfields = append(tfields, fields...)
-	tfields = append(tfields, schemaField{Name: "Creator", Comment: "创建者", Type: "string"})
+	tfields = append(tfields, schemaField{Name: "Status", Comment: "状态(1:启用 2:禁用)", Type: "int"})
+	tfields = append(tfields, schemaField{Name: "Creator", Comment: "创建者", Type: "uint64"})
 	tfields = append(tfields, schemaField{Name: "CreatedAt", Comment: "创建时间", Type: "time.Time"})
 	tfields = append(tfields, schemaField{Name: "UpdatedAt", Comment: "更新时间", Type: "time.Time"})
 
@@ -77,7 +78,7 @@ func genSchema(ctx context.Context, pkgName, dir, name, comment string, fields .
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", fullname)
+	fmt.Printf("File write success: %s\n", fullname)
 
 	return execGoFmt(fullname)
 }
@@ -100,6 +101,7 @@ type {{.Name}}QueryParam struct {
 // {{.Name}}QueryOptions 查询可选参数项
 type {{.Name}}QueryOptions struct {
 	OrderFields []*OrderField // 排序字段
+	SelectFields []string      // 查询字段
 }
 
 // {{.Name}}QueryResult 查询结果

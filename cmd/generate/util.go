@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"text/template"
 )
 
@@ -54,9 +55,10 @@ func createFile(ctx context.Context, name string, buf *bytes.Buffer) error {
 	}
 
 	if exists {
-		return fmt.Errorf("文件[%s]已经存在", name)
+		return fmt.Errorf("file has been exists: %s", name)
 	}
 
+	os.MkdirAll(filepath.Dir(name), 0777)
 	file, err := os.Create(name)
 	if err != nil {
 		return err

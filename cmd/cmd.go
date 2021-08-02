@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gin-admin/gin-admin-cli/v4/cmd/generate"
-	"github.com/gin-admin/gin-admin-cli/v4/cmd/new"
+	"github.com/gin-admin/gin-admin-cli/v5/cmd/generate"
+	"github.com/gin-admin/gin-admin-cli/v5/cmd/new"
 	"github.com/urfave/cli"
 )
 
@@ -95,11 +95,7 @@ func GenerateCommand() cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "module, m",
-				Usage: "指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,model,bll,api,mock,router）",
-			},
-			&cli.StringFlag{
-				Name:  "storage, s",
-				Usage: "指定model的实现存储（默认gorm，支持：mongo/gorm）",
+				Usage: "指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,dao,service,api,mock,router）",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -110,7 +106,6 @@ func GenerateCommand() cli.Command {
 				Comment: c.String("comment"),
 				File:    c.String("file"),
 				Modules: c.String("module"),
-				Storage: c.String("storage"),
 			}
 
 			if cfg.Dir == "" {

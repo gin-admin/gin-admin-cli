@@ -7,7 +7,7 @@ import (
 )
 
 func getBllInjectFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/service/main.go", dir)
+	fullname := fmt.Sprintf("%s/internal/app/service/service.go", dir)
 	return fullname
 }
 
@@ -23,7 +23,7 @@ func insertBllInject(ctx context.Context, dir, name string) error {
 			return
 		}
 
-		if injectStart == 1 && strings.Contains(line, ")") {
+		if injectStart == 1 && strings.Contains(line, ") // end") {
 			injectStart = -1
 			data = injectContent
 			flag = -1
@@ -39,7 +39,7 @@ func insertBllInject(ctx context.Context, dir, name string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", fullname)
+	fmt.Printf("File write success: %s\n", fullname)
 
 	return execGoFmt(fullname)
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gin-admin/gin-admin-cli/v4/util"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
 func getAPIMockFileName(dir, name string) string {
@@ -35,7 +35,7 @@ func genAPIMock(ctx context.Context, pkgName, dir, name, comment string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", fullname)
+	fmt.Printf("File write success: %s\n", fullname)
 
 	return execGoFmt(fullname)
 }
@@ -48,77 +48,100 @@ import (
 	"github.com/google/wire"
 )
 
-// {{.Name}}Set 注入{{.Name}}
-var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
+var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}Mock), "*"))
 
-// {{.Name}} {{.Comment}}
-type {{.Name}} struct {
-}
+// {{.Name}}Mock {{.Comment}}
+type {{.Name}}Mock struct{}
 
 // Query 查询数据
 // @Tags {{.Comment}}
 // @Summary 查询数据
-// @Param Authorization header string false "Bearer 用户令牌"
+// @Security ApiKeyAuth
 // @Param current query int true "分页索引" default(1)
 // @Param pageSize query int true "分页大小" default(10)
 // @Param queryValue query string false "查询值"
-// @Success 200 {array} schema.{{.Name}} "查询结果：{list:列表数据,pagination:{current:页索引,pageSize:页大小,total:总数量}}"
+// @Param status query int false "状态(1:启用 2:禁用)"
+// @Success 200 {object} schema.ListResult{list=[]schema.{{.Name}}} "查询结果"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
 // @Router /api/v1/{{.PluralName}} [get]
-func (a *{{.Name}}) Query(c *gin.Context) {
+func (a *{{.Name}}Mock) Query(c *gin.Context) {
 }
 
 // Get 查询指定数据
 // @Tags {{.Comment}}
 // @Summary 查询指定数据
-// @Param Authorization header string false "Bearer 用户令牌"
-// @Param id path string true "唯一标识"
+// @Security ApiKeyAuth
+// @Param id path int true "唯一标识"
 // @Success 200 {object} schema.{{.Name}}
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 404 {object} schema.ErrorResult "{error:{code:0,message:资源不存在}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
 // @Router /api/v1/{{.PluralName}}/{id} [get]
-func (a *{{.Name}}) Get(c *gin.Context) {
+func (a *{{.Name}}Mock) Get(c *gin.Context) {
 }
 
 // Create 创建数据
 // @Tags {{.Comment}}
 // @Summary 创建数据
-// @Param Authorization header string false "Bearer 用户令牌"
+// @Security ApiKeyAuth
 // @Param body body schema.{{.Name}} true "创建数据"
 // @Success 200 {object} schema.IDResult
 // @Failure 400 {object} schema.ErrorResult "{error:{code:0,message:无效的请求参数}}"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
 // @Router /api/v1/{{.PluralName}} [post]
-func (a *{{.Name}}) Create(c *gin.Context) {
+func (a *{{.Name}}Mock) Create(c *gin.Context) {
 }
 
 // Update 更新数据
 // @Tags {{.Comment}}
 // @Summary 更新数据
-// @Param Authorization header string false "Bearer 用户令牌"
-// @Param id path string true "唯一标识"
+// @Security ApiKeyAuth
+// @Param id path int true "唯一标识"
 // @Param body body schema.{{.Name}} true "更新数据"
 // @Success 200 {object} schema.StatusResult "{status:OK}"
 // @Failure 400 {object} schema.ErrorResult "{error:{code:0,message:无效的请求参数}}"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
 // @Router /api/v1/{{.PluralName}}/{id} [put]
-func (a *{{.Name}}) Update(c *gin.Context) {
+func (a *{{.Name}}Mock) Update(c *gin.Context) {
 }
 
 // Delete 删除数据
 // @Tags {{.Comment}}
 // @Summary 删除数据
-// @Param Authorization header string false "Bearer 用户令牌"
-// @Param id path string true "唯一标识"
+// @Security ApiKeyAuth
+// @Param id path int true "唯一标识"
 // @Success 200 {object} schema.StatusResult "{status:OK}"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
 // @Router /api/v1/{{.PluralName}}/{id} [delete]
-func (a *{{.Name}}) Delete(c *gin.Context) {
+func (a *{{.Name}}Mock) Delete(c *gin.Context) {
+}
+
+// Enable 启用数据
+// @Tags {{.Comment}}
+// @Summary 启用数据
+// @Security ApiKeyAuth
+// @Param id path int true "唯一标识"
+// @Success 200 {object} schema.StatusResult "{status:OK}"
+// @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
+// @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
+// @Router /api/v1/{{.PluralName}}/{id}/enable [patch]
+func (a *{{.Name}}Mock) Enable(c *gin.Context) {
+}
+
+// Disable 禁用数据
+// @Tags {{.Comment}}
+// @Summary 禁用数据
+// @Security ApiKeyAuth
+// @Param id path int true "唯一标识"
+// @Success 200 {object} schema.StatusResult "{status:OK}"
+// @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
+// @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:服务器错误}}"
+// @Router /api/v1/{{.PluralName}}/{id}/disable [patch]
+func (a *{{.Name}}Mock) Disable(c *gin.Context) {
 }
 
 `

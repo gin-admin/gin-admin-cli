@@ -34,18 +34,6 @@ func (t TplItem) toEntityGormFields() []entityGormField {
 	return items
 }
 
-func (t TplItem) toEntityMongoFields() []entityMongoField {
-	var items []entityMongoField
-	for _, f := range t.Fields {
-		items = append(items, entityMongoField{
-			Name:    f.StructFieldName,
-			Comment: f.Comment,
-			Type:    f.StructFieldType,
-		})
-	}
-	return items
-}
-
 // TplFieldItem 模板字段项
 type TplFieldItem struct {
 	StructFieldName     string `yaml:"name"`            // 结构体字段名称

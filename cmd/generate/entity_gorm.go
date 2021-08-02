@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gin-admin/gin-admin-cli/v4/util"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
 type entityGormField struct {
@@ -16,7 +16,8 @@ type entityGormField struct {
 }
 
 func getEntityGormFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/model/gormx/entity/%s.entity.go", dir, util.ToLowerUnderlinedNamer(name))
+	name = util.ToLowerUnderlinedNamer(name)
+	fullname := fmt.Sprintf("%s/internal/app/dao/%s/%s.entity.go", dir, name, name)
 	return fullname
 }
 
@@ -25,14 +26,15 @@ func genGormEntity(ctx context.Context, pkgName, dir, name, comment string, fiel
 	var tfields []entityGormField
 
 	tfields = append(tfields, fields...)
-	tfields = append(tfields, entityGormField{Name: "Creator", Comment: "创建者", Type: "string"})
+	tfields = append(tfields, entityGormField{Name: "Status", Comment: "状态(1:启用 2:停用)", Type: "int", GormOptions: "type:tinyint;index;default:0;"})
+	tfields = append(tfields, entityGormField{Name: "Creator", Comment: "创建者", Type: "uint64"})
 
 	buf := new(bytes.Buffer)
 	for _, field := range tfields {
 		buf.WriteString(fmt.Sprintf("%s \t %s \t", field.Name, field.Type))
 		buf.WriteByte('`')
 
-		gormTag := fmt.Sprintf("column:%s;", util.ToLowerUnderlinedNamer(field.Name))
+		gormTag := ""
 		if field.GormOptions != "" {
 			gormTag += field.GormOptions
 		}
@@ -65,64 +67,61 @@ func genGormEntity(ctx context.Context, pkgName, dir, name, comment string, fiel
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", filename)
+	fmt.Printf("File write success: %s\n", filename)
 
 	return execGoFmt(filename)
 }
 
 const entityGormTpl = `
-package entity
+package {{.UnderLineName}}
 
 import (
 	"context"
-	"time"
 
+	"gorm.io/gorm"
+
+	"{{.PkgName}}/internal/app/dao/util"
 	"{{.PkgName}}/internal/app/schema"
 	"{{.PkgName}}/pkg/util/structure"
-	"github.com/jinzhu/gorm"
 )
 
-// Get{{.Name}}DB 获取{{.Name}}存储
+// Get{{.Name}}DB Get {{.Name}} db model
 func Get{{.Name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
-	return GetDBWithModel(ctx, defDB, new({{.Name}}))
+	return util.GetDBWithModel(ctx, defDB, new({{.Name}}))
 }
 
-// Schema{{.Name}} {{.Comment}}对象
+// Schema{{.Name}} {{.Name}} schema
 type Schema{{.Name}} schema.{{.Name}}
 
-// To{{.Name}} 转换为实体
+// To{{.Name}} Convert to {{.Name}} entity
 func (a Schema{{.Name}}) To{{.Name}}() *{{.Name}} {
 	item := new({{.Name}})
 	structure.Copy(a, item)
 	return item
 }
 
-// {{.Name}} {{.Comment}}实体
+// {{.Name}} {{.Name}} entity
 type {{.Name}} struct {
-	ID        string     {{.BackQuote}}gorm:"column:id;primary_key;size:36;"{{.BackQuote}}
+	util.Model
 	{{.Fields}}
-	CreatedAt time.Time  {{.BackQuote}}gorm:"column:created_at;index;"{{.BackQuote}}
-	UpdatedAt time.Time  {{.BackQuote}}gorm:"column:updated_at;index;"{{.BackQuote}}
-	DeletedAt *time.Time {{.BackQuote}}gorm:"column:deleted_at;index;"{{.BackQuote}}
 }
 
-// ToSchema{{.Name}} 转换为demo对象
+// ToSchema{{.Name}} Convert to {{.Name}} schema
 func (a {{.Name}}) ToSchema{{.Name}}() *schema.{{.Name}} {
 	item := new(schema.{{.Name}})
 	structure.Copy(a, item)
 	return item
 }
 
-// {{.PluralName}} {{.Comment}}实体列表
+// {{.PluralName}} {{.Name}} entity list
 type {{.PluralName}} []*{{.Name}}
 
-// ToSchema{{.PluralName}} 转换为对象列表
-func (a {{.PluralName}}) ToSchema{{.PluralName}}() schema.{{.PluralName}} {
-	list := make(schema.{{.PluralName}}, len(a))
+// ToSchema{{.PluralName}} Convert to {{.Name}} schema list
+func (a {{.PluralName}}) ToSchema{{.PluralName}}() []*schema.{{.Name}} {
+	list := make([]*schema.{{.Name}}, len(a))
 	for i, item := range a {
 		list[i] = item.ToSchema{{.Name}}()
 	}
 	return list
 }
-
 `

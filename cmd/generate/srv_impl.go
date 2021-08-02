@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gin-admin/gin-admin-cli/v4/util"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
 func getBllImplFileName(dir, name string) string {
@@ -20,7 +20,7 @@ func genBllImpl(ctx context.Context, pkgName, dir, name, comment string) error {
 		"Comment": comment,
 	}
 
-	buf, err := execParseTpl(srvImplTpl, data)
+	buf, err := execParseTpl(serviceImplTpl, data)
 	if err != nil {
 		return err
 	}
@@ -31,42 +31,42 @@ func genBllImpl(ctx context.Context, pkgName, dir, name, comment string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", fullname)
+	fmt.Printf("File write success: %s\n", fullname)
 
 	return execGoFmt(fullname)
 }
 
-const srvImplTpl = `
+const serviceImplTpl = `
 package service
 
 import (
 	"context"
 
-	"{{.PkgName}}/internal/app/model/gormx/entity"
+	"github.com/google/wire"
+
+	"{{.PkgName}}/internal/app/dao"
 	"{{.PkgName}}/internal/app/schema"
 	"{{.PkgName}}/pkg/errors"
-	"{{.PkgName}}/pkg/util/uuid"
-	"github.com/google/wire"
+	"{{.PkgName}}/pkg/util/snowflake"
 )
 
-// var _ srv.I{{.Name}} = (*{{.Name}})(nil)
+var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}Srv), "*"))
 
-// {{.Name}}Set 注入{{.Name}}
-var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
-
-// {{.Name}} {{.Comment}}
-type {{.Name}} struct {
-	{{.Name}}Model *entity.{{.Name}}
+type {{.Name}}Srv struct {
+	TransRepo              		*dao.TransRepo
+	{{.Name}}Repo               *dao.{{.Name}}Repo
 }
 
-// Query 查询数据
-func (a *{{.Name}}) Query(ctx context.Context, params schema.{{.Name}}QueryParam, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}QueryResult, error) {
-	return a.{{.Name}}Model.Query(ctx, params, opts...)
+func (a *{{.Name}}Srv) Query(ctx context.Context, params schema.{{.Name}}QueryParam, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}QueryResult, error) {
+	result, err := a.{{.Name}}Repo.Query(ctx, params, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
-// Get 查询指定数据
-func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
-	item, err := a.{{.Name}}Model.Get(ctx, id, opts...)
+func (a *{{.Name}}Srv) Get(ctx context.Context, id uint64, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
+	item, err := a.{{.Name}}Repo.Get(ctx, id, opts...)
 	if err != nil {
 		return nil, err
 	} else if item == nil {
@@ -76,11 +76,12 @@ func (a *{{.Name}}) Get(ctx context.Context, id string, opts ...schema.{{.Name}}
 	return item, nil
 }
 
-// Create 创建数据
-func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.IDResult, error) {
-	// TODO: check?
-	item.ID = uuid.MustString()
-	err := a.{{.Name}}Model.Create(ctx, item)
+func (a *{{.Name}}Srv) Create(ctx context.Context, item schema.{{.Name}}) (*schema.IDResult, error) {
+	item.ID = snowflake.MustID()
+
+	err := a.TransRepo.Exec(ctx, func(ctx context.Context) error {
+		return a.{{.Name}}Repo.Create(ctx, item)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -88,32 +89,47 @@ func (a *{{.Name}}) Create(ctx context.Context, item schema.{{.Name}}) (*schema.
 	return schema.NewIDResult(item.ID), nil
 }
 
-// Update 更新数据
-func (a *{{.Name}}) Update(ctx context.Context, id string, item schema.{{.Name}}) error {
-	oldItem, err := a.{{.Name}}Model.Get(ctx, id)
+func (a *{{.Name}}Srv) Update(ctx context.Context, id uint64, item schema.{{.Name}}) error {
+	oldItem, err := a.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if oldItem == nil {
 		return errors.ErrNotFound
 	}
-	// TODO: check?
+
 	item.ID = oldItem.ID
 	item.Creator = oldItem.Creator
 	item.CreatedAt = oldItem.CreatedAt
 
-	return a.{{.Name}}Model.Update(ctx, id, item)
+	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
+		return a.{{.Name}}Repo.Update(ctx, id, item)
+	})
 }
 
-// Delete 删除数据
-func (a *{{.Name}}) Delete(ctx context.Context, id string) error {
-	oldItem, err := a.{{.Name}}Model.Get(ctx, id)
+func (a *{{.Name}}Srv) Delete(ctx context.Context, id uint64) error {
+	oldItem, err := a.{{.Name}}Repo.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if oldItem == nil {
 		return errors.ErrNotFound
 	}
 
-	return a.{{.Name}}Model.Delete(ctx, id)
+	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
+		return a.{{.Name}}Repo.Delete(ctx, id)
+	})
+}
+
+func (a *{{.Name}}Srv) UpdateStatus(ctx context.Context, id uint64, status int) error {
+	oldItem, err := a.{{.Name}}Repo.Get(ctx, id)
+	if err != nil {
+		return err
+	} else if oldItem == nil {
+		return errors.ErrNotFound
+	} else if oldItem.Status == status {
+		return nil
+	}
+
+	return a.{{.Name}}Repo.UpdateStatus(ctx, id, status)
 }
 
 `

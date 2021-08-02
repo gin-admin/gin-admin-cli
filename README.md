@@ -1,11 +1,11 @@
 # gin-admin-cli - [gin-admin](https://github.com/LyricTian/gin-admin)
 
-> GinAdmin 辅助工具，提供创建项目、快速生成功能模块的功能
+> gin-admin v8.0 辅助工具，提供创建项目、快速生成功能模块的功能
 
 ## 下载并使用
 
 ```bash
-go get -u github.com/gin-admin/gin-admin-cli/v4
+go get -u github.com/gin-admin/gin-admin-cli/v5
 ```
 
 ### 创建项目
@@ -15,10 +15,10 @@ USAGE:
    gin-admin-cli new [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value     项目生成目录(默认GOPATH)
+   --dir value, -d value     项目生成目录 (默认GOPATH)
    --pkg value, -p value     项目包名
-   --branch value, -b value  指定分支(默认master)
-   --mirror, -m              使用国内镜像(gitee.com)
+   --branch value, -b value  指定分支 (默认master)
+   --mirror, -m              使用国内镜像 (gitee.com)
    --web, -w                 包含web项目
 ```
 
@@ -42,8 +42,7 @@ OPTIONS:
    --name value, -n value     业务模块名称(结构体名称)
    --comment value, -c value  业务模块注释(结构体注释)
    --file value, -f value     指定模板文件(.yaml，模板配置可参考说明)
-   --module value, -m value   指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,model,bll,api,mock,router）
-   --storage value, -s value  指定model的实现存储（默认gorm，支持：mongo/gorm）
+   --module value, -m value   指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,dao,service,api,mock,router）
 ```
 
 > 使用示例

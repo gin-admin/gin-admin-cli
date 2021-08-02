@@ -16,7 +16,6 @@ type Config struct {
 	Name    string
 	Comment string
 	File    string
-	Storage string
 	Modules string
 }
 
@@ -85,41 +84,18 @@ func (a *Command) Exec() error {
 		}
 	}
 
-	if a.hasModule("model") {
-		// err = genModel(ctx, pkgName, dir, item.StructName, item.Comment)
-		// a.handleError(err, "Generate model interface")
-		switch a.cfg.Storage {
-		case "mongo":
-			err = genMongoEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityMongoFields()...)
-			a.handleError(err, "Generate mongo entity")
+	if a.hasModule("dao") {
+		err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityGormFields()...)
+		a.handleError(err, "Generate gorm entity")
 
-			err = insertEntityInjectMongo(ctx, dir, item.StructName)
-			a.handleError(err, "Insert mongo entity inject")
+		err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment)
+		a.handleError(err, "Generate gorm model")
 
-			err = genModelImplMongo(ctx, pkgName, dir, item.StructName, item.Comment)
-			a.handleError(err, "Generate mongo model")
-
-			err = insertModelInjectMongo(ctx, dir, item.StructName)
-			a.handleError(err, "Insert mongo model inject")
-		default:
-			err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityGormFields()...)
-			a.handleError(err, "Generate gorm entity")
-
-			err = insertEntityInjectGorm(ctx, dir, item.StructName)
-			a.handleError(err, "Insert gorm entity inject")
-
-			err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment)
-			a.handleError(err, "Generate gorm model")
-
-			err = insertModelInjectGorm(ctx, dir, item.StructName)
-			a.handleError(err, "Insert gorm model inject")
-		}
+		err = insertModelInjectGorm(ctx, pkgName, dir, item.StructName)
+		a.handleError(err, "Insert gorm model inject")
 	}
 
-	if a.hasModule("bll") {
-		//err = genBll(ctx, pkgName, dir, item.StructName, item.Comment)
-		//a.handleError(err, "Generate bll interface")
-
+	if a.hasModule("service") {
 		err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
 		a.handleError(err, "Generate bll impl")
 

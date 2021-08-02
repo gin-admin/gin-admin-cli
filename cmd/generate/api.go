@@ -3,9 +3,8 @@ package generate
 import (
 	"context"
 	"fmt"
-	"strings"
 
-	"github.com/gin-admin/gin-admin-cli/v4/util"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
 func getAPIFileName(dir, name string) string {
@@ -14,9 +13,6 @@ func getAPIFileName(dir, name string) string {
 }
 
 func genAPI(ctx context.Context, pkgName, dir, name, comment string) error {
-	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
-	pname = strings.Replace(pname, "_", "-", -1)
-
 	data := map[string]interface{}{
 		"PkgName": pkgName,
 		"Name":    name,
@@ -34,7 +30,7 @@ func genAPI(ctx context.Context, pkgName, dir, name, comment string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", fullname)
+	fmt.Printf("File write success: %s\n", fullname)
 
 	return execGoFmt(fullname)
 }
@@ -43,23 +39,22 @@ const apiTpl = `
 package api
 
 import (
-	"{{.PkgName}}/internal/app/service"
-	"{{.PkgName}}/internal/app/ginx"
-	"{{.PkgName}}/internal/app/schema"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
+
+	"{{.PkgName}}/internal/app/contextx"
+	"{{.PkgName}}/internal/app/ginx"
+	"{{.PkgName}}/internal/app/schema"
+	"{{.PkgName}}/internal/app/service"
 )
 
-// {{.Name}}Set 注入{{.Name}}
-var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}), "*"))
+var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}API), "*"))
 
-// {{.Name}} {{.Comment}}
-type {{.Name}} struct {
-	{{.Name}}Srv *service.{{.Name}}
+type {{.Name}}API struct {
+	{{.Name}}Srv *service.{{.Name}}Srv
 }
 
-// Query 查询数据
-func (a *{{.Name}}) Query(c *gin.Context) {
+func (a *{{.Name}}API) Query(c *gin.Context) {
 	ctx := c.Request.Context()
 	var params schema.{{.Name}}QueryParam
 	if err := ginx.ParseQuery(c, &params); err != nil {
@@ -68,19 +63,19 @@ func (a *{{.Name}}) Query(c *gin.Context) {
 	}
 
 	params.Pagination = true
-	result, err := a.{{.Name}}Srv.Query(ctx, params)
+	result, err := a.{{.Name}}Srv.Query(ctx, params, schema.{{.Name}}QueryOptions{
+		OrderFields: schema.NewOrderFields(schema.NewOrderField("sequence", schema.OrderByDESC)),
+	})
 	if err != nil {
 		ginx.ResError(c, err)
 		return
 	}
-
 	ginx.ResPage(c, result.Data, result.PageResult)
 }
 
-// Get 查询指定数据
-func (a *{{.Name}}) Get(c *gin.Context) {
+func (a *{{.Name}}API) Get(c *gin.Context) {
 	ctx := c.Request.Context()
-	item, err := a.{{.Name}}Srv.Get(ctx, c.Param("id"))
+	item, err := a.{{.Name}}Srv.Get(ctx, ginx.ParseParamID(c, "id"))
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -88,8 +83,7 @@ func (a *{{.Name}}) Get(c *gin.Context) {
 	ginx.ResSuccess(c, item)
 }
 
-// Create 创建数据
-func (a *{{.Name}}) Create(c *gin.Context) {
+func (a *{{.Name}}API) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
 	if err := ginx.ParseJSON(c, &item); err != nil {
@@ -97,7 +91,7 @@ func (a *{{.Name}}) Create(c *gin.Context) {
 		return
 	}
 
-	item.Creator = ginx.GetUserID(c)
+	item.Creator = contextx.FromUserID(ctx)
 	result, err := a.{{.Name}}Srv.Create(ctx, item)
 	if err != nil {
 		ginx.ResError(c, err)
@@ -106,8 +100,7 @@ func (a *{{.Name}}) Create(c *gin.Context) {
 	ginx.ResSuccess(c, result)
 }
 
-// Update 更新数据
-func (a *{{.Name}}) Update(c *gin.Context) {
+func (a *{{.Name}}API) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
 	if err := ginx.ParseJSON(c, &item); err != nil {
@@ -115,7 +108,7 @@ func (a *{{.Name}}) Update(c *gin.Context) {
 		return
 	}
 
-	err := a.{{.Name}}Srv.Update(ctx, c.Param("id"), item)
+	err := a.{{.Name}}Srv.Update(ctx, ginx.ParseParamID(c, "id"), item)
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -123,10 +116,29 @@ func (a *{{.Name}}) Update(c *gin.Context) {
 	ginx.ResOK(c)
 }
 
-// Delete 删除数据
-func (a *{{.Name}}) Delete(c *gin.Context) {
+func (a *{{.Name}}API) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	err := a.{{.Name}}Srv.Delete(ctx, c.Param("id"))
+	err := a.{{.Name}}Srv.Delete(ctx, ginx.ParseParamID(c, "id"))
+	if err != nil {
+		ginx.ResError(c, err)
+		return
+	}
+	ginx.ResOK(c)
+}
+
+func (a *{{.Name}}API) Enable(c *gin.Context) {
+	ctx := c.Request.Context()
+	err := a.{{.Name}}Srv.UpdateStatus(ctx, ginx.ParseParamID(c, "id"), 1)
+	if err != nil {
+		ginx.ResError(c, err)
+		return
+	}
+	ginx.ResOK(c)
+}
+
+func (a *{{.Name}}API) Disable(c *gin.Context) {
+	ctx := c.Request.Context()
+	err := a.{{.Name}}Srv.UpdateStatus(ctx, ginx.ParseParamID(c, "id"), 2)
 	if err != nil {
 		ginx.ResError(c, err)
 		return

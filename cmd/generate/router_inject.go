@@ -12,7 +12,7 @@ func getRouterInjectFileName(dir string) string {
 }
 
 func insertRouterInject(ctx context.Context, dir, name string) error {
-	injectContent := fmt.Sprintf("%sAPI *api.%s", name, name)
+	injectContent := fmt.Sprintf("%sAPI *api.%sAPI", name, name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
 		if injectStart == 0 && strings.Contains(line, "type Router struct {") {
@@ -20,7 +20,7 @@ func insertRouterInject(ctx context.Context, dir, name string) error {
 			return
 		}
 
-		if injectStart == 1 && strings.Contains(line, "}") {
+		if injectStart == 1 && strings.Contains(line, "} // end") {
 			injectStart = -1
 			data = injectContent
 			flag = -1
@@ -37,7 +37,7 @@ func insertRouterInject(ctx context.Context, dir, name string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", filename)
+	fmt.Printf("File write success: %s\n", filename)
 
 	return execGoFmt(filename)
 }

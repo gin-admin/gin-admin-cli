@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gin-admin/gin-admin-cli/v4/util"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
 func getBllFileName(dir, name string) string {
@@ -31,7 +31,7 @@ func genBll(ctx context.Context, pkgName, dir, name, comment string) error {
 		return err
 	}
 
-	fmt.Printf("文件[%s]写入成功\n", fullname)
+	fmt.Printf("File write success: %s\n", fullname)
 
 	return execGoFmt(fullname)
 }

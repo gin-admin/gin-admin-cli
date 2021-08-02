@@ -18,7 +18,7 @@ const (
 	giteeSource     = "https://gitee.com/lyric/gin-admin.git"
 	githubWebSource = "https://github.com/LyricTian/gin-admin-react.git"
 	giteeWebSource  = "https://gitee.com/lyric/gin-admin-react.git"
-	defaultPkgName  = "github.com/LyricTian/gin-admin/v7"
+	defaultPkgName  = "github.com/LyricTian/gin-admin/v8"
 	defaultAppName  = "gin-admin"
 )
 
@@ -50,7 +50,7 @@ func (a *Command) Exec() error {
 		return err
 	}
 
-	log.Printf("项目生成目录：%s", dir)
+	log.Printf("Generate project directory: %s", dir)
 
 	notExist := false
 	_, err = os.Stat(dir)
@@ -118,8 +118,8 @@ func (a *Command) Exec() error {
 		}
 	}
 
-	fmt.Printf("\n项目创建成功：%s\n", dir)
-	fmt.Println(TplProjectStructure)
+	fmt.Printf("\nProject create success: %s\n", dir)
+	fmt.Printf(TplProjectStructure, a.cfg.PkgName)
 
 	return nil
 }
@@ -161,7 +161,7 @@ func (a *Command) gitClone(dir, source string) error {
 	args = append(args, source)
 	args = append(args, dir)
 
-	log.Printf("执行命令：git %s", strings.Join(args, " "))
+	log.Printf("gin-admin-cli#$ git %s", strings.Join(args, " "))
 	return a.execGit("", args...)
 }
 
