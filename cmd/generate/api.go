@@ -63,9 +63,7 @@ func (a *{{.Name}}API) Query(c *gin.Context) {
 	}
 
 	params.Pagination = true
-	result, err := a.{{.Name}}Srv.Query(ctx, params, schema.{{.Name}}QueryOptions{
-		OrderFields: schema.NewOrderFields(schema.NewOrderField("sequence", schema.OrderByDESC)),
-	})
+	result, err := a.{{.Name}}Srv.Query(ctx, params)
 	if err != nil {
 		ginx.ResError(c, err)
 		return

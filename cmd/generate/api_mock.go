@@ -59,7 +59,6 @@ type {{.Name}}Mock struct{}
 // @Security ApiKeyAuth
 // @Param current query int true "分页索引" default(1)
 // @Param pageSize query int true "分页大小" default(10)
-// @Param queryValue query string false "查询值"
 // @Param status query int false "状态(1:启用 2:禁用)"
 // @Success 200 {object} schema.ListResult{list=[]schema.{{.Name}}} "查询结果"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:0,message:未授权}}"
