@@ -34,6 +34,10 @@ func NewCommand() cli.Command {
 				Usage: "使用国内镜像(gitee.com)",
 			},
 			&cli.BoolFlag{
+				Name:  "tpl",
+				Usage: "Use gin-admin-tpl",
+			},
+			&cli.BoolFlag{
 				Name:  "web, w",
 				Usage: "包含web项目",
 			},
@@ -43,6 +47,7 @@ func NewCommand() cli.Command {
 				Dir:        c.String("dir"),
 				PkgName:    c.String("pkg"),
 				UseMirror:  c.Bool("mirror"),
+				UseTpl:     c.Bool("tpl"),
 				Branch:     c.String("branch"),
 				IncludeWeb: c.Bool("web"),
 			}

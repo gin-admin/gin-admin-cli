@@ -15,10 +15,11 @@ USAGE:
    gin-admin-cli new [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value     项目生成目录 (默认GOPATH)
+   --dir value, -d value     项目生成目录(默认GOPATH+包名)
    --pkg value, -p value     项目包名
-   --branch value, -b value  指定分支 (默认master)
-   --mirror, -m              使用国内镜像 (gitee.com)
+   --branch value, -b value  指定分支(默认master)
+   --mirror, -m              使用国内镜像(gitee.com)
+   --tpl                     Use gin-admin-tpl
    --web, -w                 包含web项目
 ```
 

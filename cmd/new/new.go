@@ -13,9 +13,11 @@ import (
 	"strings"
 )
 
-const (
+var (
 	githubSource    = "https://github.com/LyricTian/gin-admin.git"
 	giteeSource     = "https://gitee.com/lyric/gin-admin.git"
+	githubTplSource = "https://github.com/gin-admin/gin-admin-tpl.git"
+	giteeTplSource  = "https://gitee.com/lyric/gin-admin-tpl.git"
 	githubWebSource = "https://github.com/LyricTian/gin-admin-react.git"
 	giteeWebSource  = "https://gitee.com/lyric/gin-admin-react.git"
 	defaultPkgName  = "github.com/LyricTian/gin-admin/v8"
@@ -29,6 +31,7 @@ type Config struct {
 	AppName    string
 	Branch     string
 	UseMirror  bool
+	UseTpl     bool
 	IncludeWeb bool
 }
 
@@ -64,8 +67,16 @@ func (a *Command) Exec() error {
 
 	if notExist {
 		source := githubSource
+		if a.cfg.UseTpl {
+			source = githubTplSource
+			defaultAppName = "gin-admin-tpl"
+			defaultPkgName = "github.com/gin-admin/gin-admin-tpl"
+		}
 		if a.cfg.UseMirror {
 			source = giteeSource
+			if a.cfg.UseTpl {
+				source = giteeTplSource
+			}
 		}
 		err = a.gitClone(dir, source)
 		if err != nil {
