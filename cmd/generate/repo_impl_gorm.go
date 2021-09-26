@@ -78,8 +78,9 @@ func (a *{{.Name}}Repo) Query(ctx context.Context, params schema.{{.Name}}QueryP
 		db = db.Select(opt.SelectFields)
 	}
 
-	opt.OrderFields = append(opt.OrderFields, schema.NewOrderField("id", schema.OrderByDESC))
-	db = db.Order(util.ParseOrder(opt.OrderFields))
+	if len(opt.OrderFields) > 0 {
+		db = db.Order(util.ParseOrder(opt.OrderFields))
+	}
 
 	var list {{.PluralName}}
 	pr, err := util.WrapPageQuery(ctx, db, params.PaginationParam, &list)
