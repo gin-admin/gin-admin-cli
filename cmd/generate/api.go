@@ -12,11 +12,13 @@ func getAPIFileName(dir, name string) string {
 	return fullname
 }
 
-func genAPI(ctx context.Context, pkgName, dir, name, comment string) error {
+func genAPI(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool) error {
 	data := map[string]interface{}{
-		"PkgName": pkgName,
-		"Name":    name,
-		"Comment": comment,
+		"PkgName":       pkgName,
+		"Name":          name,
+		"Comment":       comment,
+		"IncludeStatus": !excludeStatus,
+		"IncludeCreate": !excludeCreate,
 	}
 
 	buf, err := execParseTpl(apiTpl, data)
@@ -89,7 +91,9 @@ func (a *{{.Name}}API) Create(c *gin.Context) {
 		return
 	}
 
+	{{if .IncludeCreate}}
 	item.Creator = contextx.FromUserID(ctx)
+	{{end}}
 	result, err := a.{{.Name}}Srv.Create(ctx, item)
 	if err != nil {
 		ginx.ResError(c, err)
@@ -124,6 +128,7 @@ func (a *{{.Name}}API) Delete(c *gin.Context) {
 	ginx.ResOK(c)
 }
 
+{{if .IncludeStatus}}
 func (a *{{.Name}}API) Enable(c *gin.Context) {
 	ctx := c.Request.Context()
 	err := a.{{.Name}}Srv.UpdateStatus(ctx, ginx.ParseParamID(c, "id"), 1)
@@ -143,5 +148,6 @@ func (a *{{.Name}}API) Disable(c *gin.Context) {
 	}
 	ginx.ResOK(c)
 }
+{{end}}
 
 `

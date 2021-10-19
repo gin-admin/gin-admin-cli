@@ -21,13 +21,17 @@ func getEntityGormFileName(dir, name string) string {
 	return fullname
 }
 
-// 生成entity文件
-func genGormEntity(ctx context.Context, pkgName, dir, name, comment string, fields ...entityGormField) error {
+func genGormEntity(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool, fields ...entityGormField) error {
 	var tfields []entityGormField
 
 	tfields = append(tfields, fields...)
-	tfields = append(tfields, entityGormField{Name: "Status", Comment: "状态(1:启用 2:停用)", Type: "int", GormOptions: "type:tinyint;index;default:0;"})
-	tfields = append(tfields, entityGormField{Name: "Creator", Comment: "创建者", Type: "uint64"})
+	if !excludeStatus {
+		tfields = append(tfields, entityGormField{Name: "Status", Comment: "状态(1:启用 2:停用)", Type: "int", GormOptions: "type:tinyint;index;default:0;"})
+	}
+
+	if !excludeCreate {
+		tfields = append(tfields, entityGormField{Name: "Creator", Comment: "创建者", Type: "uint64"})
+	}
 
 	buf := new(bytes.Buffer)
 	for _, field := range tfields {
@@ -85,38 +89,38 @@ import (
 	"{{.PkgName}}/pkg/util/structure"
 )
 
-// Get{{.Name}}DB Get {{.Name}} db model
+// Get {{.Name}} db model
 func Get{{.Name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
 	return util.GetDBWithModel(ctx, defDB, new({{.Name}}))
 }
 
-// Schema{{.Name}} {{.Name}} schema
+// {{.Name}}
 type Schema{{.Name}} schema.{{.Name}}
 
-// To{{.Name}} Convert to {{.Name}} entity
+// Convert to {{.Name}} entity
 func (a Schema{{.Name}}) To{{.Name}}() *{{.Name}} {
 	item := new({{.Name}})
 	structure.Copy(a, item)
 	return item
 }
 
-// {{.Name}} {{.Name}} entity
+// {{.Name}} entity
 type {{.Name}} struct {
 	util.Model
 	{{.Fields}}
 }
 
-// ToSchema{{.Name}} Convert to {{.Name}} schema
+// Convert to {{.Name}} schema
 func (a {{.Name}}) ToSchema{{.Name}}() *schema.{{.Name}} {
 	item := new(schema.{{.Name}})
 	structure.Copy(a, item)
 	return item
 }
 
-// {{.PluralName}} {{.Name}} entity list
+// {{.Name}} entity list
 type {{.PluralName}} []*{{.Name}}
 
-// ToSchema{{.PluralName}} Convert to {{.Name}} schema list
+// Convert to {{.Name}} schema list
 func (a {{.PluralName}}) ToSchema{{.PluralName}}() []*schema.{{.Name}} {
 	list := make([]*schema.{{.Name}}, len(a))
 	for i, item := range a {

@@ -13,14 +13,16 @@ func getRouterAPIFileName(dir string) string {
 	return fullname
 }
 
-func insertRouterAPI(ctx context.Context, dir, name string) error {
+func insertRouterAPI(ctx context.Context, dir, name string, excludeStatus, excludeCreate bool) error {
 	fullname := getRouterAPIFileName(dir)
 
 	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
 	pname = strings.Replace(pname, "_", "-", -1)
-	injectContent, err := execParseTpl(routerAPITpl, map[string]string{
-		"Name":       name,
-		"PluralName": pname,
+	injectContent, err := execParseTpl(routerAPITpl, map[string]interface{}{
+		"Name":          name,
+		"PluralName":    pname,
+		"IncludeStatus": !excludeStatus,
+		"IncludeCreate": !excludeCreate,
 	})
 	if err != nil {
 		return err
@@ -63,7 +65,9 @@ g{{.Name}} := v1.Group("{{.PluralName}}")
 	g{{.Name}}.POST("", a.{{.Name}}API.Create)
 	g{{.Name}}.PUT(":id", a.{{.Name}}API.Update)
 	g{{.Name}}.DELETE(":id", a.{{.Name}}API.Delete)
+	{{if .IncludeStatus}}
 	g{{.Name}}.PATCH(":id/enable", a.{{.Name}}API.Enable)
 	g{{.Name}}.PATCH(":id/disable", a.{{.Name}}API.Disable)
+	{{end}}
 }
 `

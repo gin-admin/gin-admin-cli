@@ -13,7 +13,6 @@ func getModelInjectGormFileName(dir string) string {
 	return fullname
 }
 
-// 插入model注入文件
 func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error {
 	fullname := getModelInjectGormFileName(dir)
 	ulname := util.ToLowerUnderlinedNamer(name)

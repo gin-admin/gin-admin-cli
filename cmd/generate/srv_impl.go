@@ -12,12 +12,13 @@ func getBllImplFileName(dir, name string) string {
 	return fullname
 }
 
-// 生成bll实现文件
-func genBllImpl(ctx context.Context, pkgName, dir, name, comment string) error {
+func genServiceImpl(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool) error {
 	data := map[string]interface{}{
-		"PkgName": pkgName,
-		"Name":    name,
-		"Comment": comment,
+		"PkgName":       pkgName,
+		"Name":          name,
+		"Comment":       comment,
+		"IncludeStatus": !excludeStatus,
+		"IncludeCreate": !excludeCreate,
 	}
 
 	buf, err := execParseTpl(serviceImplTpl, data)
@@ -98,7 +99,9 @@ func (a *{{.Name}}Srv) Update(ctx context.Context, id uint64, item schema.{{.Nam
 	}
 
 	item.ID = oldItem.ID
+	{{if .IncludeCreate}}
 	item.Creator = oldItem.Creator
+	{{end}}
 	item.CreatedAt = oldItem.CreatedAt
 
 	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
@@ -119,6 +122,7 @@ func (a *{{.Name}}Srv) Delete(ctx context.Context, id uint64) error {
 	})
 }
 
+{{if .IncludeStatus}}
 func (a *{{.Name}}Srv) UpdateStatus(ctx context.Context, id uint64, status int) error {
 	oldItem, err := a.{{.Name}}Repo.Get(ctx, id)
 	if err != nil {
@@ -131,5 +135,6 @@ func (a *{{.Name}}Srv) UpdateStatus(ctx context.Context, id uint64, status int) 
 
 	return a.{{.Name}}Repo.UpdateStatus(ctx, id, status)
 }
+{{end}}
 
 `

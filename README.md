@@ -44,6 +44,8 @@ OPTIONS:
    --comment value, -c value  业务模块注释(结构体注释)
    --file value, -f value     指定模板文件(.yaml，模板配置可参考说明)
    --module value, -m value   指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,dao,service,api,mock,router）
+   --include_status           是否包含 status 字段
+   --include_creator          是否包含 creator 字段
 ```
 
 > 使用示例

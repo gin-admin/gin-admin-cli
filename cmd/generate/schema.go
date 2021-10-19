@@ -21,14 +21,20 @@ func getSchemaFileName(dir, name string) string {
 	return fullname
 }
 
-// 生成schema文件
-func genSchema(ctx context.Context, pkgName, dir, name, comment string, fields ...schemaField) error {
+func genSchema(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool, fields ...schemaField) error {
 	var tfields []schemaField
 
 	tfields = append(tfields, schemaField{Name: "ID", Comment: "唯一标识", Type: "uint64"})
 	tfields = append(tfields, fields...)
-	tfields = append(tfields, schemaField{Name: "Status", Comment: "状态(1:启用 2:禁用)", Type: "int"})
-	tfields = append(tfields, schemaField{Name: "Creator", Comment: "创建者", Type: "uint64"})
+
+	if !excludeStatus {
+		tfields = append(tfields, schemaField{Name: "Status", Comment: "状态(1:启用 2:禁用)", Type: "int"})
+	}
+
+	if !excludeCreate {
+		tfields = append(tfields, schemaField{Name: "Creator", Comment: "创建者", Type: "uint64"})
+	}
+
 	tfields = append(tfields, schemaField{Name: "CreatedAt", Comment: "创建时间", Type: "time.Time"})
 	tfields = append(tfields, schemaField{Name: "UpdatedAt", Comment: "更新时间", Type: "time.Time"})
 
@@ -36,12 +42,17 @@ func genSchema(ctx context.Context, pkgName, dir, name, comment string, fields .
 	for _, field := range tfields {
 		buf.WriteString(fmt.Sprintf("%s \t %s \t", field.Name, field.Type))
 		buf.WriteByte('`')
-		buf.WriteString(fmt.Sprintf(`json:"%s"`, util.ToLowerUnderlinedNamer(field.Name)))
+		if field.Name == "ID" {
+			buf.WriteString(fmt.Sprintf(`json:"%s,string"`, util.ToLowerUnderlinedNamer(field.Name)))
+		} else {
+			buf.WriteString(fmt.Sprintf(`json:"%s"`, util.ToLowerUnderlinedNamer(field.Name)))
+		}
 
 		bindingOpts := ""
 		if field.IsRequired {
 			bindingOpts = "required"
 		}
+
 		if v := field.BindingOptions; v != "" {
 			if bindingOpts != "" {
 				bindingOpts += ","
@@ -88,29 +99,29 @@ package schema
 
 import "time"
 
-// {{.Name}} {{.Comment}}对象
+// {{.Comment}}
 type {{.Name}} struct {
 	{{.Fields}}
 }
 
-// {{.Name}}QueryParam 查询条件
+// Query parameters for db
 type {{.Name}}QueryParam struct {
 	PaginationParam
 }
 
-// {{.Name}}QueryOptions 查询可选参数项
+// Query options for db (order or select fields)
 type {{.Name}}QueryOptions struct {
-	OrderFields []*OrderField // 排序字段
-	SelectFields []string      // 查询字段
+	OrderFields []*OrderField
+	SelectFields []string
 }
 
-// {{.Name}}QueryResult 查询结果
+// Query result from db
 type {{.Name}}QueryResult struct {
 	Data       {{.PluralName}}
 	PageResult *PaginationResult
 }
 
-// {{.PluralName}} {{.Comment}}列表
+// {{.Comment}} Object List
 type {{.PluralName}} []*{{.Name}}
 
 `

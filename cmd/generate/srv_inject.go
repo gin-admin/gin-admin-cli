@@ -11,7 +11,6 @@ func getBllInjectFileName(dir string) string {
 	return fullname
 }
 
-// 插入bll注入文件
 func insertBllInject(ctx context.Context, dir, name string) error {
 	fullname := getBllInjectFileName(dir)
 

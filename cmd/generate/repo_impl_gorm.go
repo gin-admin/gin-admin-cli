@@ -13,14 +13,14 @@ func getModelImplGormFileName(dir, name string) string {
 	return fullname
 }
 
-// 生成model实现文件
-func genModelImplGorm(ctx context.Context, pkgName, dir, name, comment string) error {
+func genModelImplGorm(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool) error {
 	data := map[string]interface{}{
 		"PkgName":       pkgName,
 		"Name":          name,
 		"PluralName":    util.ToPlural(name),
 		"Comment":       comment,
 		"UnderLineName": util.ToLowerUnderlinedNamer(name),
+		"IncludeStatus": !excludeStatus,
 	}
 
 	buf, err := execParseTpl(daoGromRepoTpl, data)
@@ -53,7 +53,7 @@ import (
 	"{{.PkgName}}/pkg/errors"
 )
 
-// {{.Name}}Set Injection wire
+// Injection wire
 var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}Repo), "*"))
 
 type {{.Name}}Repo struct {
@@ -72,7 +72,8 @@ func (a *{{.Name}}Repo) Query(ctx context.Context, params schema.{{.Name}}QueryP
 	opt := a.getQueryOption(opts...)
 
 	db := Get{{.Name}}DB(ctx, a.DB)
-	// TODO: 查询条件
+
+	// TODO: Your where condition code here...
 
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
@@ -125,9 +126,11 @@ func (a *{{.Name}}Repo) Delete(ctx context.Context, id uint64) error {
 	return errors.WithStack(result.Error)
 }
 
+{{if .IncludeStatus}}
 func (a *{{.Name}}Repo) UpdateStatus(ctx context.Context, id uint64, status int) error {
 	result := Get{{.Name}}DB(ctx, a.DB).Where("id=?", id).Update("status", status)
 	return errors.WithStack(result.Error)
 }
+{{end}}
 
 `

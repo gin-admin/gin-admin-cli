@@ -11,12 +11,14 @@ import (
 
 // Config 配置参数
 type Config struct {
-	Dir     string
-	PkgName string
-	Name    string
-	Comment string
-	File    string
-	Modules string
+	Dir           string
+	PkgName       string
+	Name          string
+	Comment       string
+	File          string
+	Modules       string
+	ExcludeStatus bool
+	ExcludeCreate bool
 }
 
 // Exec 执行生成模块命令
@@ -77,18 +79,20 @@ func (a *Command) Exec() error {
 	pkgName := a.cfg.PkgName
 	ctx := context.Background()
 
+	excludeStatus, excludeCreate := a.cfg.ExcludeStatus, a.cfg.ExcludeCreate
+
 	if a.hasModule("schema") {
-		err = genSchema(ctx, pkgName, dir, item.StructName, item.Comment, item.toSchemaFields()...)
+		err = genSchema(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toSchemaFields()...)
 		if err != nil {
 			return err
 		}
 	}
 
 	if a.hasModule("dao") {
-		err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, item.toEntityGormFields()...)
+		err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toEntityGormFields()...)
 		a.handleError(err, "Generate gorm entity")
 
-		err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment)
+		err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
 		a.handleError(err, "Generate gorm model")
 
 		err = insertModelInjectGorm(ctx, pkgName, dir, item.StructName)
@@ -96,7 +100,7 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("service") {
-		err = genBllImpl(ctx, pkgName, dir, item.StructName, item.Comment)
+		err = genServiceImpl(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
 		a.handleError(err, "Generate bll impl")
 
 		err = insertBllInject(ctx, dir, item.StructName)
@@ -104,7 +108,7 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("api") {
-		err = genAPI(ctx, pkgName, dir, item.StructName, item.Comment)
+		err = genAPI(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
 		a.handleError(err, "Generate api")
 
 		err = insertAPIInject(ctx, dir, item.StructName)
@@ -112,7 +116,7 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("mock") {
-		err = genAPIMock(ctx, pkgName, dir, item.StructName, item.Comment)
+		err = genAPIMock(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
 		a.handleError(err, "Generate api mock")
 
 		err = insertAPIMockInject(ctx, dir, item.StructName)
@@ -120,7 +124,7 @@ func (a *Command) Exec() error {
 	}
 
 	if a.hasModule("router") {
-		err = insertRouterAPI(ctx, dir, item.StructName)
+		err = insertRouterAPI(ctx, dir, item.StructName, excludeStatus, excludeCreate)
 		a.handleError(err, "Insert router api")
 
 		err = insertRouterInject(ctx, dir, item.StructName)

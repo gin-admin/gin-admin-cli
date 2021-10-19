@@ -102,15 +102,25 @@ func GenerateCommand() cli.Command {
 				Name:  "module, m",
 				Usage: "指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,dao,service,api,mock,router）",
 			},
+			&cli.BoolFlag{
+				Name:  "include_status",
+				Usage: "是否包含 status 字段",
+			},
+			&cli.BoolFlag{
+				Name:  "include_creator",
+				Usage: "是否包含 creator 字段",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			cfg := generate.Config{
-				Dir:     c.String("dir"),
-				PkgName: c.String("pkg"),
-				Name:    c.String("name"),
-				Comment: c.String("comment"),
-				File:    c.String("file"),
-				Modules: c.String("module"),
+				Dir:           c.String("dir"),
+				PkgName:       c.String("pkg"),
+				Name:          c.String("name"),
+				Comment:       c.String("comment"),
+				File:          c.String("file"),
+				Modules:       c.String("module"),
+				ExcludeStatus: !c.Bool("include_status"),
+				ExcludeCreate: !c.Bool("include_creator"),
 			}
 
 			if cfg.Dir == "" {
