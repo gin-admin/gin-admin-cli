@@ -59,9 +59,6 @@ type {{.Name}}Mock struct{}
 // @Security ApiKeyAuth
 // @Param current query int true "分页索引" default(1)
 // @Param pageSize query int true "分页大小" default(10)
-{{if IncludeStatus}}
-// @Param status query int false "状态(1:启用 2:禁用)"
-{{end}}
 // @Success 200 {object} schema.ListResult{list=[]schema.{{.Name}}} "Response Data"
 // @Failure 401 {object} schema.ErrorResult "{error:{code:9999,message:invalid signature}}"
 // @Failure 500 {object} schema.ErrorResult "{error:{code:0,message:internal server error}}"
