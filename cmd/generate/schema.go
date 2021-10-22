@@ -9,11 +9,11 @@ import (
 )
 
 type schemaField struct {
-	Name           string // 字段名
-	Comment        string // 字段注释
-	Type           string // 字段类型
-	IsRequired     bool   // 是否必选项
-	BindingOptions string // binding配置项(不包含required，required由IsRequired控制)
+	Name           string
+	Comment        string
+	Type           string
+	IsRequired     bool
+	BindingOptions string
 }
 
 func getSchemaFileName(dir, name string) string {
@@ -24,19 +24,19 @@ func getSchemaFileName(dir, name string) string {
 func genSchema(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool, fields ...schemaField) error {
 	var tfields []schemaField
 
-	tfields = append(tfields, schemaField{Name: "ID", Comment: "唯一标识", Type: "uint64"})
+	tfields = append(tfields, schemaField{Name: "ID", Type: "uint64"})
 	tfields = append(tfields, fields...)
 
 	if !excludeStatus {
-		tfields = append(tfields, schemaField{Name: "Status", Comment: "状态(1:启用 2:禁用)", Type: "int"})
+		tfields = append(tfields, schemaField{Name: "Status", Comment: "1:enable,2:disable", Type: "int"})
 	}
 
 	if !excludeCreate {
-		tfields = append(tfields, schemaField{Name: "Creator", Comment: "创建者", Type: "uint64"})
+		tfields = append(tfields, schemaField{Name: "Creator", Type: "uint64"})
 	}
 
-	tfields = append(tfields, schemaField{Name: "CreatedAt", Comment: "创建时间", Type: "time.Time"})
-	tfields = append(tfields, schemaField{Name: "UpdatedAt", Comment: "更新时间", Type: "time.Time"})
+	tfields = append(tfields, schemaField{Name: "CreatedAt", Type: "time.Time"})
+	tfields = append(tfields, schemaField{Name: "UpdatedAt", Type: "time.Time"})
 
 	buf := new(bytes.Buffer)
 	for _, field := range tfields {

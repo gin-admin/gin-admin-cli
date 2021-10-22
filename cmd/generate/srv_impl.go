@@ -99,10 +99,10 @@ func (a *{{.Name}}Srv) Update(ctx context.Context, id uint64, item schema.{{.Nam
 	}
 
 	item.ID = oldItem.ID
+	item.CreatedAt = oldItem.CreatedAt
 	{{if .IncludeCreate}}
 	item.Creator = oldItem.Creator
 	{{end}}
-	item.CreatedAt = oldItem.CreatedAt
 
 	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
 		return a.{{.Name}}Repo.Update(ctx, id, item)

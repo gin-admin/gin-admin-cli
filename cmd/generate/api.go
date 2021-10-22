@@ -44,7 +44,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 
+	{{if .IncludeCreate}}
 	"{{.PkgName}}/internal/app/contextx"
+	{{end}}
 	"{{.PkgName}}/internal/app/ginx"
 	"{{.PkgName}}/internal/app/schema"
 	"{{.PkgName}}/internal/app/service"
