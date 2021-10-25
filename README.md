@@ -1,6 +1,6 @@
 # gin-admin-cli - [gin-admin](https://github.com/LyricTian/gin-admin)
 
-> gin-admin v8.0 辅助工具，提供创建项目、快速生成功能模块的功能
+> gin-admin v8 辅助工具，提供创建项目、快速生成功能模块的功能
 
 ## 下载并使用
 
