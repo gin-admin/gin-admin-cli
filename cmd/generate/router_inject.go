@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-func getRouterInjectFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/router/router.go", dir)
+func getRouterInjectFileName(appName, dir string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/router/router.go", dir, appName)
 	return fullname
 }
 
-func insertRouterInject(ctx context.Context, dir, name string) error {
-	injectContent := fmt.Sprintf("%sAPI *api.%sAPI", name, name)
+func insertRouterInject(ctx context.Context, obj *genObject) error {
+	injectContent := fmt.Sprintf("%sAPI *api.%sAPI", obj.name, obj.name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
 		if injectStart == 0 && strings.Contains(line, "type Router struct {") {
@@ -31,7 +31,7 @@ func insertRouterInject(ctx context.Context, dir, name string) error {
 		return "", 0, false
 	}
 
-	filename := getRouterInjectFileName(dir)
+	filename := getRouterInjectFileName(obj.appName, obj.dir)
 	err := insertContent(filename, insertFn)
 	if err != nil {
 		return err

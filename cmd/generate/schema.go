@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gin-admin/gin-admin-cli/v5/util"
+	"github.com/gin-admin/gin-admin-cli/v6/util"
 )
 
 type schemaField struct {
@@ -14,25 +14,26 @@ type schemaField struct {
 	Type           string
 	IsRequired     bool
 	BindingOptions string
+	GormOptions    string
 }
 
-func getSchemaFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/schema/%s.go", dir, util.ToLowerUnderlinedNamer(name))
+func getSchemaFileName(appName, dir, name string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/schema/%s.go", dir, appName, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
-func genSchema(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool, fields ...schemaField) error {
+func genSchema(ctx context.Context, obj *genObject) error {
 	var tfields []schemaField
 
-	tfields = append(tfields, schemaField{Name: "ID", Type: "uint64"})
-	tfields = append(tfields, fields...)
+	tfields = append(tfields, schemaField{Name: "ID", Type: "string", GormOptions: "size:20;primarykey;"})
+	tfields = append(tfields, obj.fields...)
 
-	if !excludeStatus {
+	if !obj.excludeStatus {
 		tfields = append(tfields, schemaField{Name: "Status", Comment: "1:enable,2:disable", Type: "int"})
 	}
 
-	if !excludeCreate {
-		tfields = append(tfields, schemaField{Name: "Creator", Type: "uint64"})
+	if !obj.excludeCreate {
+		tfields = append(tfields, schemaField{Name: "CreatedBy", Type: "string", GormOptions: "size:20;"})
 	}
 
 	tfields = append(tfields, schemaField{Name: "CreatedAt", Type: "time.Time"})
@@ -42,11 +43,13 @@ func genSchema(ctx context.Context, pkgName, dir, name, comment string, excludeS
 	for _, field := range tfields {
 		buf.WriteString(fmt.Sprintf("%s \t %s \t", field.Name, field.Type))
 		buf.WriteByte('`')
-		if field.Name == "ID" {
-			buf.WriteString(fmt.Sprintf(`json:"%s,string"`, util.ToLowerUnderlinedNamer(field.Name)))
-		} else {
-			buf.WriteString(fmt.Sprintf(`json:"%s"`, util.ToLowerUnderlinedNamer(field.Name)))
+
+		if field.GormOptions != "" {
+			buf.WriteString(fmt.Sprintf(`gorm:"%s"`, field.GormOptions))
+			buf.WriteByte(' ')
 		}
+
+		buf.WriteString(fmt.Sprintf(`json:"%s"`, util.ToLowerUnderlinedNamer(field.Name)))
 
 		bindingOpts := ""
 		if field.IsRequired {
@@ -73,17 +76,17 @@ func genSchema(ctx context.Context, pkgName, dir, name, comment string, excludeS
 	}
 
 	tbuf, err := execParseTpl(schemaTpl, map[string]interface{}{
-		"PkgName":    pkgName,
-		"Name":       name,
-		"PluralName": util.ToPlural(name),
+		"PkgName":    obj.pkgName,
+		"Name":       obj.name,
+		"PluralName": util.ToPlural(obj.name),
 		"Fields":     buf.String(),
-		"Comment":    comment,
+		"Comment":    obj.comment,
 	})
 	if err != nil {
 		return err
 	}
 
-	fullname := getSchemaFileName(dir, name)
+	fullname := getSchemaFileName(obj.appName, obj.dir, obj.name)
 	err = createFile(ctx, fullname, tbuf)
 	if err != nil {
 		return err
@@ -121,7 +124,7 @@ type {{.Name}}QueryResult struct {
 	PageResult *PaginationResult
 }
 
-// {{.Comment}} Object List
+// Object List
 type {{.PluralName}} []*{{.Name}}
 
 `

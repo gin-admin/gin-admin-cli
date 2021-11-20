@@ -4,15 +4,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-admin/gin-admin-cli/v5/cmd"
+	"github.com/gin-admin/gin-admin-cli/v6/cmd"
 	"github.com/urfave/cli"
 )
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "gin-admin-cli"
-	app.Description = "gin-admin 辅助工具，提供创建项目、快速生成功能模块的功能"
-	app.Version = "5.1.0"
+	app.Description = "gin-admin v9 generate tools (create project and generate modules)"
+	app.Version = "6.0.0"
 	app.Commands = []cli.Command{
 		cmd.NewCommand(),
 		cmd.GenerateCommand(),

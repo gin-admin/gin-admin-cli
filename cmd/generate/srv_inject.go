@@ -6,15 +6,15 @@ import (
 	"strings"
 )
 
-func getBllInjectFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/service/service.go", dir)
+func getBllInjectFileName(appName, dir string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/service/service.go", dir, appName)
 	return fullname
 }
 
-func insertBllInject(ctx context.Context, dir, name string) error {
-	fullname := getBllInjectFileName(dir)
+func insertServiceInject(ctx context.Context, obj *genObject) error {
+	fullname := getBllInjectFileName(obj.appName, obj.dir)
 
-	injectContent := fmt.Sprintf("%sSet,", name)
+	injectContent := fmt.Sprintf("%sSet,", obj.name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
 		if injectStart == 0 && strings.Contains(line, "var ServiceSet = wire.NewSet(") {

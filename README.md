@@ -5,7 +5,7 @@
 ## 下载并使用
 
 ```bash
-go get -u github.com/gin-admin/gin-admin-cli/v5
+go get -u github.com/gin-admin/gin-admin-cli/v6
 ```
 
 ### 创建项目

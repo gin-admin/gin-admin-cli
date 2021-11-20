@@ -3,22 +3,25 @@ package generate
 import (
 	"context"
 	"fmt"
+	"strings"
 
-	"github.com/gin-admin/gin-admin-cli/v5/util"
+	"github.com/gin-admin/gin-admin-cli/v6/util"
 )
 
-func getAPIFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/api/%s.api.go", dir, util.ToLowerUnderlinedNamer(name))
+func getAPIFileName(appName, dir, name string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/api/%s.api.go", dir, appName, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
-func genAPI(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool) error {
+func genAPI(ctx context.Context, obj *genObject) error {
 	data := map[string]interface{}{
-		"PkgName":       pkgName,
-		"Name":          name,
-		"Comment":       comment,
-		"IncludeStatus": !excludeStatus,
-		"IncludeCreate": !excludeCreate,
+		"PkgName":       obj.pkgName,
+		"AppName":       obj.appName,
+		"Name":          obj.name,
+		"LowerName":     strings.ToLower(obj.name),
+		"Comment":       obj.comment,
+		"IncludeStatus": !obj.excludeStatus,
+		"IncludeCreate": !obj.excludeCreate,
 	}
 
 	buf, err := execParseTpl(apiTpl, data)
@@ -26,7 +29,7 @@ func genAPI(ctx context.Context, pkgName, dir, name, comment string, excludeStat
 		return err
 	}
 
-	fullname := getAPIFileName(dir, name)
+	fullname := getAPIFileName(obj.appName, obj.dir, obj.name)
 	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err
@@ -45,11 +48,11 @@ import (
 	"github.com/google/wire"
 
 	{{if .IncludeCreate}}
-	"{{.PkgName}}/internal/app/contextx"
+	"{{.PkgName}}/internal/{{.AppName}}/contextx"
 	{{end}}
-	"{{.PkgName}}/internal/app/ginx"
-	"{{.PkgName}}/internal/app/schema"
-	"{{.PkgName}}/internal/app/service"
+	"{{.PkgName}}/internal/{{.AppName}}/module/ginx"
+	"{{.PkgName}}/internal/{{.AppName}}/schema"
+	"{{.PkgName}}/internal/{{.AppName}}/service"
 )
 
 var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}API), "*"))
@@ -58,6 +61,15 @@ type {{.Name}}API struct {
 	{{.Name}}Srv *service.{{.Name}}Srv
 }
 
+// @Tags {{.Name}}API
+// @Summary Query {{.LowerName}} list
+// @Security ApiKeyAuth
+// @Param current query int true "pagination index" default(1)
+// @Param pageSize query int true "pagination size" default(10)
+// @Success 200 {object} schema.ListResult{list=[]schema.{{.Name}}} "Query result (schema.{{.Name}} object)"
+// @Failure 401 {object} schema.ErrorResult
+// @Failure 500 {object} schema.ErrorResult
+// @Router /api/v1/{{.LowerName}} [get]
 func (a *{{.Name}}API) Query(c *gin.Context) {
 	ctx := c.Request.Context()
 	var params schema.{{.Name}}QueryParam
@@ -66,7 +78,6 @@ func (a *{{.Name}}API) Query(c *gin.Context) {
 		return
 	}
 
-	params.Pagination = true
 	result, err := a.{{.Name}}Srv.Query(ctx, params)
 	if err != nil {
 		ginx.ResError(c, err)
@@ -75,9 +86,17 @@ func (a *{{.Name}}API) Query(c *gin.Context) {
 	ginx.ResPage(c, result.Data, result.PageResult)
 }
 
+// @Tags {{.Name}}API
+// @Summary Get single {{.LowerName}} by id
+// @Security ApiKeyAuth
+// @Param id path string true "unique id"
+// @Success 200 {object} schema.{{.Name}}
+// @Failure 401 {object} schema.ErrorResult
+// @Failure 500 {object} schema.ErrorResult
+// @Router /api/v1/{{.LowerName}}/{id} [get]
 func (a *{{.Name}}API) Get(c *gin.Context) {
 	ctx := c.Request.Context()
-	item, err := a.{{.Name}}Srv.Get(ctx, ginx.ParseParamID(c, "id"))
+	item, err := a.{{.Name}}Srv.Get(ctx, c.Param("id"))
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -85,6 +104,15 @@ func (a *{{.Name}}API) Get(c *gin.Context) {
 	ginx.ResSuccess(c, item)
 }
 
+// @Tags {{.Name}}API
+// @Summary Create {{.LowerName}}
+// @Security ApiKeyAuth
+// @Param body body schema.{{.Name}} true "Request body"
+// @Success 200 {object} schema.{{.Name}}
+// @Failure 400 {object} schema.ErrorResult
+// @Failure 401 {object} schema.ErrorResult
+// @Failure 500 {object} schema.ErrorResult
+// @Router /api/v1/{{.LowerName}} [post]
 func (a *{{.Name}}API) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
@@ -93,9 +121,6 @@ func (a *{{.Name}}API) Create(c *gin.Context) {
 		return
 	}
 
-	{{if .IncludeCreate}}
-	item.Creator = contextx.FromUserID(ctx)
-	{{end}}
 	result, err := a.{{.Name}}Srv.Create(ctx, item)
 	if err != nil {
 		ginx.ResError(c, err)
@@ -104,6 +129,16 @@ func (a *{{.Name}}API) Create(c *gin.Context) {
 	ginx.ResSuccess(c, result)
 }
 
+// @Tags {{.Name}}API
+// @Summary Update {{.LowerName}} by id
+// @Security ApiKeyAuth
+// @Param id path string true "unique id"
+// @Param body body schema.{{.Name}} true "Request body"
+// @Success 200 {object} schema.OkResult "ok=true"
+// @Failure 400 {object} schema.ErrorResult
+// @Failure 401 {object} schema.ErrorResult
+// @Failure 500 {object} schema.ErrorResult
+// @Router /api/v1/{{.LowerName}}/{id} [put]
 func (a *{{.Name}}API) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
@@ -112,7 +147,7 @@ func (a *{{.Name}}API) Update(c *gin.Context) {
 		return
 	}
 
-	err := a.{{.Name}}Srv.Update(ctx, ginx.ParseParamID(c, "id"), item)
+	err := a.{{.Name}}Srv.Update(ctx, c.Param("id"), item)
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -120,9 +155,17 @@ func (a *{{.Name}}API) Update(c *gin.Context) {
 	ginx.ResOK(c)
 }
 
+// @Tags {{.Name}}API
+// @Summary Delete single {{.LowerName}} by id
+// @Security ApiKeyAuth
+// @Param id path string true "unique id"
+// @Success 200 {object} schema.OkResult "ok=true"
+// @Failure 401 {object} schema.ErrorResult
+// @Failure 500 {object} schema.ErrorResult
+// @Router /api/v1/{{.LowerName}}/{id} [delete]
 func (a *{{.Name}}API) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	err := a.{{.Name}}Srv.Delete(ctx, ginx.ParseParamID(c, "id"))
+	err := a.{{.Name}}Srv.Delete(ctx, c.Param("id"))
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -131,9 +174,17 @@ func (a *{{.Name}}API) Delete(c *gin.Context) {
 }
 
 {{if .IncludeStatus}}
+// @Tags {{.Name}}API
+// @Summary Set {{.LowerName}} to enable
+// @Security ApiKeyAuth
+// @Param id path string true "unique id"
+// @Success 200 {object} schema.OkResult "ok=true"
+// @Failure 401 {object} schema.ErrorResult
+// @Failure 500 {object} schema.ErrorResult
+// @Router /api/v1/{{.LowerName}}/{id}/enable [patch]
 func (a *{{.Name}}API) Enable(c *gin.Context) {
 	ctx := c.Request.Context()
-	err := a.{{.Name}}Srv.UpdateStatus(ctx, ginx.ParseParamID(c, "id"), 1)
+	err := a.{{.Name}}Srv.UpdateStatus(ctx, c.Param("id"), 1)
 	if err != nil {
 		ginx.ResError(c, err)
 		return
@@ -141,9 +192,17 @@ func (a *{{.Name}}API) Enable(c *gin.Context) {
 	ginx.ResOK(c)
 }
 
+// @Tags {{.Name}}API
+// @Summary Set {{.LowerName}} to disable
+// @Security ApiKeyAuth
+// @Param id path string true "unique id"
+// @Success 200 {object} schema.OkResult "ok=true"
+// @Failure 401 {object} schema.ErrorResult
+// @Failure 500 {object} schema.ErrorResult
+// @Router /api/v1/{{.LowerName}}/{id}/disable [patch]
 func (a *{{.Name}}API) Disable(c *gin.Context) {
 	ctx := c.Request.Context()
-	err := a.{{.Name}}Srv.UpdateStatus(ctx, ginx.ParseParamID(c, "id"), 2)
+	err := a.{{.Name}}Srv.UpdateStatus(ctx, c.Param("id"), 2)
 	if err != nil {
 		ginx.ResError(c, err)
 		return

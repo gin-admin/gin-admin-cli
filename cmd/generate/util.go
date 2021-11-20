@@ -16,7 +16,6 @@ const (
 	delimiter = "\n"
 )
 
-// 获取模块头
 func getModuleHeader(moduleName string, imports ...string) *bytes.Buffer {
 	buf := new(bytes.Buffer)
 
@@ -42,7 +41,6 @@ func getModuleHeader(moduleName string, imports ...string) *bytes.Buffer {
 	return buf
 }
 
-// 写入文件
 func createFile(ctx context.Context, name string, buf *bytes.Buffer) error {
 	exists := true
 	_, err := os.Stat(name)
@@ -69,13 +67,11 @@ func createFile(ctx context.Context, name string, buf *bytes.Buffer) error {
 	return nil
 }
 
-// 执行go代码格式化
 func execGoFmt(name string) error {
 	cmd := exec.Command("gofmt", "-w", name, name)
 	return cmd.Run()
 }
 
-// 执行解析模板
 func execParseTpl(tpl string, data interface{}) (*bytes.Buffer, error) {
 	t := template.Must(template.New("").Parse(tpl))
 
@@ -87,7 +83,6 @@ func execParseTpl(tpl string, data interface{}) (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-// 读取文件内容
 func readFile(name string) (*bytes.Buffer, error) {
 	file, err := os.Open(name)
 	if err != nil {
@@ -100,7 +95,6 @@ func readFile(name string) (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-// 写入文件
 func writeFile(name string, buf *bytes.Buffer) error {
 	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {

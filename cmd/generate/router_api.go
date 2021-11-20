@@ -5,24 +5,25 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gin-admin/gin-admin-cli/v5/util"
+	"github.com/gin-admin/gin-admin-cli/v6/util"
 )
 
-func getRouterAPIFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/router/router.go", dir)
+func getRouterAPIFileName(appName, dir string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/router/router.go", dir, appName)
 	return fullname
 }
 
-func insertRouterAPI(ctx context.Context, dir, name string, excludeStatus, excludeCreate bool) error {
-	fullname := getRouterAPIFileName(dir)
+func insertRouterAPI(ctx context.Context, obj *genObject) error {
+	fullname := getRouterAPIFileName(obj.appName, obj.dir)
 
-	pname := util.ToPlural(util.ToLowerUnderlinedNamer(name))
+	pname := util.ToPlural(util.ToLowerUnderlinedNamer(obj.name))
 	pname = strings.Replace(pname, "_", "-", -1)
 	injectContent, err := execParseTpl(routerAPITpl, map[string]interface{}{
-		"Name":          name,
+		"Name":          obj.name,
 		"PluralName":    pname,
-		"IncludeStatus": !excludeStatus,
-		"IncludeCreate": !excludeCreate,
+		"LowerName":     strings.ToLower(obj.name),
+		"IncludeStatus": !obj.excludeStatus,
+		"IncludeCreate": !obj.excludeCreate,
 	})
 	if err != nil {
 		return err
@@ -58,7 +59,7 @@ func insertRouterAPI(ctx context.Context, dir, name string, excludeStatus, exclu
 
 const routerAPITpl = `
 
-g{{.Name}} := v1.Group("{{.PluralName}}")
+g{{.Name}} := v1.Group("{{.LowerName}}")
 {
 	g{{.Name}}.GET("", a.{{.Name}}API.Query)
 	g{{.Name}}.GET(":id", a.{{.Name}}API.Get)

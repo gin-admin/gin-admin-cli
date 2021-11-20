@@ -6,12 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gin-admin/gin-admin-cli/v5/cmd/generate"
-	"github.com/gin-admin/gin-admin-cli/v5/cmd/new"
+	"github.com/gin-admin/gin-admin-cli/v6/cmd/generate"
+	"github.com/gin-admin/gin-admin-cli/v6/cmd/new"
 	"github.com/urfave/cli"
 )
 
-// NewCommand 创建项目命令
 func NewCommand() cli.Command {
 	return cli.Command{
 		Name:    "new",
@@ -19,19 +18,20 @@ func NewCommand() cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "dir, d",
-				Usage: "项目生成目录(默认GOPATH+包名)",
+				Usage: "Project directory (default: GOPATH/src/package_name)",
 			},
 			&cli.StringFlag{
 				Name:  "pkg, p",
-				Usage: "项目包名",
+				Usage: "Package name",
 			},
 			&cli.StringFlag{
 				Name:  "branch, b",
-				Usage: "指定分支(默认master)",
+				Usage: "Git branch",
+				Value: "master",
 			},
 			&cli.BoolFlag{
 				Name:  "mirror, m",
-				Usage: "使用国内镜像(gitee.com)",
+				Usage: "Use gitee (gitee.com)",
 			},
 			&cli.BoolFlag{
 				Name:  "tpl",
@@ -39,7 +39,7 @@ func NewCommand() cli.Command {
 			},
 			&cli.BoolFlag{
 				Name:  "web, w",
-				Usage: "包含web项目",
+				Usage: "Include gin-admin-react",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -59,7 +59,7 @@ func NewCommand() cli.Command {
 			if cfg.Dir == "" {
 				vpath := os.Getenv("GOPATH")
 				if vpath == "" {
-					return errors.New("请指定dir或者设置GOPATH")
+					return errors.New("please specify project directory")
 				}
 				cfg.Dir = filepath.Join(vpath, "src", cfg.PkgName)
 			}
@@ -71,7 +71,6 @@ func NewCommand() cli.Command {
 	}
 }
 
-// GenerateCommand 生成项目模块命令
 func GenerateCommand() cli.Command {
 	return cli.Command{
 		Name:    "generate",
@@ -79,36 +78,36 @@ func GenerateCommand() cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "dir, d",
-				Usage: "项目生成目录(默认GOPATH)",
+				Usage: "Project directory(default: GOPATH)",
 			},
 			&cli.StringFlag{
 				Name:     "pkg, p",
-				Usage:    "项目包名",
+				Usage:    "Package name",
 				Required: true,
 			},
 			&cli.StringFlag{
 				Name:  "name, n",
-				Usage: "业务模块名称(结构体名称)",
+				Usage: "Struct name",
 			},
 			&cli.StringFlag{
 				Name:  "comment, c",
-				Usage: "业务模块注释(结构体注释)",
+				Usage: "Struct comment",
 			},
 			&cli.StringFlag{
 				Name:  "file, f",
-				Usage: "指定模板文件(.yaml，模板配置可参考说明)",
+				Usage: "Template file (.yaml)",
 			},
 			&cli.StringFlag{
 				Name:  "module, m",
-				Usage: "指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,dao,service,api,mock,router）",
+				Usage: "Specify generate modules (schema,dao,service,api,router）",
 			},
 			&cli.BoolFlag{
 				Name:  "include_status",
-				Usage: "是否包含 status 字段",
+				Usage: "whether include status field",
 			},
 			&cli.BoolFlag{
 				Name:  "include_creator",
-				Usage: "是否包含 creator 字段",
+				Usage: "whether include created_by field",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -126,19 +125,16 @@ func GenerateCommand() cli.Command {
 			if cfg.Dir == "" {
 				vpath := os.Getenv("GOPATH")
 				if vpath == "" {
-					return errors.New("请指定dir或者设置GOPATH")
+					return errors.New("please specify project directory")
 				}
 				cfg.Dir = filepath.Join(vpath, "src", cfg.PkgName)
 			}
 
 			if cfg.PkgName == "" {
-				fmt.Println("请指定包名")
+				fmt.Println("Package name not be empty")
 				return nil
 			} else if cfg.Name == "" && cfg.File == "" {
-				fmt.Println("请指定模块名称或模板配置文件")
-				return nil
-			} else if cfg.Name != "" && cfg.Comment == "" {
-				fmt.Println("请指定模块说明")
+				fmt.Println("Please specify struct name or template file")
 				return nil
 			}
 

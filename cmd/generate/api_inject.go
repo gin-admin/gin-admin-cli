@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-func getAPIInjectFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/api/api.go", dir)
+func getAPIInjectFileName(appName, dir string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/api/api.go", dir, appName)
 	return fullname
 }
 
-func insertAPIInject(ctx context.Context, dir, name string) error {
-	injectContent := fmt.Sprintf("%sSet,", name)
+func insertAPIInject(ctx context.Context, obj *genObject) error {
+	injectContent := fmt.Sprintf("%sSet,", obj.name)
 	injectStart := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
 		if injectStart == 0 && strings.Contains(line, "var APISet = wire.NewSet(") {
@@ -31,7 +31,7 @@ func insertAPIInject(ctx context.Context, dir, name string) error {
 		return "", 0, false
 	}
 
-	filename := getAPIInjectFileName(dir)
+	filename := getAPIInjectFileName(obj.appName, obj.dir)
 	err := insertContent(filename, insertFn)
 	if err != nil {
 		return err

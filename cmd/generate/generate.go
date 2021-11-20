@@ -9,7 +9,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Config 配置参数
 type Config struct {
 	Dir           string
 	PkgName       string
@@ -21,13 +20,11 @@ type Config struct {
 	ExcludeCreate bool
 }
 
-// Exec 执行生成模块命令
 func Exec(cfg Config) error {
 	cmd := &Command{cfg: &cfg}
 	return cmd.Exec()
 }
 
-// Command 生成命令
 type Command struct {
 	cfg *Config
 }
@@ -52,7 +49,17 @@ func (a *Command) handleError(err error, desc string) {
 	}
 }
 
-// Exec 执行命令
+type genObject struct {
+	pkgName       string
+	appName       string
+	dir           string
+	name          string
+	comment       string
+	excludeStatus bool
+	excludeCreate bool
+	fields        []schemaField
+}
+
 func (a *Command) Exec() error {
 	var item TplItem
 
@@ -76,58 +83,54 @@ func (a *Command) Exec() error {
 		return err
 	}
 
-	pkgName := a.cfg.PkgName
 	ctx := context.Background()
-
-	excludeStatus, excludeCreate := a.cfg.ExcludeStatus, a.cfg.ExcludeCreate
+	genObj := &genObject{
+		pkgName:       a.cfg.PkgName,
+		appName:       filepath.Base(a.cfg.PkgName),
+		dir:           dir,
+		name:          item.StructName,
+		comment:       item.Comment,
+		excludeStatus: a.cfg.ExcludeStatus,
+		excludeCreate: a.cfg.ExcludeCreate,
+		fields:        item.toSchemaFields(),
+	}
 
 	if a.hasModule("schema") {
-		err = genSchema(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toSchemaFields()...)
+		err = genSchema(ctx, genObj)
 		if err != nil {
 			return err
 		}
 	}
 
 	if a.hasModule("dao") {
-		err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toEntityGormFields()...)
-		a.handleError(err, "Generate gorm entity")
-
-		err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
+		err = genRepoImplGorm(ctx, genObj)
 		a.handleError(err, "Generate gorm model")
 
-		err = insertModelInjectGorm(ctx, pkgName, dir, item.StructName)
+		err = insertRepoInjectGorm(ctx, genObj)
 		a.handleError(err, "Insert gorm model inject")
 	}
 
 	if a.hasModule("service") {
-		err = genServiceImpl(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
+		err = genServiceImpl(ctx, genObj)
 		a.handleError(err, "Generate bll impl")
 
-		err = insertBllInject(ctx, dir, item.StructName)
+		err = insertServiceInject(ctx, genObj)
 		a.handleError(err, "Insert bll inject")
 	}
 
 	if a.hasModule("api") {
-		err = genAPI(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
+		err = genAPI(ctx, genObj)
 		a.handleError(err, "Generate api")
 
-		err = insertAPIInject(ctx, dir, item.StructName)
+		err = insertAPIInject(ctx, genObj)
 		a.handleError(err, "Insert api inject")
 	}
 
-	if a.hasModule("mock") {
-		err = genAPIMock(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
-		a.handleError(err, "Generate api mock")
-
-		err = insertAPIMockInject(ctx, dir, item.StructName)
-		a.handleError(err, "Insert api mock inject")
-	}
-
 	if a.hasModule("router") {
-		err = insertRouterAPI(ctx, dir, item.StructName, excludeStatus, excludeCreate)
+		err = insertRouterAPI(ctx, genObj)
 		a.handleError(err, "Insert router api")
 
-		err = insertRouterInject(ctx, dir, item.StructName)
+		err = insertRouterInject(ctx, genObj)
 		a.handleError(err, "Insert router inject")
 	}
 

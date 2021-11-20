@@ -4,37 +4,20 @@ import (
 	"context"
 	"fmt"
 	"strings"
-
-	"github.com/gin-admin/gin-admin-cli/v5/util"
 )
 
-func getModelInjectGormFileName(dir string) string {
-	fullname := fmt.Sprintf("%s/internal/app/dao/dao.go", dir)
+func getModelInjectGormFileName(appName, dir string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/dao/dao.go", dir, appName)
 	return fullname
 }
 
-func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error {
-	fullname := getModelInjectGormFileName(dir)
-	ulname := util.ToLowerUnderlinedNamer(name)
+func insertRepoInjectGorm(ctx context.Context, obj *genObject) error {
+	fullname := getModelInjectGormFileName(obj.appName, obj.dir)
 
-	injectStart := 0
 	injectStart2 := 0
 	injectStart3 := 0
 	injectStart4 := 0
 	insertFn := func(line string) (data string, flag int, ok bool) {
-		if injectStart == 0 && strings.Contains(line, "import (") {
-			injectStart = 1
-			return
-		}
-
-		if injectStart == 1 && strings.Contains(line, ") // end") {
-			injectStart = -1
-			data = "\t" + fmt.Sprintf(`"%s/internal/app/dao/%s"`, pkgName, ulname)
-			flag = -1
-			ok = true
-			return
-		}
-
 		if injectStart2 == 0 && strings.Contains(line, "var RepoSet = wire.NewSet(") {
 			injectStart2 = 1
 			return
@@ -42,7 +25,7 @@ func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error
 
 		if injectStart2 == 1 && strings.Contains(line, ") // end") {
 			injectStart2 = -1
-			data = "\t" + fmt.Sprintf(`%s.%sSet,`, ulname, name)
+			data = "\t" + fmt.Sprintf(`repo.%sSet,`, obj.name)
 			flag = -1
 			ok = true
 			return
@@ -55,7 +38,7 @@ func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error
 
 		if injectStart3 == 1 && strings.Contains(line, ") // end") {
 			injectStart3 = -1
-			data = "\t" + fmt.Sprintf(`%sRepo               = %s.%sRepo`, name, ulname, name)
+			data = "\t" + fmt.Sprintf(`%sRepo               = repo.%sRepo`, obj.name, obj.name)
 			flag = -1
 			ok = true
 			return
@@ -68,7 +51,7 @@ func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error
 
 		if injectStart4 == 1 && strings.Contains(line, ") // end") {
 			injectStart4 = -1
-			data = "\t" + fmt.Sprintf(`new(%s.%s),`, ulname, name)
+			data = "\t" + fmt.Sprintf(`new(schema.%s),`, obj.name)
 			flag = -1
 			ok = true
 			return

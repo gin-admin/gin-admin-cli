@@ -4,21 +4,22 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gin-admin/gin-admin-cli/v5/util"
+	"github.com/gin-admin/gin-admin-cli/v6/util"
 )
 
-func getBllImplFileName(dir, name string) string {
-	fullname := fmt.Sprintf("%s/internal/app/service/%s.srv.go", dir, util.ToLowerUnderlinedNamer(name))
+func getBllImplFileName(appName, dir, name string) string {
+	fullname := fmt.Sprintf("%s/internal/%s/service/%s.srv.go", dir, appName, util.ToLowerUnderlinedNamer(name))
 	return fullname
 }
 
-func genServiceImpl(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool) error {
+func genServiceImpl(ctx context.Context, obj *genObject) error {
 	data := map[string]interface{}{
-		"PkgName":       pkgName,
-		"Name":          name,
-		"Comment":       comment,
-		"IncludeStatus": !excludeStatus,
-		"IncludeCreate": !excludeCreate,
+		"PkgName":       obj.pkgName,
+		"AppName":       obj.appName,
+		"Name":          obj.name,
+		"Comment":       obj.comment,
+		"IncludeStatus": !obj.excludeStatus,
+		"IncludeCreate": !obj.excludeCreate,
 	}
 
 	buf, err := execParseTpl(serviceImplTpl, data)
@@ -26,7 +27,7 @@ func genServiceImpl(ctx context.Context, pkgName, dir, name, comment string, exc
 		return err
 	}
 
-	fullname := getBllImplFileName(dir, name)
+	fullname := getBllImplFileName(obj.appName, obj.dir, obj.name)
 	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err
@@ -41,14 +42,17 @@ const serviceImplTpl = `
 package service
 
 import (
+	"fmt"
 	"context"
 
 	"github.com/google/wire"
 
-	"{{.PkgName}}/internal/app/dao"
-	"{{.PkgName}}/internal/app/schema"
+	"{{.PkgName}}/internal/{{.AppName}}/dao"
+	"{{.PkgName}}/internal/{{.AppName}}/schema"
+	"{{.PkgName}}/internal/{{.AppName}}/module/consts"
+	{{if .IncludeCreate}}"{{.PkgName}}/internal/{{.AppName}}/module/contextx"{{end}}
 	"{{.PkgName}}/pkg/errors"
-	"{{.PkgName}}/pkg/util/snowflake"
+	"{{.PkgName}}/pkg/util/xid"
 )
 
 var {{.Name}}Set = wire.NewSet(wire.Struct(new({{.Name}}Srv), "*"))
@@ -58,63 +62,68 @@ type {{.Name}}Srv struct {
 	{{.Name}}Repo               *dao.{{.Name}}Repo
 }
 
-func (a *{{.Name}}Srv) Query(ctx context.Context, params schema.{{.Name}}QueryParam, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}QueryResult, error) {
-	result, err := a.{{.Name}}Repo.Query(ctx, params, opts...)
+func (a *{{.Name}}Srv) Query(ctx context.Context, params schema.{{.Name}}QueryParam) (*schema.{{.Name}}QueryResult, error) {
+	params.Pagination = true
+	result, err := a.{{.Name}}Repo.Query(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (a *{{.Name}}Srv) Get(ctx context.Context, id uint64, opts ...schema.{{.Name}}QueryOptions) (*schema.{{.Name}}, error) {
-	item, err := a.{{.Name}}Repo.Get(ctx, id, opts...)
+func (a *{{.Name}}Srv) Get(ctx context.Context, id string) (*schema.{{.Name}}, error) {
+	item, err := a.{{.Name}}Repo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	} else if item == nil {
-		return nil, errors.ErrNotFound
+		return nil, errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
 	}
 
 	return item, nil
 }
 
-func (a *{{.Name}}Srv) Create(ctx context.Context, item schema.{{.Name}}) (*schema.IDResult, error) {
-	item.ID = snowflake.MustID()
+func (a *{{.Name}}Srv) Create(ctx context.Context, item schema.{{.Name}}) (*schema.{{.Name}}, error) {
+	item.ID = xid.NewID()
+
+	{{if .IncludeCreate}}
+	item.CreatedBy = contextx.FromUserID(ctx)
+	{{end}}
 
 	err := a.TransRepo.Exec(ctx, func(ctx context.Context) error {
-		return a.{{.Name}}Repo.Create(ctx, item)
+		return a.{{.Name}}Repo.Create(ctx, &item)
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return schema.NewIDResult(item.ID), nil
+	return &item, nil
 }
 
-func (a *{{.Name}}Srv) Update(ctx context.Context, id uint64, item schema.{{.Name}}) error {
+func (a *{{.Name}}Srv) Update(ctx context.Context, id string, item schema.{{.Name}}) error {
 	oldItem, err := a.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.ErrNotFound
+		return errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
 	}
 
-	item.ID = oldItem.ID
+	item.ID = id
 	item.CreatedAt = oldItem.CreatedAt
 	{{if .IncludeCreate}}
-	item.Creator = oldItem.Creator
+	item.CreatedBy = oldItem.CreatedBy
 	{{end}}
 
 	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
-		return a.{{.Name}}Repo.Update(ctx, id, item)
+		return a.{{.Name}}Repo.Update(ctx, &item)
 	})
 }
 
-func (a *{{.Name}}Srv) Delete(ctx context.Context, id uint64) error {
+func (a *{{.Name}}Srv) Delete(ctx context.Context, id string) error {
 	oldItem, err := a.{{.Name}}Repo.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.ErrNotFound
+		return errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
 	}
 
 	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
@@ -123,12 +132,12 @@ func (a *{{.Name}}Srv) Delete(ctx context.Context, id uint64) error {
 }
 
 {{if .IncludeStatus}}
-func (a *{{.Name}}Srv) UpdateStatus(ctx context.Context, id uint64, status int) error {
+func (a *{{.Name}}Srv) UpdateStatus(ctx context.Context, id string, status int) error {
 	oldItem, err := a.{{.Name}}Repo.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.ErrNotFound
+		return errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
 	} else if oldItem.Status == status {
 		return nil
 	}
