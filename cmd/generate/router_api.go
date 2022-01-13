@@ -59,7 +59,7 @@ func insertRouterAPI(ctx context.Context, obj *genObject) error {
 
 const routerAPITpl = `
 
-g{{.Name}} := v1.Group("{{.LowerName}}")
+g{{.Name}} := v1.Group("{{.PluralName}}")
 {
 	g{{.Name}}.GET("", a.{{.Name}}API.Query)
 	g{{.Name}}.GET(":id", a.{{.Name}}API.Get)
