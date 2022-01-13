@@ -14,11 +14,14 @@ func getAPIFileName(appName, dir, name string) string {
 }
 
 func genAPI(ctx context.Context, obj *genObject) error {
+	pname := util.ToPlural(util.ToLowerUnderlinedNamer(obj.name))
+	pname = strings.Replace(pname, "_", "-", -1)
 	data := map[string]interface{}{
 		"PkgName":       obj.pkgName,
 		"AppName":       obj.appName,
 		"Name":          obj.name,
 		"LowerName":     strings.ToLower(obj.name),
+		"PluralName":    pname,
 		"Comment":       obj.comment,
 		"IncludeStatus": !obj.excludeStatus,
 		"IncludeCreate": !obj.excludeCreate,
@@ -69,7 +72,7 @@ type {{.Name}}API struct {
 // @Success 200 {object} schema.ListResult{list=[]schema.{{.Name}}} "Query result (schema.{{.Name}} object)"
 // @Failure 401 {object} schema.ErrorResult
 // @Failure 500 {object} schema.ErrorResult
-// @Router /api/v1/{{.LowerName}} [get]
+// @Router /api/v1/{{.PluralName}} [get]
 func (a *{{.Name}}API) Query(c *gin.Context) {
 	ctx := c.Request.Context()
 	var params schema.{{.Name}}QueryParam
@@ -93,7 +96,7 @@ func (a *{{.Name}}API) Query(c *gin.Context) {
 // @Success 200 {object} schema.{{.Name}}
 // @Failure 401 {object} schema.ErrorResult
 // @Failure 500 {object} schema.ErrorResult
-// @Router /api/v1/{{.LowerName}}/{id} [get]
+// @Router /api/v1/{{.PluralName}}/{id} [get]
 func (a *{{.Name}}API) Get(c *gin.Context) {
 	ctx := c.Request.Context()
 	item, err := a.{{.Name}}Srv.Get(ctx, c.Param("id"))
@@ -112,7 +115,7 @@ func (a *{{.Name}}API) Get(c *gin.Context) {
 // @Failure 400 {object} schema.ErrorResult
 // @Failure 401 {object} schema.ErrorResult
 // @Failure 500 {object} schema.ErrorResult
-// @Router /api/v1/{{.LowerName}} [post]
+// @Router /api/v1/{{.PluralName}} [post]
 func (a *{{.Name}}API) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
@@ -138,7 +141,7 @@ func (a *{{.Name}}API) Create(c *gin.Context) {
 // @Failure 400 {object} schema.ErrorResult
 // @Failure 401 {object} schema.ErrorResult
 // @Failure 500 {object} schema.ErrorResult
-// @Router /api/v1/{{.LowerName}}/{id} [put]
+// @Router /api/v1/{{.PluralName}}/{id} [put]
 func (a *{{.Name}}API) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 	var item schema.{{.Name}}
@@ -162,7 +165,7 @@ func (a *{{.Name}}API) Update(c *gin.Context) {
 // @Success 200 {object} schema.OkResult "ok=true"
 // @Failure 401 {object} schema.ErrorResult
 // @Failure 500 {object} schema.ErrorResult
-// @Router /api/v1/{{.LowerName}}/{id} [delete]
+// @Router /api/v1/{{.PluralName}}/{id} [delete]
 func (a *{{.Name}}API) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
 	err := a.{{.Name}}Srv.Delete(ctx, c.Param("id"))
@@ -181,7 +184,7 @@ func (a *{{.Name}}API) Delete(c *gin.Context) {
 // @Success 200 {object} schema.OkResult "ok=true"
 // @Failure 401 {object} schema.ErrorResult
 // @Failure 500 {object} schema.ErrorResult
-// @Router /api/v1/{{.LowerName}}/{id}/enable [patch]
+// @Router /api/v1/{{.PluralName}}/{id}/enable [patch]
 func (a *{{.Name}}API) Enable(c *gin.Context) {
 	ctx := c.Request.Context()
 	err := a.{{.Name}}Srv.UpdateStatus(ctx, c.Param("id"), 1)
@@ -199,7 +202,7 @@ func (a *{{.Name}}API) Enable(c *gin.Context) {
 // @Success 200 {object} schema.OkResult "ok=true"
 // @Failure 401 {object} schema.ErrorResult
 // @Failure 500 {object} schema.ErrorResult
-// @Router /api/v1/{{.LowerName}}/{id}/disable [patch]
+// @Router /api/v1/{{.PluralName}}/{id}/disable [patch]
 func (a *{{.Name}}API) Disable(c *gin.Context) {
 	ctx := c.Request.Context()
 	err := a.{{.Name}}Srv.UpdateStatus(ctx, c.Param("id"), 2)
