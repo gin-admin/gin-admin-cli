@@ -15,13 +15,12 @@ func getAPIFileName(appName, dir, name string) string {
 
 func genAPI(ctx context.Context, obj *genObject) error {
 	pname := util.ToPlural(util.ToLowerUnderlinedNamer(obj.name))
-	pname = strings.Replace(pname, "_", "-", -1)
 	data := map[string]interface{}{
 		"PkgName":       obj.pkgName,
 		"AppName":       obj.appName,
 		"Name":          obj.name,
-		"LowerName":     strings.ToLower(obj.name),
-		"PluralName":    pname,
+		"LowerName":     strings.Replace(pname, "_", " ", -1),
+		"PluralName":    strings.ToLower(obj.name),
 		"Comment":       obj.comment,
 		"IncludeStatus": !obj.excludeStatus,
 		"IncludeCreate": !obj.excludeCreate,

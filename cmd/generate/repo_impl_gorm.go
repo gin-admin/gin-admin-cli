@@ -120,7 +120,7 @@ func (a *{{.Name}}Repo) Update(ctx context.Context, item *schema.{{.Name}}) erro
 }
 
 func (a *{{.Name}}Repo) Delete(ctx context.Context, id string) error {
-	result := Get{{.Name}}DB(ctx, a.DB).Where("id=?", id).Delete(schema.{{.Name}}{})
+	result := Get{{.Name}}DB(ctx, a.DB).Where("id=?", id).Delete(new(schema.{{.Name}}))
 	return errors.WithStack(result.Error)
 }
 

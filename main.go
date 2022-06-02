@@ -12,7 +12,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gin-admin-cli"
 	app.Description = "gin-admin v9 generate tools (create project and generate modules)"
-	app.Version = "6.0.0"
+	app.Version = "6.0.1"
 	app.Commands = []cli.Command{
 		cmd.NewCommand(),
 		cmd.GenerateCommand(),

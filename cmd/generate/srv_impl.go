@@ -76,7 +76,7 @@ func (a *{{.Name}}Srv) Get(ctx context.Context, id string) (*schema.{{.Name}}, e
 	if err != nil {
 		return nil, err
 	} else if item == nil {
-		return nil, errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
+		return nil, errors.NotFound(consts.ErrNotFoundID, "{{.Name}} not found")
 	}
 
 	return item, nil
@@ -104,7 +104,7 @@ func (a *{{.Name}}Srv) Update(ctx context.Context, id string, item schema.{{.Nam
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
+		return errors.NotFound(consts.ErrNotFoundID, "{{.Name}} not found")
 	}
 
 	item.ID = id
@@ -123,7 +123,7 @@ func (a *{{.Name}}Srv) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
+		return errors.NotFound(consts.ErrNotFoundID, "{{.Name}} not found")
 	}
 
 	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
@@ -137,7 +137,7 @@ func (a *{{.Name}}Srv) UpdateStatus(ctx context.Context, id string, status int) 
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.NotFound(consts.ErrNotFoundID, fmt.Sprintf("not found: %v", id))
+		return errors.NotFound(consts.ErrNotFoundID, "{{.Name}} not found")
 	} else if oldItem.Status == status {
 		return nil
 	}

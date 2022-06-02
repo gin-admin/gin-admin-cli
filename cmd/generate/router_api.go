@@ -17,7 +17,7 @@ func insertRouterAPI(ctx context.Context, obj *genObject) error {
 	fullname := getRouterAPIFileName(obj.appName, obj.dir)
 
 	pname := util.ToPlural(util.ToLowerUnderlinedNamer(obj.name))
-	pname = strings.Replace(pname, "_", "-", -1)
+	pname = strings.Replace(pname, "_", "", -1)
 	injectContent, err := execParseTpl(routerAPITpl, map[string]interface{}{
 		"Name":          obj.name,
 		"PluralName":    pname,
@@ -65,10 +65,8 @@ g{{.Name}} := v1.Group("{{.PluralName}}")
 	g{{.Name}}.GET(":id", a.{{.Name}}API.Get)
 	g{{.Name}}.POST("", a.{{.Name}}API.Create)
 	g{{.Name}}.PUT(":id", a.{{.Name}}API.Update)
-	g{{.Name}}.DELETE(":id", a.{{.Name}}API.Delete)
-	{{if .IncludeStatus}}
+	g{{.Name}}.DELETE(":id", a.{{.Name}}API.Delete){{if .IncludeStatus}}
 	g{{.Name}}.PATCH(":id/enable", a.{{.Name}}API.Enable)
-	g{{.Name}}.PATCH(":id/disable", a.{{.Name}}API.Disable)
-	{{end}}
+	g{{.Name}}.PATCH(":id/disable", a.{{.Name}}API.Disable){{end}}
 }
 `
