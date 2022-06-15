@@ -46,6 +46,7 @@ const apiMockTpl = `
 package mock
 
 import (
+	_ "github.com/LyricTian/gin-admin/v8/internal/app/schema"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
