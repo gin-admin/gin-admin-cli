@@ -20,7 +20,7 @@ func genAPI(ctx context.Context, obj *genObject) error {
 		"AppName":       obj.appName,
 		"Name":          obj.name,
 		"LowerName":     strings.Replace(pname, "_", " ", -1),
-		"PluralName":    strings.ToLower(obj.name),
+		"PluralName":    strings.Replace(pname, "_", "", -1),
 		"Comment":       obj.comment,
 		"IncludeStatus": !obj.excludeStatus,
 		"IncludeCreate": !obj.excludeCreate,

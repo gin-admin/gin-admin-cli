@@ -42,7 +42,6 @@ const serviceImplTpl = `
 package service
 
 import (
-	"fmt"
 	"context"
 
 	"github.com/google/wire"
@@ -108,7 +107,6 @@ func (a *{{.Name}}Srv) Update(ctx context.Context, id string, item schema.{{.Nam
 	}
 
 	item.ID = id
-	item.CreatedAt = oldItem.CreatedAt
 	{{if .IncludeCreate}}
 	item.CreatedBy = oldItem.CreatedBy
 	{{end}}
