@@ -177,6 +177,11 @@ const TableList = props => {
 	"{{if .HideInForm}}" +
 	"      hideInForm: true,\n" +
 	"{{end}}" +
+	"{{if .StructFieldRequired}}" +
+	"      formItemProps: {\n" +
+	"        rules: [{ required: true }],\n" +
+	"      },\n" +
+	"{{end}}" +
 	"{{if .ValueType}}" +
 	"      valueType: '{{.ValueType}}',\n" +
 	"{{else if eq \"int\" .StructFieldType }}" +
