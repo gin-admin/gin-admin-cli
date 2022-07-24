@@ -163,13 +163,19 @@ const TableList = props => {
     {
       title: '唯一标识',
       dataIndex: 'id',
-    }` +
+    },` +
 	"{{range .Fields}}" +
-	",\n    {\n" +
+	"\n    {\n" +
 	"      title: '{{.Comment}}',\n" +
 	"      dataIndex: '{{fieldToLowerUnderlinedName .StructFieldName}}',\n" +
 	"{{if eq .Condition false}}" +
 	"      hideInSearch: true,\n" +
+	"{{end}}" +
+	"{{if .HideInTable}}" +
+	"      hideInTable: true,\n" +
+	"{{end}}" +
+	"{{if .HideInForm}}" +
+	"      hideInForm: true,\n" +
 	"{{end}}" +
 	"{{if .ValueType}}" +
 	"      valueType: '{{.ValueType}}',\n" +
@@ -178,7 +184,7 @@ const TableList = props => {
 	"{{else if eq \"bool\" .StructFieldType }}" +
 	"      valueType: 'switch',\n" +
 	"{{end}}" +
-	"    }" +
+	"    }," +
 	"{{end}}" + `
   ];
 

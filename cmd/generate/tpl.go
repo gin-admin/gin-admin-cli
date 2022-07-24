@@ -46,4 +46,6 @@ type TplFieldItem struct {
 	Condition           bool   `yaml:"condition"`
 	ConditionLike       bool   `yaml:"condition_like"`
 	ValueType           string `yaml:"value_type"`
+	HideInTable         string `yaml:"hide_in_table"`
+	HideInForm          string `yaml:"hide_in_form"`
 }
