@@ -31,7 +31,7 @@ func insertWebRouter(ctx context.Context, cmd *Command, item TplItem) error {
 		return "", 0, false
 	}
 
-	filename := getWebRouterFileName(cmd.cfg.Web)
+	filename := getWebRouterFileName(cmd.cfg.React)
 	err := insertContent(filename, insertFn)
 	if err != nil {
 		return err

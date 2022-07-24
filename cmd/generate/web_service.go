@@ -24,7 +24,7 @@ func genWebService(ctx context.Context, cmd *Command, item TplItem) error {
 		return err
 	}
 
-	fullname := getWebServiceFileName(cmd.cfg.Web, name)
+	fullname := getWebServiceFileName(cmd.cfg.React, name)
 	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err

@@ -31,7 +31,7 @@ func insertWebServiceIndexImport(ctx context.Context, cmd *Command, item TplItem
 		return "", 0, false
 	}
 
-	filename := getWebServiceIndexFileName(cmd.cfg.Web)
+	filename := getWebServiceIndexFileName(cmd.cfg.React)
 	err := insertContent(filename, insertFn)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func insertWebServiceIndexExport(ctx context.Context, cmd *Command, item TplItem
 		return "", 0, false
 	}
 
-	filename := getWebServiceIndexFileName(cmd.cfg.Web)
+	filename := getWebServiceIndexFileName(cmd.cfg.React)
 	err := insertContent(filename, insertFn)
 	if err != nil {
 		return err
