@@ -107,12 +107,18 @@ type {{.Name}} struct {
 
 // Query parameters for db
 type {{.Name}}QueryParam struct {
-	PaginationParam
-{{range .ItemFields}}
-{{if .ConditionArray}}{{fieldToPlural .StructFieldName}}  []{{.StructFieldType}}         ` + "`form" + `:"{{fieldToLowerUnderlinedName .StructFieldName}}"` + "`" + `// {{.Comment}}{{end}}
-{{if .Condition}}{{.StructFieldName}}  {{.StructFieldType}}         ` + "`form" + `:"{{fieldToLowerUnderlinedName .StructFieldName}}"` + "`" + `// {{.Comment}}{{end}}
-{{if .ConditionLike}}{{.StructFieldName}}Like  {{.StructFieldType}}         ` + "`form" + `:"{{fieldToLowerUnderlinedName .StructFieldName}}_like"` + "`" + `// {{.Comment}}{{end}}
-{{end}}
+	PaginationParam` +
+	"{{range .ItemFields}}" +
+	"{{if .ConditionArray}}" +
+	"\n{{fieldToPlural .StructFieldName}}  []{{.StructFieldType}}         `form:\"{{fieldToLowerUnderlinedName .StructFieldName}}\"` // {{.Comment}}" +
+	"{{end}}" +
+	"{{if .Condition}}" +
+	"\n{{.StructFieldName}}  {{.StructFieldType}}        `form:\"{{fieldToLowerUnderlinedName .StructFieldName}}\"`// {{.Comment}}" +
+	"{{end}}" +
+	"{{if .ConditionLike}}" +
+	"\n{{.StructFieldName}}Like  {{.StructFieldType}} `form:\"{{fieldToLowerUnderlinedName .StructFieldName}}_like\"`// {{.Comment}}" +
+	"{{end}}" +
+	"{{end}}" + `
 }
 
 // Query options for db (order or select fields)
