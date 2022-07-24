@@ -16,6 +16,7 @@ type Config struct {
 	Name          string
 	Comment       string
 	File          string
+	Web           string
 	Modules       string
 	ExcludeStatus bool
 	ExcludeCreate bool
@@ -82,17 +83,15 @@ func (a *Command) Exec() error {
 	excludeStatus, excludeCreate := a.cfg.ExcludeStatus, a.cfg.ExcludeCreate
 
 	if a.hasModule("schema") {
-		err = genSchema(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toSchemaFields()...)
-		if err != nil {
-			return err
-		}
+		err = genSchema(ctx, pkgName, dir, item, excludeStatus, excludeCreate, item.toSchemaFields()...)
+		a.handleError(err, "Generate schema")
 	}
 
 	if a.hasModule("dao") {
 		err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toEntityGormFields()...)
 		a.handleError(err, "Generate gorm entity")
 
-		err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
+		err = genModelImplGorm(ctx, pkgName, dir, excludeStatus, excludeCreate, item)
 		a.handleError(err, "Generate gorm model")
 
 		err = insertModelInjectGorm(ctx, pkgName, dir, item.StructName)
@@ -129,6 +128,26 @@ func (a *Command) Exec() error {
 
 		err = insertRouterInject(ctx, dir, item.StructName)
 		a.handleError(err, "Insert router inject")
+	}
+
+	if a.hasModule("web") {
+		err = insertWebRouter(ctx, a, item)
+		a.handleError(err, "Insert web router")
+
+		//err = genWebPage(ctx, a.cfg.Web, item.StructName)
+		//a.handleError(err, "Generate web page")
+
+		err = insertWebServiceIndexImport(ctx, a, item)
+		a.handleError(err, "Insert web service index import")
+
+		err = insertWebServiceIndexExport(ctx, a, item)
+		a.handleError(err, "Insert web service index export")
+
+		err = genWebService(ctx, a, item)
+		a.handleError(err, "Insert web service")
+
+		//err = genWebService(ctx, a.cfg.Web, item.StructName)
+		//a.handleError(err, "Generate web service")
 	}
 
 	return nil

@@ -102,6 +102,10 @@ func GenerateCommand() cli.Command {
 				Name:  "module, m",
 				Usage: "指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,dao,service,api,mock,router）",
 			},
+			&cli.StringFlag{
+				Name:  "web, w",
+				Usage: "指定web目录",
+			},
 			&cli.BoolFlag{
 				Name:  "include_status",
 				Usage: "是否包含 status 字段",
@@ -118,6 +122,7 @@ func GenerateCommand() cli.Command {
 				Name:          c.String("name"),
 				Comment:       c.String("comment"),
 				File:          c.String("file"),
+				Web:           c.String("web"),
 				Modules:       c.String("module"),
 				ExcludeStatus: !c.Bool("include_status"),
 				ExcludeCreate: !c.Bool("include_creator"),

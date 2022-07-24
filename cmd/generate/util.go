@@ -5,10 +5,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/gin-admin/gin-admin-cli/v5/util"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -77,7 +79,28 @@ func execGoFmt(name string) error {
 
 // 执行解析模板
 func execParseTpl(tpl string, data interface{}) (*bytes.Buffer, error) {
-	t := template.Must(template.New("").Parse(tpl))
+	t := template.Must(template.New("").Funcs(template.FuncMap{
+		"condition": func(field TplFieldItem) string {
+			if field.ConditionArray {
+				return "len(v) > 0"
+			} else if field.StructFieldType == "string" {
+				return `v != ""`
+			} else if strings.Index(field.StructFieldType, "int") > -1 ||
+				strings.Index(field.StructFieldType, "float") > -1 {
+				return `v > 0`
+			}
+			return "v"
+		},
+		"fieldToPluralAndLowerUnderlinedName": func(v string) string {
+			return util.ToLowerUnderlinedNamer(util.ToPlural(v))
+		},
+		"fieldToPlural": func(v string) string {
+			return util.ToPlural(v)
+		},
+		"fieldToLowerUnderlinedName": func(v string) string {
+			return util.ToLowerUnderlinedNamer(v)
+		},
+	}).Parse(tpl))
 
 	buf := new(bytes.Buffer)
 	err := t.Execute(buf, data)

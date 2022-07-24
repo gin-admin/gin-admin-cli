@@ -13,14 +13,15 @@ func getModelImplGormFileName(dir, name string) string {
 	return fullname
 }
 
-func genModelImplGorm(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool) error {
+func genModelImplGorm(ctx context.Context, pkgName, dir string, excludeStatus, excludeCreate bool, item TplItem) error {
 	data := map[string]interface{}{
 		"PkgName":       pkgName,
-		"Name":          name,
-		"PluralName":    util.ToPlural(name),
-		"Comment":       comment,
-		"UnderLineName": util.ToLowerUnderlinedNamer(name),
+		"Name":          item.StructName,
+		"PluralName":    util.ToPlural(item.StructName),
+		"Comment":       item.Comment,
+		"UnderLineName": util.ToLowerUnderlinedNamer(item.StructName),
 		"IncludeStatus": !excludeStatus,
+		"Fields":        item.Fields,
 	}
 
 	buf, err := execParseTpl(daoGromRepoTpl, data)
@@ -28,7 +29,7 @@ func genModelImplGorm(ctx context.Context, pkgName, dir, name, comment string, e
 		return err
 	}
 
-	fullname := getModelImplGormFileName(dir, name)
+	fullname := getModelImplGormFileName(dir, item.StructName)
 	err = createFile(ctx, fullname, buf)
 	if err != nil {
 		return err
@@ -72,6 +73,24 @@ func (a *{{.Name}}Repo) Query(ctx context.Context, params schema.{{.Name}}QueryP
 	opt := a.getQueryOption(opts...)
 
 	db := Get{{.Name}}DB(ctx, a.DB)
+
+{{range .Fields}}
+	{{if .ConditionArray}}
+		if v := params.{{fieldToPlural .StructFieldName}}; {{condition .}} {
+			db = db.Where("{{fieldToPluralAndLowerUnderlinedName .StructFieldName}} IN (?)", v)
+		}
+	{{end}}
+	{{if .Condition}}
+		if v := params.{{.StructFieldName}}; {{condition .}} {
+			db = db.Where("{{fieldToLowerUnderlinedName .StructFieldName}} = ?", v)
+		}
+	{{end}}
+	{{if .ConditionLike}}
+		if v := params.{{.StructFieldName}}; {{condition .}} {
+			db = db.Where("{{fieldToLowerUnderlinedName .StructFieldName}} LIKE ?", "%"+v+"%")
+		}
+	{{end}}
+{{end}}
 
 	// TODO: Your where condition code here...
 
@@ -123,6 +142,11 @@ func (a *{{.Name}}Repo) Update(ctx context.Context, id uint64, item schema.{{.Na
 
 func (a *{{.Name}}Repo) Delete(ctx context.Context, id uint64) error {
 	result := Get{{.Name}}DB(ctx, a.DB).Where("id=?", id).Delete({{.Name}}{})
+	return errors.WithStack(result.Error)
+}
+
+func (a *{{.Name}}Repo) Truncate(ctx context.Context) error {
+	result := Get{{.Name}}DB(ctx, a.DB).Where("1=1").Delete({{.Name}}{})
 	return errors.WithStack(result.Error)
 }
 

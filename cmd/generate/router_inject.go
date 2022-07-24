@@ -20,6 +20,9 @@ func insertRouterInject(ctx context.Context, dir, name string) error {
 			return
 		}
 
+		if injectStart == 1 && strings.Index(line, name) > -1 {
+			injectStart = -1
+		}
 		if injectStart == 1 && strings.Contains(line, "} // end") {
 			injectStart = -1
 			data = injectContent
