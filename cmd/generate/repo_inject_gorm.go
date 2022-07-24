@@ -35,6 +35,9 @@ func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error
 			return
 		}
 
+		if injectStart2 == 1 && strings.Index(line, name) > -1 {
+			injectStart2 = -1
+		}
 		if injectStart2 == 0 && strings.Contains(line, "var RepoSet = wire.NewSet(") {
 			injectStart2 = 1
 			return
