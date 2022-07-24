@@ -45,4 +45,5 @@ type TplFieldItem struct {
 	ConditionArray      bool   `yaml:"condition_array"`
 	Condition           bool   `yaml:"condition"`
 	ConditionLike       bool   `yaml:"condition_like"`
+	ValueType           string `yaml:"value_type"`
 }

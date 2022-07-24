@@ -134,8 +134,8 @@ func (a *Command) Exec() error {
 		err = insertWebRouter(ctx, a, item)
 		a.handleError(err, "Insert react router")
 
-		//err = genWebPage(ctx, a.cfg.React, item.StructName)
-		//a.handleError(err, "Generate react page")
+		err = genWebPage(ctx, a, item)
+		a.handleError(err, "Generate react page")
 
 		err = insertWebServiceIndexImport(ctx, a, item)
 		a.handleError(err, "Insert react service index import")
@@ -145,9 +145,6 @@ func (a *Command) Exec() error {
 
 		err = genWebService(ctx, a, item)
 		a.handleError(err, "Insert react service")
-
-		//err = genWebService(ctx, a.cfg.React, item.StructName)
-		//a.handleError(err, "Generate react service")
 	}
 
 	return nil
