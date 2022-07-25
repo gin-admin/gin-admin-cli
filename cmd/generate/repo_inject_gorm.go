@@ -35,6 +35,9 @@ func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error
 			return
 		}
 
+		if injectStart2 == 1 && strings.Index(line, name) > -1 {
+			injectStart2 = -1
+		}
 		if injectStart2 == 0 && strings.Contains(line, "var RepoSet = wire.NewSet(") {
 			injectStart2 = 1
 			return
@@ -53,6 +56,9 @@ func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error
 			return
 		}
 
+		if injectStart3 == 1 && strings.Index(line, name) > -1 {
+			injectStart3 = -1
+		}
 		if injectStart3 == 1 && strings.Contains(line, ") // end") {
 			injectStart3 = -1
 			data = "\t" + fmt.Sprintf(`%sRepo               = %s.%sRepo`, name, ulname, name)
@@ -66,6 +72,9 @@ func insertModelInjectGorm(ctx context.Context, pkgName, dir, name string) error
 			return
 		}
 
+		if injectStart4 == 1 && strings.Index(line, name) > -1 {
+			injectStart4 = -1
+		}
 		if injectStart4 == 1 && strings.Contains(line, ") // end") {
 			injectStart4 = -1
 			data = "\t" + fmt.Sprintf(`new(%s.%s),`, ulname, name)

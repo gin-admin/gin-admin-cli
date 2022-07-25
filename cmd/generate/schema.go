@@ -21,7 +21,7 @@ func getSchemaFileName(dir, name string) string {
 	return fullname
 }
 
-func genSchema(ctx context.Context, pkgName, dir, name, comment string, excludeStatus, excludeCreate bool, fields ...schemaField) error {
+func genSchema(ctx context.Context, pkgName, dir string, item TplItem, excludeStatus, excludeCreate bool, fields ...schemaField) error {
 	var tfields []schemaField
 
 	tfields = append(tfields, schemaField{Name: "ID", Type: "uint64"})
@@ -74,16 +74,17 @@ func genSchema(ctx context.Context, pkgName, dir, name, comment string, excludeS
 
 	tbuf, err := execParseTpl(schemaTpl, map[string]interface{}{
 		"PkgName":    pkgName,
-		"Name":       name,
-		"PluralName": util.ToPlural(name),
+		"Name":       item.StructName,
+		"PluralName": util.ToPlural(item.StructName),
 		"Fields":     buf.String(),
-		"Comment":    comment,
+		"Comment":    item.Comment,
+		"ItemFields": item.Fields,
 	})
 	if err != nil {
 		return err
 	}
 
-	fullname := getSchemaFileName(dir, name)
+	fullname := getSchemaFileName(dir, item.StructName)
 	err = createFile(ctx, fullname, tbuf)
 	if err != nil {
 		return err
@@ -106,7 +107,18 @@ type {{.Name}} struct {
 
 // Query parameters for db
 type {{.Name}}QueryParam struct {
-	PaginationParam
+	PaginationParam` +
+	"{{range .ItemFields}}" +
+	"{{if .ConditionArray}}" +
+	"\n{{fieldToPlural .StructFieldName}}  []{{.StructFieldType}}         `form:\"{{fieldToLowerUnderlinedName .StructFieldName}}\"` // {{.Comment}}" +
+	"{{end}}" +
+	"{{if .Condition}}" +
+	"\n{{.StructFieldName}}  {{.StructFieldType}}        `form:\"{{fieldToLowerUnderlinedName .StructFieldName}}\"`// {{.Comment}}" +
+	"{{end}}" +
+	"{{if .ConditionLike}}" +
+	"\n{{.StructFieldName}}Like  {{.StructFieldType}} `form:\"{{fieldToLowerUnderlinedName .StructFieldName}}_like\"`// {{.Comment}}" +
+	"{{end}}" +
+	"{{end}}" + `
 }
 
 // Query options for db (order or select fields)

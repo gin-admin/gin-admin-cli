@@ -82,17 +82,15 @@ func (a *Command) Exec() error {
 	excludeStatus, excludeCreate := a.cfg.ExcludeStatus, a.cfg.ExcludeCreate
 
 	if a.hasModule("schema") {
-		err = genSchema(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toSchemaFields()...)
-		if err != nil {
-			return err
-		}
+		err = genSchema(ctx, pkgName, dir, item, excludeStatus, excludeCreate, item.toSchemaFields()...)
+		a.handleError(err, "Generate schema")
 	}
 
 	if a.hasModule("dao") {
 		err = genGormEntity(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate, item.toEntityGormFields()...)
 		a.handleError(err, "Generate gorm entity")
 
-		err = genModelImplGorm(ctx, pkgName, dir, item.StructName, item.Comment, excludeStatus, excludeCreate)
+		err = genModelImplGorm(ctx, pkgName, dir, excludeStatus, excludeCreate, item)
 		a.handleError(err, "Generate gorm model")
 
 		err = insertModelInjectGorm(ctx, pkgName, dir, item.StructName)

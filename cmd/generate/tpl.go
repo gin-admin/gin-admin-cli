@@ -42,4 +42,7 @@ type TplFieldItem struct {
 	StructFieldType     string `yaml:"type"`            // 结构体字段类型
 	GormOptions         string `yaml:"gorm_options"`    // gorm配置项
 	BindingOptions      string `yaml:"binding_options"` // binding配置项
+	Condition           bool   `yaml:"condition"`       // 查询条件
+	ConditionArray      bool   `yaml:"condition_array"` // 组合查询
+	ConditionLike       bool   `yaml:"condition_like"`  // 模糊查询
 }

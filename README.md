@@ -87,12 +87,15 @@ fields:
     type: string
     comment: 任务编号
     required: true
+    condition: true
+    condition_array: true
     binding_options: ""
     gorm_options: "size:50;index;"
   - name: Name
     type: string
     comment: 任务名称
     required: true
+    condition_like: true
     binding_options: ""
     gorm_options: "size:50;index;"
   - name: Memo

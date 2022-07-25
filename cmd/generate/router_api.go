@@ -35,6 +35,9 @@ func insertRouterAPI(ctx context.Context, dir, name string, excludeStatus, exclu
 			return
 		}
 
+		if injectStart == 1 && strings.Index(line, name) > -1 {
+			injectStart = -1
+		}
 		if injectStart == 1 && strings.Contains(line, "} // v1 end") {
 			injectStart = -1
 			data = injectContent.String()
