@@ -16,7 +16,6 @@ type Config struct {
 	Name          string
 	Comment       string
 	File          string
-	React         string
 	Modules       string
 	ExcludeStatus bool
 	ExcludeCreate bool
@@ -128,23 +127,6 @@ func (a *Command) Exec() error {
 
 		err = insertRouterInject(ctx, dir, item.StructName)
 		a.handleError(err, "Insert router inject")
-	}
-
-	if a.hasModule("react") {
-		err = insertWebRouter(ctx, a, item)
-		a.handleError(err, "Insert react router")
-
-		err = genWebPage(ctx, a, item)
-		a.handleError(err, "Generate react page")
-
-		err = insertWebServiceIndexImport(ctx, a, item)
-		a.handleError(err, "Insert react service index import")
-
-		err = insertWebServiceIndexExport(ctx, a, item)
-		a.handleError(err, "Insert react service index export")
-
-		err = genWebService(ctx, a, item)
-		a.handleError(err, "Insert react service")
 	}
 
 	return nil
