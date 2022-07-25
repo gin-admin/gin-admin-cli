@@ -71,7 +71,7 @@ func (a *{{.Name}}Srv) Get(ctx context.Context, id uint64, opts ...schema.{{.Nam
 	if err != nil {
 		return nil, err
 	} else if item == nil {
-		return nil, errors.ErrRecordNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	return item, nil
@@ -95,7 +95,7 @@ func (a *{{.Name}}Srv) Update(ctx context.Context, id uint64, item schema.{{.Nam
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.ErrRecordNotFound
+		return errors.ErrNotFound
 	}
 
 	item.ID = oldItem.ID
@@ -114,7 +114,7 @@ func (a *{{.Name}}Srv) Delete(ctx context.Context, id uint64) error {
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.ErrRecordNotFound
+		return errors.ErrNotFound
 	}
 
 	return a.TransRepo.Exec(ctx, func(ctx context.Context) error {
@@ -128,7 +128,7 @@ func (a *{{.Name}}Srv) UpdateStatus(ctx context.Context, id uint64, status int) 
 	if err != nil {
 		return err
 	} else if oldItem == nil {
-		return errors.ErrRecordNotFound
+		return errors.ErrNotFound
 	} else if oldItem.Status == status {
 		return nil
 	}

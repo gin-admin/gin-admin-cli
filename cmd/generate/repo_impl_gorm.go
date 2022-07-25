@@ -145,11 +145,6 @@ func (a *{{.Name}}Repo) Delete(ctx context.Context, id uint64) error {
 	return errors.WithStack(result.Error)
 }
 
-func (a *{{.Name}}Repo) Truncate(ctx context.Context) error {
-	result := Get{{.Name}}DB(ctx, a.DB).Where("1=1").Delete({{.Name}}{})
-	return errors.WithStack(result.Error)
-}
-
 {{if .IncludeStatus}}
 func (a *{{.Name}}Repo) UpdateStatus(ctx context.Context, id uint64, status int) error {
 	result := Get{{.Name}}DB(ctx, a.DB).Where("id=?", id).Update("status", status)
