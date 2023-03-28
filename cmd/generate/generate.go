@@ -45,7 +45,7 @@ func (a *Command) hasModule(m string) bool {
 
 func (a *Command) handleError(err error, desc string) {
 	if err != nil {
-		fmt.Printf("%s:%s", desc, err.Error())
+		fmt.Printf("%s: %s", desc, err.Error())
 	}
 }
 
@@ -97,7 +97,7 @@ func (a *Command) Exec() error {
 
 	if a.hasModule("schema") {
 		err = genSchema(ctx, genObj)
-		if err != nil {
+		if err != nil && err != ErrFileExists {
 			return err
 		}
 	}

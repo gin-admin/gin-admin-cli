@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +16,8 @@ import (
 const (
 	delimiter = "\n"
 )
+
+var ErrFileExists = errors.New("file has been exists")
 
 func getModuleHeader(moduleName string, imports ...string) *bytes.Buffer {
 	buf := new(bytes.Buffer)
@@ -53,7 +56,8 @@ func createFile(ctx context.Context, name string, buf *bytes.Buffer) error {
 	}
 
 	if exists {
-		return fmt.Errorf("file has been exists: %s", name)
+		fmt.Printf("File has been exists: %s, skip", name)
+		return ErrFileExists
 	}
 
 	os.MkdirAll(filepath.Dir(name), 0777)

@@ -115,7 +115,7 @@ func (a *{{.Name}}Repo) Create(ctx context.Context, item *schema.{{.Name}}) erro
 }
 
 func (a *{{.Name}}Repo) Update(ctx context.Context, item *schema.{{.Name}}) error {
-	result := Get{{.Name}}DB(ctx, a.DB).Where("id=?", item.ID).Updates(item)
+	result := Get{{.Name}}DB(ctx, a.DB).Where("id=?", item.ID).Select("*").Updates(item)
 	return errors.WithStack(result.Error)
 }
 
