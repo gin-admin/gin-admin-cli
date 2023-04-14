@@ -26,12 +26,11 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 	result, err := a.{{$name}}DAL.Query(ctx, params, schema.{{$name}}QueryOptions{
 		QueryOptions: utils.QueryOptions{
 			OrderFields: []utils.OrderByParam{
-                {{range .Fields -}}
-                    {{$fieldName := .Name}}
-                    {{with .Order -}}
-                    {{`{`}}Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Direction "DESC"}}utils.DESC{{else}}{{utils.ASC}}{{end}}{{`}`}},
-                    {{- end -}}    
-                {{- end -}}
+                {{- range .Fields}}{{$fieldName := .Name}}
+				{{- with .Order}}
+				{Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Direction "DESC"}}utils.DESC{{else}}utils.ASC{{end}}},
+				{{- end}}
+                {{- end}}
 			},
 		},
 	})
@@ -43,30 +42,30 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 
 // Get the specified {{lowerSpace .Name}} from the data access object.
 func (a *{{$name}}) Get(ctx context.Context, id string) (*schema.{{$name}}, error) {
-	{{lowerCamel .Name}}, err := a.{{$name}}DAL.Get(ctx, id)
+	{{lowerCamel $name}}, err := a.{{$name}}DAL.Get(ctx, id)
 	if err != nil {
 		return nil, err
-	} else if {{lowerCamel .Name}} == nil {
+	} else if {{lowerCamel $name}} == nil {
 		return nil, errors.NotFound("", "{{titleSpace $name}} not found")
 	}
-	return {{lowerCamel .Name}}, nil
+	return {{lowerCamel $name}}, nil
 }
 
 // Create a new {{lowerSpace .Name}} in the data access object.
-func (a *{{$name}}) Create(ctx context.Context, sitem schema.{{$name}}Save) (*schema.{{$name}}, error) {
-	{{lowerCamel .Name}} := &schema.{{$name}}{
+func (a *{{$name}}) Create(ctx context.Context, sitem *schema.{{$name}}Save) (*schema.{{$name}}, error) {
+	{{lowerCamel $name}} := &schema.{{$name}}{
 		ID:          xid.NewID(),
 		CreatedAt:   time.Now(),
 	}
-    {{range .Fields -}}
-        {{$fieldName := .Name}}
-        {{with .Form -}}
-        {{lowerCamel .Name}}.{{$fieldName}} = sitem.{{$fieldName}}
-        {{- end -}}
-    {{- end -}}
+
+    {{- range .Fields}}{{$fieldName := .Name}}
+	{{- with .Form}}
+	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{$fieldName}}
+	{{- end}}
+    {{- end}}
 
 	err := a.Trans.Exec(ctx, func(ctx context.Context) error {
-		if err := a.{{$name}}DAL.Create(ctx, {{lowerCamel .Name}}); err != nil {
+		if err := a.{{$name}}DAL.Create(ctx, {{lowerCamel $name}}); err != nil {
 			return err
 		}
 		return nil
@@ -74,27 +73,26 @@ func (a *{{$name}}) Create(ctx context.Context, sitem schema.{{$name}}Save) (*sc
 	if err != nil {
 		return nil, err
 	}
-	return {{lowerCamel .Name}}, nil
+	return {{lowerCamel $name}}, nil
 }
 
 // Update the specified {{lowerSpace .Name}} in the data access object.
-func (a *{{$name}}) Update(ctx context.Context, id string, sitem schema.{{$name}}Save) error {
-	{{lowerCamel .Name}}, err := a.{{$name}}DAL.Get(ctx, id)
+func (a *{{$name}}) Update(ctx context.Context, id string, sitem *schema.{{$name}}Save) error {
+	{{lowerCamel $name}}, err := a.{{$name}}DAL.Get(ctx, id)
 	if err != nil {
 		return err
-	} else if {{lowerCamel .Name}} == nil {
+	} else if {{lowerCamel $name}} == nil {
 		return errors.NotFound("", "{{titleSpace $name}} not found")
 	}
-    {{range .Fields -}}
-        {{$fieldName := .Name}}
-        {{with .Form -}}
-        {{lowerCamel .Name}}.{{$fieldName}} = sitem.{{$fieldName}}
-        {{- end -}}
-    {{- end -}}
-    {{lowerCamel .Name}}.UpdatedAt = time.Now()
+    {{- range .Fields}}{{$fieldName := .Name}}
+	{{- with .Form}}
+	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{$fieldName}}
+	{{- end}}
+    {{- end}}
+    {{lowerCamel $name}}.UpdatedAt = time.Now()
 	
 	return a.Trans.Exec(ctx, func(ctx context.Context) error {
-		if err := a.{{$name}}DAL.Update(ctx, {{lowerCamel .Name}}); err != nil {
+		if err := a.{{$name}}DAL.Update(ctx, {{lowerCamel $name}}); err != nil {
 			return err
 		}
 		return nil

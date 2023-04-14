@@ -26,6 +26,7 @@ func Remove() *cli.Command {
 			&cli.StringFlag{
 				Name:  "module-path",
 				Usage: "The module path to remove the struct from (default: internal/mods)",
+				Value: "internal/mods",
 			},
 			&cli.StringFlag{
 				Name:     "structs",

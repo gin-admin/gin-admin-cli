@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/utils"
-	"go.uber.org/zap"
 )
 
 func ModifyModuleMainFile(ctx context.Context, args BasicArgs) ([]byte, error) {
@@ -20,8 +19,17 @@ func ModifyModuleMainFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 		return nil, err
 	}
 
-	fullname := filepath.Join(args.Dir, filename)
-	zap.S().Infof("[%s] modify struct %s from file %s", args.Flag.String(), args.StructName, fullname)
+	fullname := filepath.Join(args.Dir, args.ModulePath, filename)
+	exists, err := utils.ExistsFile(fullname)
+	if err != nil {
+		return nil, err
+	} else if !exists {
+		tplData := strings.ReplaceAll(tplModuleMain, "$$LowerModuleName$$", GetModuleImportName(args.ModuleName))
+		tplData = strings.ReplaceAll(tplData, "$$ModuleName$$", args.ModuleName)
+		if err := utils.WriteFile(fullname, []byte(tplData)); err != nil {
+			return nil, err
+		}
+	}
 
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fullname, nil, parser.ParseComments)
@@ -57,8 +65,18 @@ func ModifyModuleWireFile(ctx context.Context, args BasicArgs, genPackages []str
 		return nil, err
 	}
 
-	fullname := filepath.Join(args.Dir, filename)
-	zap.S().Infof("[%s] modify struct %s from file %s", args.Flag.String(), args.StructName, fullname)
+	fullname := filepath.Join(args.Dir, args.ModulePath, filename)
+	exists, err := utils.ExistsFile(fullname)
+	if err != nil {
+		return nil, err
+	} else if !exists {
+
+		tplData := strings.ReplaceAll(tplModuleWire, "$$LowerModuleName$$", GetModuleImportName(args.ModuleName))
+		tplData = strings.ReplaceAll(tplData, "$$ModuleName$$", args.ModuleName)
+		if err := utils.WriteFile(fullname, []byte(tplData)); err != nil {
+			return nil, err
+		}
+	}
 
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fullname, nil, parser.ParseComments)
@@ -90,9 +108,13 @@ func ModifyModuleWireFile(ctx context.Context, args BasicArgs, genPackages []str
 }
 
 func ModifyModsFile(ctx context.Context, args BasicArgs) ([]byte, error) {
-	filename := GetModsFilePath()
-	fullname := filepath.Join(args.Dir, filename)
-	zap.S().Infof("[%s] modify module from file %s", args.Flag.String(), fullname)
+	fullname := filepath.Join(args.Dir, args.ModulePath, FileForMods)
+	exists, err := utils.ExistsFile(fullname)
+	if err != nil {
+		return nil, err
+	} else if !exists {
+		return nil, nil
+	}
 
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fullname, nil, parser.ParseComments)
@@ -104,6 +126,7 @@ func ModifyModsFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 		fset:       fset,
 		dir:        args.Dir,
 		moduleName: args.ModuleName,
+		modulePath: args.ModulePath,
 		flag:       args.Flag,
 	}, f)
 
@@ -120,6 +143,7 @@ func ModifyModsFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	})
 
 	result := bytes.ReplaceAll(buf.Bytes(), []byte("ctx,\n\n\t\t\tv1"), []byte("ctx, v1"))
+	result = bytes.ReplaceAll(result, []byte("RegisterV1Routers(\n\t\tctx, v1)"), []byte("RegisterV1Routers(ctx, v1)"))
 	result = bytes.ReplaceAll(result, []byte(".\n\t\tInit"), []byte(".Init"))
 	result = bytes.ReplaceAll(result, []byte(".\n\t\tRegister"), []byte(".Register"))
 

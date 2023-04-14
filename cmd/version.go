@@ -11,7 +11,7 @@ func Version(v string) *cli.Command {
 		Name:  "version",
 		Usage: "Show the version of the program",
 		Action: func(c *cli.Context) error {
-			fmt.Printf("%s %s\n", c.App.Name, v)
+			fmt.Println(v)
 			return nil
 		},
 	}

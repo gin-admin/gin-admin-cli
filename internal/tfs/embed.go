@@ -2,6 +2,7 @@ package tfs
 
 import (
 	"embed"
+	"path/filepath"
 )
 
 var efsIns embed.FS
@@ -22,7 +23,7 @@ func NewEmbedFS() FS {
 }
 
 func (fs *embedFS) ReadFile(name string) ([]byte, error) {
-	return efsIns.ReadFile(name)
+	return efsIns.ReadFile(filepath.Join("tpls", name))
 }
 
 func (fs *embedFS) ParseTpl(name string, data interface{}) ([]byte, error) {

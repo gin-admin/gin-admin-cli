@@ -17,19 +17,17 @@ type {{$name}} struct {
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Query {{lowerSpace .Name}} list
-{{if not .DisablePagination -}}
+{{- if not .DisablePagination}}
 // @Param current query int true "pagination index" default(1)
 // @Param pageSize query int true "pagination size" default(10)
-{{- end -}}
-{{range .Fields -}}
-    {{$fieldName := .Name}}
-    {{$fieldType := .Type}}
-    {{with .Query -}}
-        {{if .InQuery}}
-        // @Param {{lowerCamel $fieldName}} query {{convSwaggerType $fieldType}} false "{{.Comment}}"
-        {{end}}
-    {{- end -}}    
-{{- end -}}
+{{- end}}
+{{- range .Fields}}{{$fieldType := .Type}}
+{{- with .Query}}
+{{- if .InQuery}}
+// @Param {{.FormTag}} query {{convSwaggerType $fieldType}} false "{{.Comment}}"
+{{- end}}
+{{- end}}
+{{- end}}
 // @Success 200 {object} utils.ResponseResult{data=[]schema.{{$name}}}
 // @Failure 401 {object} utils.ResponseResult
 // @Failure 500 {object} utils.ResponseResult

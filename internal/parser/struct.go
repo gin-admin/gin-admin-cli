@@ -68,6 +68,6 @@ func GetRootImportPath(dir string) string {
 	return modfile.ModulePath(modBytes)
 }
 
-func GetModuleImportPath(dir, moduleName string) string {
-	return GetRootImportPath(dir) + "/" + ModsPrefix + "/" + GetModuleImportName(moduleName)
+func GetModuleImportPath(dir, modulePath, moduleName string) string {
+	return GetRootImportPath(dir) + "/" + modulePath + "/" + GetModuleImportName(moduleName)
 }

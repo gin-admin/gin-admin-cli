@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -28,7 +29,7 @@ func NewGenerate(cfg *GenerateConfig) *Generate {
 		cfg:              cfg,
 		fs:               tfs.Ins,
 		rootImportPath:   parser.GetRootImportPath(cfg.Dir),
-		moduleImportPath: parser.GetModuleImportPath(cfg.Dir, cfg.ModuleName),
+		moduleImportPath: parser.GetModuleImportPath(cfg.Dir, cfg.ModulePath, cfg.ModuleName),
 	}
 }
 
@@ -77,6 +78,7 @@ func (a *Generate) run(ctx context.Context, data []*schema.S) error {
 	modsTplData, err := parser.ModifyModsFile(ctx, parser.BasicArgs{
 		Dir:        a.cfg.Dir,
 		ModuleName: a.cfg.ModuleName,
+		ModulePath: a.cfg.ModulePath,
 		Flag:       parser.AstFlagGen,
 	})
 	if err != nil {
@@ -101,11 +103,7 @@ func (a *Generate) getGoTplFile(pkgName string) string {
 }
 
 func (a Generate) getAbsPath(file string) (string, error) {
-	modPath := parser.ModsPrefix
-	if a.cfg.ModulePath != "" {
-		modPath = a.cfg.ModulePath
-	}
-
+	modPath := a.cfg.ModulePath
 	file = filepath.Join(a.cfg.Dir, modPath, file)
 	fullpath, err := filepath.Abs(file)
 	if err != nil {
@@ -118,7 +116,7 @@ func (a Generate) getAbsPath(file string) (string, error) {
 func (a *Generate) write(ctx context.Context, moduleName, structName, tpl string, data []byte, checkExists bool) error {
 	file, err := parser.ParseFilePathFromTpl(moduleName, structName, tpl)
 	if err != nil {
-		a.logger.Errorf("Failed to parse file path from tpl, err: %s, #struct %s, #tpl %s", err, structName, tpl)
+		a.logger.Errorf("Failed to parse file path from tpl, err: %s, #tpl %s", err, tpl)
 		return err
 	}
 
@@ -127,28 +125,41 @@ func (a *Generate) write(ctx context.Context, moduleName, structName, tpl string
 		return err
 	}
 
-	if checkExists {
-		if exists, err := utils.ExistsFile(file); err != nil {
-			return err
-		} else if exists {
-			a.logger.Infof("File exists, skip write, #file %s", file)
-			return nil
-		}
+	exists, err := utils.ExistsFile(file)
+	if err != nil {
+		return err
+	}
+	if checkExists && exists {
+		a.logger.Infof("File exists, skip, #file %s", file)
+		return nil
 	}
 
 	a.logger.Infof("Write file: %s", file)
+	if !exists {
+		err = os.MkdirAll(filepath.Dir(file), os.ModePerm)
+		if err != nil {
+			a.logger.Errorf("Failed to create dir, err: %s, #dir %s", err, filepath.Dir(file))
+			return err
+		}
+	}
+
+	if exists {
+		if err := os.Remove(file); err != nil {
+			a.logger.Errorf("Failed to remove file, err: %s, #file %s", err, file)
+			return err
+		}
+	}
+
 	if err := utils.WriteFile(file, data); err != nil {
 		a.logger.Errorf("Failed to write file, err: %s, #file %s", err, file)
 		return err
 	}
 
-	a.logger.Debugf("Exec go fmt, #file %s", file)
 	if err := utils.ExecGoFormat(file); err != nil {
 		a.logger.Errorf("Failed to exec go format, err: %s, #file %s", err, file)
 		return nil
 	}
 
-	a.logger.Debugf("Exec go imports, #file %s", file)
 	if err := utils.ExecGoImports(file); err != nil {
 		a.logger.Errorf("Failed to exec go imports, err: %s, #file %s", err, file)
 		return nil
@@ -157,6 +168,7 @@ func (a *Generate) write(ctx context.Context, moduleName, structName, tpl string
 }
 
 func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
+	dataItem = dataItem.Format()
 	dataItem.RootImportPath = a.rootImportPath
 	dataItem.ModuleName = a.cfg.ModuleName
 	dataItem.ModuleImportPath = a.moduleImportPath
@@ -183,6 +195,7 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 	basicArgs := parser.BasicArgs{
 		Dir:        a.cfg.Dir,
 		ModuleName: dataItem.ModuleName,
+		ModulePath: a.cfg.ModulePath,
 		StructName: dataItem.Name,
 		Flag:       parser.AstFlagGen,
 	}
@@ -213,18 +226,14 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 
 func (a *Generate) execWireAndSwag(ctx context.Context) error {
 	if p := a.cfg.WirePath; p != "" {
-		a.logger.Infof("Exec wire, #wirePath %s", p)
-		if err := utils.ExecWireGen(p); err != nil {
+		if err := utils.ExecWireGen(a.cfg.Dir, p); err != nil {
 			a.logger.Errorf("Failed to exec wire, err: %s, #wirePath %s", err, p)
-			return err
 		}
 	}
 
 	if p := a.cfg.SwaggerPath; p != "" {
-		a.logger.Infof("Exec swag, #swaggerPath %s", p)
-		if err := utils.ExecSwagGen(a.cfg.Dir+"/main.go", p); err != nil {
+		if err := utils.ExecSwagGen(a.cfg.Dir, "main.go", p); err != nil {
 			a.logger.Errorf("Failed to exec swag, err: %s, #swaggerPath %s", err, p)
-			return err
 		}
 	}
 

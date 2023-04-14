@@ -1,0 +1,69 @@
+- name: Menu
+  fields:
+    - name: Name
+      type: string
+      comment: Display name of menu
+      gorm_tag:
+        size: 128
+        index: true
+      query:
+        name: LikeName
+        in_query: true
+        form_tag: name
+        op: LIKE
+      form:
+        binding_tag: {}
+    - name: Description
+      type: string
+      comment: Details about menu
+      gorm_tag:
+        size: 1024
+      form: {}
+    - name: Sequence
+      type: int
+      comment: Sequence for sorting
+      gorm_tag:
+        index: true
+      form: {}
+      order: {}
+    - name: Type
+      type: string
+      comment: Type of menu (group/menu/button)
+      gorm_tag:
+        size: 20
+      form:
+        binding_tag:
+          tag: "required,oneof=group menu button"
+    - name: Status
+      type: string
+      comment: Status of menu (disabled/enabled)
+      gorm_tag:
+        size: 20
+      query:
+        in_query: true
+      form:
+        binding_tag:
+          tag: "required,oneof=disabled enabled"
+  disable_pagination: true
+- name: MenuResource
+  fields:
+    - name: MenuID
+      type: string
+      comment: From Menu.ID
+      gorm_tag:
+        size: 20
+        index: true
+      query: {}
+    - name: Method
+      type: string
+      comment: HTTP method
+      gorm_tag:
+        size: 20
+      form: {}
+    - name: Path
+      type: string
+      comment: HTTP request path
+      gorm_tag:
+        size: 512
+      form: {}
+  outputs: ["schema", "dal"]

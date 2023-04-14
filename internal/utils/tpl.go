@@ -20,25 +20,25 @@ var FuncMap = template.FuncMap{
 	"convSwaggerType": tplConvToSwaggerType,
 }
 
-func tplConvToIfCond(t string) string {
+func tplConvToIfCond(t string) template.HTML {
+	cond := `v != nil`
 	if strings.HasPrefix(t, "*") {
-		return `v != nil`
+		cond = `v != nil`
 	} else if t == "string" {
-		return `v != ""`
+		cond = `len(v) > 0`
 	} else if strings.Contains(t, "int") {
-		return `v != 0`
+		cond = `v != 0`
 	} else if strings.Contains(t, "float") {
-		return `v != 0`
+		cond = `v != 0`
 	} else if t == "time.Time" {
-		return `!v.IsZero()`
-	} else {
-		return `v != nil`
+		cond = `!v.IsZero()`
 	}
+	return template.HTML(cond)
 }
 
 func tplConvToSwaggerType(t string) string {
 	if strings.Contains(t, "int") || strings.Contains(t, "float") {
-		return `number`
+		return "number"
 	}
-	return `string`
+	return "string"
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/actions"
+	"github.com/gin-admin/gin-admin-cli/v10/internal/tfs"
 	"github.com/urfave/cli/v2"
 )
 
@@ -26,14 +27,14 @@ func Generate() *cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
-				Name:     "tpl-type",
-				Usage:    "The template type to generate the struct from (default: crud)",
-				Value:    "crud",
-				Required: true,
+				Name:  "tpl-type",
+				Usage: "The template type to generate the struct from (default: crud)",
+				Value: "crud",
 			},
 			&cli.StringFlag{
 				Name:  "module-path",
 				Usage: "The module path to generate the struct from (default: internal/mods)",
+				Value: "internal/mods",
 			},
 			&cli.StringFlag{
 				Name:  "wire-path",
@@ -61,10 +62,18 @@ func Generate() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "structs-output",
-				Usage: "Specify the packages to generate the struct (default: schema,dal,biz,api, multiple separated by commas)",
+				Usage: "Specify the packages to generate the struct (default: schema,dal,biz,api)",
+			},
+			&cli.StringFlag{
+				Name:  "tpl-path",
+				Usage: "The template path to generate the struct from (default use tpls)",
 			},
 		},
 		Action: func(c *cli.Context) error {
+			if tplPath := c.String("tpl-path"); tplPath != "" {
+				tfs.SetIns(tfs.NewOSFS(tplPath))
+			}
+
 			gen := actions.NewGenerate(&actions.GenerateConfig{
 				Dir:         c.String("dir"),
 				TplType:     c.String("tpl-type"),

@@ -2,14 +2,9 @@ package parser
 
 import (
 	"bytes"
-	"path/filepath"
 	"text/template"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/utils"
-)
-
-const (
-	ModsPrefix = "internal/mods"
 )
 
 const (
@@ -19,7 +14,7 @@ const (
 	FileForModuleAPI    = "{{lower .ModuleName}}/api/{{lowerUnderline .StructName}}.api.go"
 	FileForModuleBiz    = "{{lower .ModuleName}}/biz/{{lowerUnderline .StructName}}.biz.go"
 	FileForModuleDAL    = "{{lower .ModuleName}}/dal/{{lowerUnderline .StructName}}.dal.go"
-	FileForModuleSchema = "{{lower .ModuleName}}/schema/{{lowerUnderline .StructName}}.schema.go"
+	FileForModuleSchema = "{{lower .ModuleName}}/schema/{{lowerUnderline .StructName}}.go"
 )
 
 func ParseFilePathFromTpl(moduleName, structName string, tpl string) (string, error) {
@@ -48,8 +43,4 @@ func GetModuleWireFilePath(moduleName string) (string, error) {
 		return "", err
 	}
 	return p, nil
-}
-
-func GetModsFilePath() string {
-	return filepath.Join(ModsPrefix, FileForMods)
 }

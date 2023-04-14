@@ -317,6 +317,7 @@ type astModsVisitor struct {
 	fset       *token.FileSet
 	dir        string
 	moduleName string
+	modulePath string
 	flag       AstFlag
 }
 
@@ -348,7 +349,7 @@ func (v *astModsVisitor) Visit(node ast.Node) ast.Visitor {
 
 func (v *astModsVisitor) modifyModuleImport(x *ast.GenDecl) {
 	findIndex := -1
-	modulePath := GetModuleImportPath(v.dir, v.moduleName)
+	modulePath := GetModuleImportPath(v.dir, v.modulePath, v.moduleName)
 	for i, spec := range x.Specs {
 		if is, ok := spec.(*ast.ImportSpec); ok &&
 			is.Path.Value == fmt.Sprintf("\"%s\"", modulePath) {
@@ -453,12 +454,11 @@ func (v *astModsVisitor) modifyFuncInit(x *ast.FuncDecl) {
 	for i, stmt := range list {
 		if s, ok := stmt.(*ast.IfStmt); ok {
 			var sb strings.Builder
-			printer.Fprint(&sb, v.fset, s.Init)
-			if sb.String() == fmt.Sprintf("err := a.%s.Init(ctx)", v.moduleName) {
+			_ = printer.Fprint(&sb, v.fset, s.Init)
+			if strings.Contains(sb.String(), fmt.Sprintf("%s.Init", v.moduleName)) {
 				findIndex = i
 				break
 			}
-			break
 		}
 	}
 	if v.flag&AstFlagGen != 0 {
@@ -508,11 +508,10 @@ func (v *astModsVisitor) modifyFuncRegisterRouters(x *ast.FuncDecl) {
 		if s, ok := stmt.(*ast.IfStmt); ok {
 			var sb strings.Builder
 			printer.Fprint(&sb, v.fset, s.Init)
-			if sb.String() == fmt.Sprintf("err := a.%s.RegisterV1Routers(ctx, v1)", v.moduleName) {
+			if strings.Contains(sb.String(), fmt.Sprintf("%s.RegisterV1Routers", v.moduleName)) {
 				findIndex = i
 				break
 			}
-			break
 		}
 	}
 	if v.flag&AstFlagGen != 0 {

@@ -30,14 +30,13 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 
 	db := Get{{$name}}DB(ctx, a.DB)
 
-    {{range .Fields -}}
-        {{$type := .Type}}
-        {{with .Query -}}
-            if v := params.{{.Name}}; {{with .IfCond}}{{.}}{{else}}{{convIfCond $type}}{{end}} {
-		        db = db.Where("{{lowerUnderline .Name}} {{.OP}} ?", {{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}})
-	        }
-        {{- end -}}
-    {{- end -}}
+    {{- range .Fields}}{{$type := .Type}}
+    {{- with .Query}}
+	if v := params.{{.Name}}; {{with .IfCond}}{{.}}{{else}}{{convIfCond $type}}{{end}} {
+		db = db.Where("{{lowerUnderline .Name}} {{.OP}} ?", {{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}})
+	}
+    {{- end}}
+    {{- end}}
 
 	var list schema.{{plural .Name}}
 	pageResult, err := utils.WrapPageQuery(ctx, db, params.PaginationParam, opt.QueryOptions, &list)

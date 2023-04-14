@@ -43,6 +43,7 @@ func (a *Remove) Run(ctx context.Context, structs string) error {
 		basicArgs := parser.BasicArgs{
 			Dir:        a.cfg.Dir,
 			ModuleName: a.cfg.ModuleName,
+			ModulePath: a.cfg.ModulePath,
 			StructName: name,
 			Flag:       parser.AstFlagRem,
 		}
@@ -73,11 +74,7 @@ func (a *Remove) Run(ctx context.Context, structs string) error {
 }
 
 func (a Remove) getAbsPath(file string) (string, error) {
-	modPath := parser.ModsPrefix
-	if a.cfg.ModulePath != "" {
-		modPath = a.cfg.ModulePath
-	}
-
+	modPath := a.cfg.ModulePath
 	file = filepath.Join(a.cfg.Dir, modPath, file)
 	fullpath, err := filepath.Abs(file)
 	if err != nil {
@@ -99,26 +96,38 @@ func (a *Remove) modify(ctx context.Context, moduleName, structName, tpl string,
 		return err
 	}
 
-	if deleted {
-		a.logger.Infof("Delete file: %s", file)
+	exists, err := utils.ExistsFile(file)
+	if err != nil {
+		return err
+	}
+
+	if exists {
 		if err := os.Remove(file); err != nil {
+			a.logger.Errorf("Failed to remove file, err: %s, #file %s", err, file)
 			return err
 		}
 	}
 
-	a.logger.Infof("Modify file: %s", file)
+	if deleted {
+		a.logger.Infof("Delete file: %s", file)
+		return nil
+	}
+
+	if !exists {
+		return nil
+	}
+
+	a.logger.Infof("Write file: %s", file)
 	if err := utils.WriteFile(file, data); err != nil {
 		a.logger.Errorf("Failed to write file, err: %s, #file %s", err, file)
 		return err
 	}
 
-	a.logger.Debugf("Exec go fmt, #file %s", file)
 	if err := utils.ExecGoFormat(file); err != nil {
 		a.logger.Errorf("Failed to exec go format, err: %s, #file %s", err, file)
 		return nil
 	}
 
-	a.logger.Debugf("Exec go imports, #file %s", file)
 	if err := utils.ExecGoImports(file); err != nil {
 		a.logger.Errorf("Failed to exec go imports, err: %s, #file %s", err, file)
 		return nil
@@ -128,18 +137,14 @@ func (a *Remove) modify(ctx context.Context, moduleName, structName, tpl string,
 
 func (a *Remove) execWireAndSwag(ctx context.Context) error {
 	if p := a.cfg.WirePath; p != "" {
-		a.logger.Infof("Exec wire, #wirePath %s", p)
-		if err := utils.ExecWireGen(p); err != nil {
+		if err := utils.ExecWireGen(a.cfg.Dir, p); err != nil {
 			a.logger.Errorf("Failed to exec wire, err: %s, #wirePath %s", err, p)
-			return err
 		}
 	}
 
 	if p := a.cfg.SwaggerPath; p != "" {
-		a.logger.Infof("Exec swag, #swaggerPath %s", p)
-		if err := utils.ExecSwagGen(a.cfg.Dir+"/main.go", p); err != nil {
+		if err := utils.ExecSwagGen(a.cfg.Dir, "main.go", p); err != nil {
 			a.logger.Errorf("Failed to exec swag, err: %s, #swaggerPath %s", err, p)
-			return err
 		}
 	}
 

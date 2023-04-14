@@ -20,6 +20,7 @@ const (
 type BasicArgs struct {
 	Dir        string
 	ModuleName string
+	ModulePath string
 	StructName string
 	Flag       AstFlag
 }

@@ -36,37 +36,43 @@ func ExecGoFormat(name string) error {
 func ExecGoImports(name string) error {
 	localPath, err := exec.LookPath("goimports")
 	if err != nil {
-		zap.S().Errorf("goimports not found: %v", err)
+		// zap.S().Warnf("goimports not found: %v", err)
 		return nil
 	}
 
-	zap.S().Infof(fmt.Sprintf("%s -w %s", localPath, name))
+	// zap.S().Infof(fmt.Sprintf("%s -w %s", localPath, name))
 	cmd := exec.Command(localPath, "-w", name)
 	return cmd.Run()
 }
 
 // Executes the wire command on the given file
-func ExecWireGen(path string) error {
+func ExecWireGen(dir, path string) error {
 	localPath, err := exec.LookPath("wire")
 	if err != nil {
-		zap.S().Errorf("wire not found: %v", err)
+		// zap.S().Warnf("wire not found: %v", err)
 		return nil
 	}
 
 	zap.S().Infof(fmt.Sprintf("%s gen %s", localPath, path))
-	cmd := exec.Command(localPath, "gen", path)
+	cmd := exec.Command("wire", "gen", "./"+path)
+	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
 	return cmd.Run()
 }
 
 // Executes the swag command on the given file
-func ExecSwagGen(generalInfo, output string) error {
+func ExecSwagGen(dir, generalInfo, output string) error {
 	localPath, err := exec.LookPath("swag")
 	if err != nil {
-		zap.S().Errorf("swag not found: %v", err)
+		// zap.S().Warnf("swag not found: %v", err)
 		return nil
 	}
 
 	zap.S().Infof(fmt.Sprintf("%s init --parseDependency --generalInfo %s --output %s", localPath, generalInfo, output))
-	cmd := exec.Command(localPath, "init", "--parseDependency", "--generalInfo", generalInfo, "--output", output)
+	cmd := exec.Command("swag", "init", "--parseDependency", "--generalInfo", generalInfo, "--output", output)
+	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
 	return cmd.Run()
 }
