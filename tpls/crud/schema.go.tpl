@@ -35,7 +35,7 @@ type {{$name}}QueryParam struct {
 		{{with .Query -}}
 			{{$inQuery := .InQuery}}
 			{{$queryName := .Name}}
-			{{$fieldName}} {{$type}} `form:"{{with .FormTag}}{{.}}{{else}}{{if $inQuery}}{{lowerCamel $queryName}}{{else}}-{{end}}{{end}}"{{with .BindingTag}} binding:"{{if .Tag}}{{.Tag}}{{else}}{{if .Required}}required{{end}}{{end}}"{{end}}`{{with .Comment}}// {{.}}{{end -}}
+			{{$fieldName}} {{$type}} `form:"{{with .FormTag}}{{.}}{{else}}{{if $inQuery}}{{lowerCamel $queryName}}{{else}}-{{end}}{{end}}"{{with .BindingTag}} binding:"{{if .Tag}}{{.Tag}}{{else}}required{{end}}"{{end}}`{{with .Comment}}// {{.}}{{end -}}
 		{{- end -}}
     {{- end -}}
 }
@@ -60,7 +60,7 @@ type {{$name}}Save struct {
 		{{$fieldName := .Name}}
 		{{$type :=.Type}}
 		{{with .Form -}}
-			{{$fieldName}} {{$type}} ` {{- with .JSONTag}} json:"{{if .Tag}}{{.Tag}}{{else}}{{lowerUnderline $fieldName}}{{if .OmitEmpty}},omitempty{{end}}{{end}}"{{end}} {{- with .BindingTag}} binding:"{{if .Tag}}{{.Tag}}{{else}}{{if .Required}}required{{end}}{{end}}"{{end}}`{{with .Comment}}// {{.}}{{end -}}
+			{{$fieldName}} {{$type}} ` {{- with .JSONTag}} json:"{{if .Tag}}{{.Tag}}{{else}}{{lowerUnderline $fieldName}}{{if .OmitEmpty}},omitempty{{end}}{{end}}"{{end}} {{- with .BindingTag}} binding:"{{if .Tag}}{{.Tag}}{{else}}required{{end}}"{{end}}`{{with .Comment}}// {{.}}{{end -}}
 		{{- end -}}
     {{- end -}}
 }

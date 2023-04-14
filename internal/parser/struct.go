@@ -22,6 +22,20 @@ const (
 	StructPackageSchema = "schema"
 )
 
+var StructPackages = []string{
+	StructPackageSchema,
+	StructPackageDAL,
+	StructPackageBIZ,
+	StructPackageAPI,
+}
+
+var StructPackageTplPaths = map[string]string{
+	StructPackageAPI:    FileForModuleAPI,
+	StructPackageBIZ:    FileForModuleBiz,
+	StructPackageDAL:    FileForModuleDAL,
+	StructPackageSchema: FileForModuleSchema,
+}
+
 func GetStructAPIName(structName string) string {
 	return structName + StructNamingAPI
 }

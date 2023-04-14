@@ -1,4 +1,4 @@
-package fs
+package tfs
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ func SetIns(ins FS) {
 
 type FS interface {
 	ReadFile(name string) ([]byte, error)
-	ParseTplData(name string, data interface{}) ([]byte, error)
+	ParseTpl(name string, data interface{}) ([]byte, error)
 }
 
 type osFS struct {
@@ -32,7 +32,7 @@ func (fs *osFS) ReadFile(name string) ([]byte, error) {
 	return os.ReadFile(filepath.Join(fs.dir, name))
 }
 
-func (fs *osFS) ParseTplData(name string, data interface{}) ([]byte, error) {
+func (fs *osFS) ParseTpl(name string, data interface{}) ([]byte, error) {
 	tplBytes, err := fs.ReadFile(name)
 	if err != nil {
 		return nil, err

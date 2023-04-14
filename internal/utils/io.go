@@ -3,10 +3,11 @@ package utils
 import (
 	"bufio"
 	"bytes"
-	"fmt"
-	"go/format"
 	"io"
 	"os"
+
+	jsoniter "github.com/json-iterator/go"
+	"gopkg.in/yaml.v2"
 )
 
 // Scanner scans the given reader line by line and calls the given function
@@ -36,25 +37,24 @@ func WriteFile(name string, data []byte) error {
 	return os.WriteFile(name, data, 0644)
 }
 
-// FmtGoFile formats the given Go source code file
-func FmtGoFile(name string) error {
-	// read the contents of the file
-	content, err := os.ReadFile(name)
+// Parses the given JSON file
+func ParseJSONFile(name string, obj interface{}) error {
+	f, err := os.Open(name)
 	if err != nil {
-		return fmt.Errorf("error reading file: %v", err)
+		return err
 	}
+	defer f.Close()
 
-	// format the source code
-	formatted, err := format.Source(content)
+	return jsoniter.NewDecoder(f).Decode(obj)
+}
+
+// Parses the given YAML file
+func ParseYAMLFile(name string, obj interface{}) error {
+	f, err := os.Open(name)
 	if err != nil {
-		return fmt.Errorf("error formatting file: %v", err)
+		return err
 	}
+	defer f.Close()
 
-	// overwrite the existing file with the formatted code
-	err = WriteFile(name, formatted)
-	if err != nil {
-		return fmt.Errorf("error writing formatted file: %v", err)
-	}
-
-	return nil
+	return yaml.NewDecoder(f).Decode(obj)
 }

@@ -22,39 +22,32 @@ const (
 	FileForModuleSchema = "{{lower .ModuleName}}/schema/{{lowerUnderline .StructName}}.schema.go"
 )
 
-func ParseFilePathFromTpl(moduleName, structName string, tpls ...string) ([]string, error) {
-	var paths []string
-	for _, tpl := range tpls {
-		t := template.Must(template.New("").Funcs(utils.FuncMap).Parse(tpl))
-		buf := new(bytes.Buffer)
-		if err := t.Execute(buf, map[string]interface{}{
-			"ModuleName": moduleName,
-			"StructName": structName,
-		}); err != nil {
-			return nil, err
-		}
-		paths = append(paths, filepath.Join(ModsPrefix, buf.String()))
+func ParseFilePathFromTpl(moduleName, structName string, tpl string) (string, error) {
+	t := template.Must(template.New("").Funcs(utils.FuncMap).Parse(tpl))
+	buf := new(bytes.Buffer)
+	if err := t.Execute(buf, map[string]interface{}{
+		"ModuleName": moduleName,
+		"StructName": structName,
+	}); err != nil {
+		return "", err
 	}
-
-	return paths, nil
+	return buf.String(), nil
 }
 
 func GetModuleMainFilePath(moduleName string) (string, error) {
-	paths, err := ParseFilePathFromTpl(moduleName, "", FileForModuleMain)
+	p, err := ParseFilePathFromTpl(moduleName, "", FileForModuleMain)
 	if err != nil {
 		return "", err
 	}
-
-	return paths[0], nil
+	return p, nil
 }
 
 func GetModuleWireFilePath(moduleName string) (string, error) {
-	paths, err := ParseFilePathFromTpl(moduleName, "", FileForModuleWire)
+	p, err := ParseFilePathFromTpl(moduleName, "", FileForModuleWire)
 	if err != nil {
 		return "", err
 	}
-
-	return paths[0], nil
+	return p, nil
 }
 
 func GetModsFilePath() string {

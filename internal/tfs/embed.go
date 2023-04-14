@@ -1,4 +1,4 @@
-package fs
+package tfs
 
 import (
 	"embed"
@@ -25,7 +25,7 @@ func (fs *embedFS) ReadFile(name string) ([]byte, error) {
 	return efsIns.ReadFile(name)
 }
 
-func (fs *embedFS) ParseTplData(name string, data interface{}) ([]byte, error) {
+func (fs *embedFS) ParseTpl(name string, data interface{}) ([]byte, error) {
 	tplBytes, err := fs.ReadFile(name)
 	if err != nil {
 		return nil, err
