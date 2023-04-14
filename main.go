@@ -1,24 +1,25 @@
 package main
 
 import (
-	"log"
-	"os"
+	"embed"
 
-	"github.com/gin-admin/gin-admin-cli/v6/cmd"
-	"github.com/urfave/cli"
+	"github.com/gin-admin/gin-admin-cli/v10/internal/fs"
+	"go.uber.org/zap"
 )
 
+//go:embed tpls
+var f embed.FS
+
 func main() {
-	app := cli.NewApp()
-	app.Name = "gin-admin-cli"
-	app.Description = "gin-admin v9 generate tools (create project and generate modules)"
-	app.Version = "6.0.2"
-	app.Commands = []cli.Command{
-		cmd.NewCommand(),
-		cmd.GenerateCommand(),
-	}
-	err := app.Run(os.Args)
+	defer zap.S().Sync()
+
+	// Set the embed.FS to the fs package
+	fs.SetEFS(f)
+
+	logger, err := zap.NewDevelopmentConfig().Build()
 	if err != nil {
-		log.Fatalf(err.Error())
+		panic(err)
 	}
+	zap.ReplaceGlobals(logger)
+
 }

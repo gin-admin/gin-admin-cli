@@ -1,4 +1,4 @@
-package util
+package utils
 
 import (
 	"bytes"
@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/inflection"
 )
 
-// Copied from golint
 var commonInitialisms = []string{"API", "ASCII", "CPU", "CSS", "DNS", "EOF", "GUID", "HTML", "HTTP", "HTTPS", "ID", "IP", "JSON", "LHS", "QPS", "RAM", "RHS", "RPC", "SLA", "SMTP", "SSH", "TLS", "TTL", "UID", "UI", "UUID", "URI", "URL", "UTF8", "VM", "XML", "XSRF", "XSS"}
 var commonInitialismsReplacer *strings.Replacer
 
@@ -19,7 +18,6 @@ func init() {
 	commonInitialismsReplacer = strings.NewReplacer(commonInitialismsForReplacer...)
 }
 
-// ToLowerUnderlinedNamer 转换为小写下划线命名
 func ToLowerUnderlinedNamer(name string) string {
 	const (
 		lower = false
@@ -70,7 +68,25 @@ func ToLowerUnderlinedNamer(name string) string {
 	return s
 }
 
-// ToPlural 转换为复数
 func ToPlural(v string) string {
 	return inflection.Plural(v)
+}
+
+func ToLowerPlural(v string) string {
+	return strings.ToLower(ToPlural(v))
+}
+
+func ToLowerCamel(v string) string {
+	if v == "" {
+		return ""
+	}
+	return strings.ToLower(v[:1]) + v[1:]
+}
+
+func ToLowerSpacedNamer(v string) string {
+	return strings.Replace(ToLowerUnderlinedNamer(v), "_", " ", -1)
+}
+
+func ToTitleSpaceNamer(v string) string {
+	return strings.ToTitle(ToLowerSpacedNamer(v))
 }
