@@ -1,4 +1,5 @@
 - name: Menu
+  comment: Menu management for RBAC
   fields:
     - name: Name
       type: string

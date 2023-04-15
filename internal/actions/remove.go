@@ -58,7 +58,7 @@ func (a *Remove) Run(ctx context.Context, structs string) error {
 			return err
 		}
 
-		moduleWireTplData, err := parser.ModifyModuleWireFile(ctx, basicArgs, nil)
+		moduleWireTplData, err := parser.ModifyModuleWireFile(ctx, basicArgs)
 		if err != nil {
 			a.logger.Errorf("Failed to modify module wire file, err: %s, #struct %s", err, name)
 			return err

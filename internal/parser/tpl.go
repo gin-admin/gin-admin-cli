@@ -6,6 +6,8 @@ package $$LowerModuleName$$
 import (
 	"context"
 
+	"$$ModuleImportPath$$/api"
+	"$$ModuleImportPath$$/schema"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -32,6 +34,13 @@ func (a *$$ModuleName$$) RegisterV1Routers(ctx context.Context, v1 *gin.RouterGr
 
 var tplModuleWire = `
 package $$LowerModuleName$$
+
+import (
+	"$$ModuleImportPath$$/api"
+	"$$ModuleImportPath$$/biz"
+	"$$ModuleImportPath$$/dal"
+	"github.com/google/wire"
+)
 
 // Collection of wire providers
 var Set = wire.NewSet(

@@ -173,12 +173,12 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 	dataItem.ModuleName = a.cfg.ModuleName
 	dataItem.ModuleImportPath = a.moduleImportPath
 
-	genPkgs := parser.StructPackages
+	genPackages := parser.StructPackages
 	if len(dataItem.Outputs) > 0 {
-		genPkgs = dataItem.Outputs
+		genPackages = dataItem.Outputs
 	}
 
-	for _, pkgName := range genPkgs {
+	for _, pkgName := range genPackages {
 		tplName := a.getGoTplFile(pkgName)
 		tplData, err := a.fs.ParseTpl(tplName, dataItem)
 		if err != nil {
@@ -193,11 +193,12 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 	}
 
 	basicArgs := parser.BasicArgs{
-		Dir:        a.cfg.Dir,
-		ModuleName: dataItem.ModuleName,
-		ModulePath: a.cfg.ModulePath,
-		StructName: dataItem.Name,
-		Flag:       parser.AstFlagGen,
+		Dir:         a.cfg.Dir,
+		ModuleName:  dataItem.ModuleName,
+		ModulePath:  a.cfg.ModulePath,
+		StructName:  dataItem.Name,
+		GenPackages: genPackages,
+		Flag:        parser.AstFlagGen,
 	}
 	moduleMainTplData, err := parser.ModifyModuleMainFile(ctx, basicArgs)
 	if err != nil {
@@ -210,7 +211,7 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 		return err
 	}
 
-	moduleWireTplData, err := parser.ModifyModuleWireFile(ctx, basicArgs, genPkgs)
+	moduleWireTplData, err := parser.ModifyModuleWireFile(ctx, basicArgs)
 	if err != nil {
 		a.logger.Errorf("Failed to modify module wire file, err: %s, #struct %s", err, dataItem.Name)
 		return err

@@ -28,7 +28,6 @@ func ExecGoFormat(name string) error {
 	if err != nil {
 		return fmt.Errorf("error writing formatted file: %v", err)
 	}
-
 	return nil
 }
 
@@ -40,20 +39,20 @@ func ExecGoImports(name string) error {
 		return nil
 	}
 
-	// zap.S().Infof(fmt.Sprintf("%s -w %s", localPath, name))
 	cmd := exec.Command(localPath, "-w", name)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
 	return cmd.Run()
 }
 
 // Executes the wire command on the given file
 func ExecWireGen(dir, path string) error {
-	localPath, err := exec.LookPath("wire")
+	_, err := exec.LookPath("wire")
 	if err != nil {
 		// zap.S().Warnf("wire not found: %v", err)
 		return nil
 	}
 
-	zap.S().Infof(fmt.Sprintf("%s gen %s", localPath, path))
 	cmd := exec.Command("wire", "gen", "./"+path)
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout

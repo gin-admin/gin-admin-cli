@@ -26,6 +26,7 @@ func ModifyModuleMainFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	} else if !exists {
 		tplData := strings.ReplaceAll(tplModuleMain, "$$LowerModuleName$$", GetModuleImportName(args.ModuleName))
 		tplData = strings.ReplaceAll(tplData, "$$ModuleName$$", args.ModuleName)
+		tplData = strings.ReplaceAll(tplData, "$$ModuleImportPath$$", GetModuleImportPath(args.Dir, args.ModulePath, args.ModuleName))
 		if err := utils.WriteFile(fullname, []byte(tplData)); err != nil {
 			return nil, err
 		}
@@ -38,10 +39,8 @@ func ModifyModuleMainFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	}
 
 	ast.Walk(&astModuleMainVisitor{
-		fset:       fset,
-		moduleName: args.ModuleName,
-		structName: args.StructName,
-		flag:       args.Flag,
+		fset: fset,
+		args: args,
 	}, f)
 
 	buf := new(bytes.Buffer)
@@ -59,7 +58,7 @@ func ModifyModuleMainFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func ModifyModuleWireFile(ctx context.Context, args BasicArgs, genPackages []string) ([]byte, error) {
+func ModifyModuleWireFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	filename, err := GetModuleWireFilePath(args.ModuleName)
 	if err != nil {
 		return nil, err
@@ -70,9 +69,9 @@ func ModifyModuleWireFile(ctx context.Context, args BasicArgs, genPackages []str
 	if err != nil {
 		return nil, err
 	} else if !exists {
-
 		tplData := strings.ReplaceAll(tplModuleWire, "$$LowerModuleName$$", GetModuleImportName(args.ModuleName))
 		tplData = strings.ReplaceAll(tplData, "$$ModuleName$$", args.ModuleName)
+		tplData = strings.ReplaceAll(tplData, "$$ModuleImportPath$$", GetModuleImportPath(args.Dir, args.ModulePath, args.ModuleName))
 		if err := utils.WriteFile(fullname, []byte(tplData)); err != nil {
 			return nil, err
 		}
@@ -85,11 +84,8 @@ func ModifyModuleWireFile(ctx context.Context, args BasicArgs, genPackages []str
 	}
 
 	ast.Walk(&astModuleWireVisitor{
-		fset:        fset,
-		moduleName:  args.ModuleName,
-		structName:  args.StructName,
-		flag:        args.Flag,
-		genPackages: genPackages,
+		fset: fset,
+		args: args,
 	}, f)
 
 	buf := new(bytes.Buffer)
@@ -123,11 +119,8 @@ func ModifyModsFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	}
 
 	ast.Walk(&astModsVisitor{
-		fset:       fset,
-		dir:        args.Dir,
-		moduleName: args.ModuleName,
-		modulePath: args.ModulePath,
-		flag:       args.Flag,
+		fset: fset,
+		args: args,
 	}, f)
 
 	buf := new(bytes.Buffer)

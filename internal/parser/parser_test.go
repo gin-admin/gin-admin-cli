@@ -23,11 +23,12 @@ func TestModifyModuleMainFile(t *testing.T) {
 
 func TestModifyModuleWireFile(t *testing.T) {
 	buf, err := ModifyModuleWireFile(context.Background(), BasicArgs{
-		Dir:        dir,
-		ModuleName: "RBAC",
-		StructName: "Role",
-		Flag:       AstFlagGen,
-	}, []string{"dal", "biz", "api"})
+		Dir:         dir,
+		ModuleName:  "RBAC",
+		StructName:  "Role",
+		Flag:        AstFlagGen,
+		GenPackages: []string{"dal", "biz", "api"},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

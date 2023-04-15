@@ -18,9 +18,10 @@ const (
 )
 
 type BasicArgs struct {
-	Dir        string
-	ModuleName string
-	ModulePath string
-	StructName string
-	Flag       AstFlag
+	Dir         string
+	ModuleName  string
+	ModulePath  string
+	StructName  string
+	GenPackages []string
+	Flag        AstFlag
 }
