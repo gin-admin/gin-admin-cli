@@ -39,7 +39,7 @@ func Generate() *cli.Command {
 			&cli.StringFlag{
 				Name:  "wire-path",
 				Usage: "The wire generate path to generate the struct from (default: internal/library/wirex)",
-				Value: "internal/library/wirex",
+				Value: "internal/wirex",
 			},
 			&cli.StringFlag{
 				Name:  "swag-path",

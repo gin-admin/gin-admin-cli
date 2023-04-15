@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"{{.RootImportPath}}/internal/library/utils"
+	"{{.RootImportPath}}/internal/utils"
 	"{{.ModuleImportPath}}/dal"
 	"{{.ModuleImportPath}}/schema"
 	"{{.RootImportPath}}/pkg/errors"

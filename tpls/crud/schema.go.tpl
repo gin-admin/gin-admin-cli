@@ -3,7 +3,7 @@ package schema
 import (
 	"time"
 
-	"{{.RootImportPath}}/internal/library/utils"
+	"{{.RootImportPath}}/internal/utils"
 )
 
 {{$name := .Name}}

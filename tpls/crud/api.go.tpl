@@ -1,7 +1,7 @@
 package api
 
 import (
-	"{{.RootImportPath}}/internal/library/utils"
+	"{{.RootImportPath}}/internal/utils"
 	"{{.ModuleImportPath}}/biz"
 	"{{.ModuleImportPath}}/schema"
 	"github.com/gin-gonic/gin"

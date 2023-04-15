@@ -3,7 +3,7 @@ package dal
 import (
 	"context"
 
-	"{{.RootImportPath}}/internal/library/utils"
+	"{{.RootImportPath}}/internal/utils"
 	"{{.ModuleImportPath}}/schema"
 	"{{.RootImportPath}}/pkg/errors"
 	"gorm.io/gorm"
