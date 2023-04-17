@@ -1,70 +1,68 @@
 - name: Menu
   comment: Menu management for RBAC
+  disable_pagination: true
   fields:
     - name: Name
       type: string
       comment: Display name of menu
-      gorm_tag:
-        size: 128
-        index: true
+      gorm_tag: "size:128;index"
+      custom_tag: form:"desc" validate:"max=255"
       query:
         name: LikeName
         in_query: true
         form_tag: name
         op: LIKE
       form:
-        binding_tag: {}
+        binding_tag: "required,max=128"
     - name: Description
       type: string
       comment: Details about menu
-      gorm_tag:
-        size: 1024
+      gorm_tag: "size:512"
       form: {}
     - name: Sequence
       type: int
       comment: Sequence for sorting
-      gorm_tag:
-        index: true
+      order: ASC
       form: {}
-      order: {}
     - name: Type
       type: string
-      comment: Type of menu (group/menu/button)
-      gorm_tag:
-        size: 20
+      comment: Type of menu (group/page/button)
+      gorm_tag: "size:20;index"
       form:
-        binding_tag:
-          tag: "required,oneof=group menu button"
+        binding_tag: "required,oneof=group menu button"
     - name: Status
       type: string
       comment: Status of menu (disabled/enabled)
-      gorm_tag:
-        size: 20
+      gorm_tag: "size:20;index"
       query:
         in_query: true
       form:
-        binding_tag:
-          tag: "required,oneof=disabled enabled"
-  disable_pagination: true
+        binding_tag: "required,oneof=disabled enabled"
 - name: MenuResource
+  comment: Menu resource management for RBAC
+  outputs: ["schema", "dal"]
+  disable_default_fields: true
   fields:
+    - name: ID
+      type: string
+      comment: Unique ID
+      gorm_tag: "size:20;primarykey"
     - name: MenuID
       type: string
       comment: From Menu.ID
-      gorm_tag:
-        size: 20
-        index: true
+      gorm_tag: "size:20;index"
       query: {}
     - name: Method
       type: string
       comment: HTTP method
-      gorm_tag:
-        size: 20
+      gorm_tag: "size:20;"
       form: {}
     - name: Path
       type: string
       comment: HTTP request path
-      gorm_tag:
-        size: 512
+      gorm_tag: "size:255;"
       form: {}
-  outputs: ["schema", "dal"]
+    - name: CreatedAt
+      type: time.Time
+      comment: Create time
+      gorm_tag: "index;"

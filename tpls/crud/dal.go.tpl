@@ -10,13 +10,14 @@ import (
 )
 
 {{$name := .Name}}
+{{$includeCreatedAt := .Include.CreatedAt}}
 
 // Get {{lowerSpace .Name}} storage instance
 func Get{{$name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
 	return utils.GetDB(ctx, defDB).Model(new(schema.{{$name}}))
 }
 
-{{with .Comment}}// {{.}}{{else}}// {{$name}} data access object{{end}}
+{{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` data access object.{{end}}
 type {{$name}} struct {
 	DB *gorm.DB
 }
@@ -82,7 +83,7 @@ func (a *{{$name}}) Create(ctx context.Context, item *schema.{{$name}}) error {
 
 // Update the specified {{lowerSpace .Name}} in the database.
 func (a *{{$name}}) Update(ctx context.Context, item *schema.{{$name}}) error {
-	result := Get{{$name}}DB(ctx, a.DB).Where("id=?", item.ID).Select("*").Omit("created_at").Updates(item)
+	result := Get{{$name}}DB(ctx, a.DB).Where("id=?", item.ID).Select("*"){{if $includeCreatedAt}}.Omit("created_at"){{end}}.Updates(item)
 	return errors.WithStack(result.Error)
 }
 

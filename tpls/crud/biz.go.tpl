@@ -12,8 +12,11 @@ import (
 )
 
 {{$name := .Name}}
+{{$includeID := .Include.ID}}
+{{$includeCreatedAt := .Include.CreatedAt}}
+{{$includeUpdatedAt := .Include.UpdatedAt}}
 
-{{with .Comment}}// {{.}}{{else}}// {{$name}} business logic{{end}}
+{{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` business logic.{{end}}
 type {{$name}} struct {
 	Trans       *utils.Trans
 	{{$name}}DAL *dal.{{$name}}
@@ -27,8 +30,8 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 		QueryOptions: utils.QueryOptions{
 			OrderFields: []utils.OrderByParam{
                 {{- range .Fields}}{{$fieldName := .Name}}
-				{{- with .Order}}
-				{Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Direction "DESC"}}utils.DESC{{else}}utils.ASC{{end}}},
+				{{- if .Order}}
+				{Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Order "DESC"}}utils.DESC{{else}}utils.ASC{{end}}},
 				{{- end}}
                 {{- end}}
 			},
@@ -54,13 +57,13 @@ func (a *{{$name}}) Get(ctx context.Context, id string) (*schema.{{$name}}, erro
 // Create a new {{lowerSpace .Name}} in the data access object.
 func (a *{{$name}}) Create(ctx context.Context, sitem *schema.{{$name}}Save) (*schema.{{$name}}, error) {
 	{{lowerCamel $name}} := &schema.{{$name}}{
-		ID:          idx.NewXID(),
-		CreatedAt:   time.Now(),
+		{{if $includeID}}ID:          idx.NewXID(),{{end}}
+		{{if $includeCreatedAt}}CreatedAt:   time.Now(),{{end}}
 	}
 
     {{- range .Fields}}{{$fieldName := .Name}}
 	{{- with .Form}}
-	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{$fieldName}}
+	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{.Name}}
 	{{- end}}
     {{- end}}
 
@@ -86,10 +89,10 @@ func (a *{{$name}}) Update(ctx context.Context, id string, sitem *schema.{{$name
 	}
     {{- range .Fields}}{{$fieldName := .Name}}
 	{{- with .Form}}
-	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{$fieldName}}
+	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{.Name}}
 	{{- end}}
     {{- end}}
-    {{lowerCamel $name}}.UpdatedAt = time.Now()
+    {{if $includeUpdatedAt}}{{lowerCamel $name}}.UpdatedAt = time.Now(){{end}}
 	
 	return a.Trans.Exec(ctx, func(ctx context.Context) error {
 		if err := a.{{$name}}DAL.Update(ctx, {{lowerCamel $name}}); err != nil {

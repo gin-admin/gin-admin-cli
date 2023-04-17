@@ -18,6 +18,7 @@ var FuncMap = template.FuncMap{
 	"titleSpace":      ToTitleSpaceNamer,
 	"convIfCond":      tplConvToIfCond,
 	"convSwaggerType": tplConvToSwaggerType,
+	"raw":             func(s string) template.HTML { return template.HTML(s) },
 }
 
 func tplConvToIfCond(t string) template.HTML {

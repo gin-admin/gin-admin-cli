@@ -9,7 +9,7 @@ import (
 
 {{$name := .Name}}
 
-{{with .Comment}}// {{.}}{{else}}// {{$name}} api{{end}}
+{{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` api.{{end}}
 type {{$name}} struct {
 	{{$name}}BIZ *biz.{{$name}}
 }

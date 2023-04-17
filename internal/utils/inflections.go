@@ -88,5 +88,9 @@ func ToLowerSpacedNamer(v string) string {
 }
 
 func ToTitleSpaceNamer(v string) string {
-	return strings.ToTitle(ToLowerSpacedNamer(v))
+	vv := strings.Split(ToLowerUnderlinedNamer(v), "_")
+	if len(vv) > 0 && len(vv[0]) > 0 {
+		vv[0] = strings.ToUpper(vv[0][:1]) + vv[0][1:]
+	}
+	return strings.Join(vv, " ")
 }
