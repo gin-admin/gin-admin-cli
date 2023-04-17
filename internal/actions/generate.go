@@ -25,11 +25,12 @@ type GenerateConfig struct {
 
 func NewGenerate(cfg *GenerateConfig) *Generate {
 	return &Generate{
-		logger:           zap.S().Named("[Gen]"),
+		logger:           zap.S().Named("[GEN]"),
 		cfg:              cfg,
 		fs:               tfs.Ins,
 		rootImportPath:   parser.GetRootImportPath(cfg.Dir),
 		moduleImportPath: parser.GetModuleImportPath(cfg.Dir, cfg.ModulePath, cfg.ModuleName),
+		utilsImportPath:  parser.GetUtilsImportPath(cfg.Dir, cfg.ModulePath),
 	}
 }
 
@@ -39,10 +40,11 @@ type Generate struct {
 	fs               tfs.FS
 	rootImportPath   string
 	moduleImportPath string
+	utilsImportPath  string
 }
 
 // Run generate command
-func (a *Generate) Run(ctx context.Context, configFile string) error {
+func (a *Generate) RunWithConfig(ctx context.Context, configFile string) error {
 	switch filepath.Ext(configFile) {
 	case ".json":
 		var data []*schema.S
@@ -94,10 +96,14 @@ func (a *Generate) run(ctx context.Context, data []*schema.S) error {
 	return a.execWireAndSwag(ctx)
 }
 
-func (a *Generate) getGoTplFile(pkgName string) string {
+func (a *Generate) getGoTplFile(pkgName, tplType string) string {
 	pkgName = fmt.Sprintf("%s.go.tpl", pkgName)
-	if a.cfg.TplType != "" {
-		return filepath.Join(a.cfg.TplType, pkgName)
+	if tplType == "" && a.cfg.TplType != "" {
+		tplType = a.cfg.TplType
+	}
+
+	if tplType != "" {
+		return filepath.Join(tplType, pkgName)
 	}
 	return pkgName
 }
@@ -172,6 +178,7 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 	dataItem.RootImportPath = a.rootImportPath
 	dataItem.ModuleName = a.cfg.ModuleName
 	dataItem.ModuleImportPath = a.moduleImportPath
+	dataItem.UtilsImportPath = a.utilsImportPath
 
 	genPackages := parser.StructPackages
 	if len(dataItem.Outputs) > 0 {
@@ -179,7 +186,7 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 	}
 
 	for _, pkgName := range genPackages {
-		tplName := a.getGoTplFile(pkgName)
+		tplName := a.getGoTplFile(pkgName, dataItem.TplType)
 		tplData, err := a.fs.ParseTpl(tplName, dataItem)
 		if err != nil {
 			a.logger.Errorf("Failed to parse tpl, err: %s, #struct %s, #tpl %s", err, dataItem.Name, tplName)

@@ -6,12 +6,14 @@ type S struct {
 	RootImportPath    string   `yaml:"-" json:"-"`
 	ModuleName        string   `yaml:"-" json:"-"`
 	ModuleImportPath  string   `yaml:"-" json:"-"`
+	UtilsImportPath   string   `yaml:"-" json:"-"`
 	Name              string   `yaml:"name,omitempty" json:"name,omitempty"`
 	TableName         string   `yaml:"table_name,omitempty" json:"table_name,omitempty"`
 	Comment           string   `yaml:"comment,omitempty" json:"comment,omitempty"`
 	Fields            []*Field `yaml:"fields,omitempty" json:"fields,omitempty"`
 	DisablePagination bool     `yaml:"disable_pagination,omitempty" json:"disable_pagination,omitempty"`
 	Outputs           []string `yaml:"outputs,omitempty" json:"outputs,omitempty"`
+	TplType           string   `yaml:"tpl_type,omitempty" json:"tpl_type,omitempty"` // crud/tree
 }
 
 func (a *S) Format() *S {

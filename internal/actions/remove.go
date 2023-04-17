@@ -2,11 +2,12 @@ package actions
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/parser"
+	"github.com/gin-admin/gin-admin-cli/v10/internal/schema"
 	"github.com/gin-admin/gin-admin-cli/v10/internal/utils"
 	"go.uber.org/zap"
 )
@@ -21,7 +22,7 @@ type RemoveConfig struct {
 
 func NewRemove(cfg *RemoveConfig) *Remove {
 	return &Remove{
-		logger: zap.S().Named("[Rem]"),
+		logger: zap.S().Named("[RM]"),
 		cfg:    cfg,
 	}
 }
@@ -31,8 +32,32 @@ type Remove struct {
 	cfg    *RemoveConfig
 }
 
-func (a *Remove) Run(ctx context.Context, structs string) error {
-	for _, name := range strings.Split(structs, ",") {
+func (a *Remove) RunWithConfig(ctx context.Context, configFile string) error {
+	var data []*schema.S
+	switch filepath.Ext(configFile) {
+	case ".json":
+		if err := utils.ParseJSONFile(configFile, &data); err != nil {
+			return err
+		}
+	case ".yaml", "yml":
+		if err := utils.ParseYAMLFile(configFile, &data); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("unsupported config file type: %s", configFile)
+	}
+
+	var structs []string
+	for _, item := range data {
+		structs = append(structs, item.Name)
+	}
+
+	a.logger.Infof("Remove structs: %v", structs)
+	return a.Run(ctx, structs)
+}
+
+func (a *Remove) Run(ctx context.Context, structs []string) error {
+	for _, name := range structs {
 		for _, pkgName := range parser.StructPackages {
 			err := a.modify(ctx, a.cfg.ModuleName, name, parser.StructPackageTplPaths[pkgName], nil, true)
 			if err != nil {

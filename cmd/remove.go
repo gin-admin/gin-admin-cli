@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/gin-admin/gin-admin-cli/v10/internal/actions"
 	"github.com/urfave/cli/v2"
 )
@@ -8,8 +10,9 @@ import (
 // Remove returns the remove command.
 func Remove() *cli.Command {
 	return &cli.Command{
-		Name:  "remove",
-		Usage: "Remove structs from the module",
+		Name:    "remove",
+		Aliases: []string{"rm"},
+		Usage:   "Remove structs from the module",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "dir",
@@ -29,10 +32,14 @@ func Remove() *cli.Command {
 				Value: "internal/mods",
 			},
 			&cli.StringFlag{
-				Name:     "structs",
-				Aliases:  []string{"s"},
-				Usage:    "The struct to remove (multiple structs can be separated by a comma)",
-				Required: true,
+				Name:    "structs",
+				Aliases: []string{"s"},
+				Usage:   "The struct to remove (multiple structs can be separated by a comma)",
+			},
+			&cli.StringFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Usage:   "The config file to generate the struct from (JSON/YAML)",
 			},
 			&cli.StringFlag{
 				Name:  "wire-path",
@@ -46,13 +53,20 @@ func Remove() *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return actions.NewRemove(&actions.RemoveConfig{
+			rm := actions.NewRemove(&actions.RemoveConfig{
 				Dir:         c.String("dir"),
 				ModuleName:  c.String("module"),
 				ModulePath:  c.String("module-path"),
 				WirePath:    c.String("wire-path"),
 				SwaggerPath: c.String("swag-path"),
-			}).Run(c.Context, c.String("structs"))
+			})
+
+			if c.String("config") != "" {
+				return rm.RunWithConfig(c.Context, c.String("config"))
+			} else if c.String("structs") != "" {
+				return rm.Run(c.Context, strings.Split(c.String("structs"), ","))
+			}
+			return nil
 		},
 	}
 }

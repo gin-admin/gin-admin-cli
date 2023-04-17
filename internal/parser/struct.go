@@ -71,3 +71,7 @@ func GetRootImportPath(dir string) string {
 func GetModuleImportPath(dir, modulePath, moduleName string) string {
 	return GetRootImportPath(dir) + "/" + modulePath + "/" + GetModuleImportName(moduleName)
 }
+
+func GetUtilsImportPath(dir, modulePath string) string {
+	return GetRootImportPath(dir) + "/" + filepath.Dir(strings.TrimSuffix(modulePath, "/")) + "/utils"
+}

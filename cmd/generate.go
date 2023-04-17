@@ -11,8 +11,9 @@ import (
 // Generate returns the gen command.
 func Generate() *cli.Command {
 	return &cli.Command{
-		Name:  "gen",
-		Usage: "Generate structs to the specified module, support config file",
+		Name:    "generate",
+		Aliases: []string{"gen"},
+		Usage:   "Generate structs to the specified module, support config file",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "dir",
@@ -84,7 +85,7 @@ func Generate() *cli.Command {
 			})
 
 			if c.String("config") != "" {
-				return gen.Run(c.Context, c.String("config"))
+				return gen.RunWithConfig(c.Context, c.String("config"))
 			} else if c.String("structs") != "" {
 				return gen.RunWithStruct(c.Context, c.String("structs"), c.String("structs-comment"), c.String("structs-output"))
 			} else {

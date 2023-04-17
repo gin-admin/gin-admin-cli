@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"{{.RootImportPath}}/internal/utils"
+	"{{.UtilsImportPath}}"
 	"{{.ModuleImportPath}}/dal"
 	"{{.ModuleImportPath}}/schema"
 	"{{.RootImportPath}}/pkg/errors"
-	"{{.RootImportPath}}/pkg/util/xid"
+	"{{.RootImportPath}}/pkg/idx"
 )
 
 {{$name := .Name}}
@@ -54,7 +54,7 @@ func (a *{{$name}}) Get(ctx context.Context, id string) (*schema.{{$name}}, erro
 // Create a new {{lowerSpace .Name}} in the data access object.
 func (a *{{$name}}) Create(ctx context.Context, sitem *schema.{{$name}}Save) (*schema.{{$name}}, error) {
 	{{lowerCamel $name}} := &schema.{{$name}}{
-		ID:          xid.NewID(),
+		ID:          idx.NewXID(),
 		CreatedAt:   time.Now(),
 	}
 
