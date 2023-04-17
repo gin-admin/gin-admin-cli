@@ -69,7 +69,7 @@ func (a *{{$name}}) Get(c *gin.Context) {
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Create {{lowerSpace .Name}} record
-// @Param body body schema.{{$name}}Save true "Request body"
+// @Param body body schema.{{$name}}Form true "Request body"
 // @Success 200 {object} utils.ResponseResult{data=schema.{{$name}}}
 // @Failure 400 {object} utils.ResponseResult
 // @Failure 401 {object} utils.ResponseResult
@@ -77,7 +77,7 @@ func (a *{{$name}}) Get(c *gin.Context) {
 // @Router /api/v1/{{lowerPlural .Name}} [post]
 func (a *{{$name}}) Create(c *gin.Context) {
 	ctx := c.Request.Context()
-	item := new(schema.{{$name}}Save)
+	item := new(schema.{{$name}}Form)
 	if err := utils.ParseJSON(c, item); err != nil {
 		utils.ResError(c, err)
 		return
@@ -98,7 +98,7 @@ func (a *{{$name}}) Create(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Summary Update {{lowerSpace .Name}} record by ID
 // @Param id path string true "unique id"
-// @Param body body schema.{{$name}}Save true "Request body"
+// @Param body body schema.{{$name}}Form true "Request body"
 // @Success 200 {object} utils.ResponseResult
 // @Failure 400 {object} utils.ResponseResult
 // @Failure 401 {object} utils.ResponseResult
@@ -106,7 +106,7 @@ func (a *{{$name}}) Create(c *gin.Context) {
 // @Router /api/v1/{{lowerPlural .Name}}/{id} [put]
 func (a *{{$name}}) Update(c *gin.Context) {
 	ctx := c.Request.Context()
-	item := new(schema.{{$name}}Save)
+	item := new(schema.{{$name}}Form)
 	if err := utils.ParseJSON(c, item); err != nil {
 		utils.ResError(c, err)
 		return

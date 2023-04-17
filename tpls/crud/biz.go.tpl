@@ -55,17 +55,12 @@ func (a *{{$name}}) Get(ctx context.Context, id string) (*schema.{{$name}}, erro
 }
 
 // Create a new {{lowerSpace .Name}} in the data access object.
-func (a *{{$name}}) Create(ctx context.Context, sitem *schema.{{$name}}Save) (*schema.{{$name}}, error) {
+func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) (*schema.{{$name}}, error) {
 	{{lowerCamel $name}} := &schema.{{$name}}{
 		{{if $includeID}}ID:          idx.NewXID(),{{end}}
 		{{if $includeCreatedAt}}CreatedAt:   time.Now(),{{end}}
 	}
-
-    {{- range .Fields}}{{$fieldName := .Name}}
-	{{- with .Form}}
-	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{.Name}}
-	{{- end}}
-    {{- end}}
+	formItem.FillTo({{lowerCamel $name}})
 
 	err := a.Trans.Exec(ctx, func(ctx context.Context) error {
 		if err := a.{{$name}}DAL.Create(ctx, {{lowerCamel $name}}); err != nil {
@@ -80,18 +75,14 @@ func (a *{{$name}}) Create(ctx context.Context, sitem *schema.{{$name}}Save) (*s
 }
 
 // Update the specified {{lowerSpace .Name}} in the data access object.
-func (a *{{$name}}) Update(ctx context.Context, id string, sitem *schema.{{$name}}Save) error {
+func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$name}}Form) error {
 	{{lowerCamel $name}}, err := a.{{$name}}DAL.Get(ctx, id)
 	if err != nil {
 		return err
 	} else if {{lowerCamel $name}} == nil {
 		return errors.NotFound("", "{{titleSpace $name}} not found")
 	}
-    {{- range .Fields}}{{$fieldName := .Name}}
-	{{- with .Form}}
-	{{lowerCamel $name}}.{{$fieldName}} = sitem.{{.Name}}
-	{{- end}}
-    {{- end}}
+    formItem.FillTo({{lowerCamel $name}})
     {{if $includeUpdatedAt}}{{lowerCamel $name}}.UpdatedAt = time.Now(){{end}}
 	
 	return a.Trans.Exec(ctx, func(ctx context.Context) error {

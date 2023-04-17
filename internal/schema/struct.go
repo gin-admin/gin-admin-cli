@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/utils"
@@ -40,6 +41,27 @@ func (a *S) Format() *S {
 			GormTag: "size:20;primarykey;",
 			Comment: "Unique ID",
 		})
+		if a.TplType == "tree" {
+			fields = append(fields, &Field{
+				Name:    "ParentID",
+				Type:    "string",
+				GormTag: "size:20;index;",
+				Comment: fmt.Sprintf("Parent ID (From %s.ID)", a.Name),
+				Query:   &FieldQuery{},
+				Form:    &FieldForm{},
+			})
+			fields = append(fields, &Field{
+				Name:    "ParentPath",
+				Type:    "string",
+				GormTag: "size:255;index;",
+				Comment: "Parent path",
+				Query: &FieldQuery{
+					Name: "ParentPathPrefix",
+					OP:   "LIKE",
+					Args: `v + "%"`,
+				},
+			})
+		}
 		fields = append(fields, a.Fields...)
 		fields = append(fields, &Field{
 			Name:    "CreatedAt",
@@ -141,7 +163,8 @@ type FieldQuery struct {
 	CustomTag  string `yaml:"custom_tag,omitempty" json:"custom_tag,omitempty"`
 	Comment    string `yaml:"comment,omitempty" json:"comment,omitempty"`
 	IfCond     string `yaml:"cond,omitempty" json:"cond,omitempty"`
-	OP         string `yaml:"op,omitempty" json:"op,omitempty"` // LIKE/=/</>/<=/>=/<>
+	OP         string `yaml:"op,omitempty" json:"op,omitempty"`     // LIKE/=/</>/<=/>=/<>
+	Args       string `yaml:"args,omitempty" json:"args,omitempty"` // v + "%"
 }
 
 type FieldForm struct {

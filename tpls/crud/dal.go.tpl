@@ -34,7 +34,7 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
     {{- range .Fields}}{{$type := .Type}}
     {{- with .Query}}
 	if v := params.{{.Name}}; {{with .IfCond}}{{.}}{{else}}{{convIfCond $type}}{{end}} {
-		db = db.Where("{{lowerUnderline .Name}} {{.OP}} ?", {{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}})
+		db = db.Where("{{lowerUnderline .Name}} {{.OP}} ?", {{if .Args}}{{raw .Args}}{{else}}{{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}}{{end}})
 	}
     {{- end}}
     {{- end}}

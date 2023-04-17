@@ -47,7 +47,7 @@ type {{$name}}QueryResult struct {
 type {{plural .Name}} []*{{$name}}
 
 // Defining the data structure for creating a `{{$name}}` struct.
-type {{$name}}Save struct {
+type {{$name}}Form struct {
 	{{- range .Fields}}{{$fieldName := .Name}}{{$type :=.Type}}
 	{{- with .Form}}
 	{{.Name}} {{$type}} `json:"{{.JSONTag}}"{{with .BindingTag}} binding:"{{.}}"{{end}}{{with .CustomTag}} {{raw .}}{{end}}`{{with .Comment}}// {{.}}{{end}}
@@ -55,7 +55,16 @@ type {{$name}}Save struct {
 	{{- end}}
 }
 
-// A validation function for the `{{$name}}Save` struct.
-func (a *{{$name}}Save) Validate() error {
+// A validation function for the `{{$name}}Form` struct.
+func (a *{{$name}}Form) Validate() error {
 	return nil
+}
+
+func (a *{{$name}}Form) FillTo({{lowerCamel $name}} *{{$name}}) *{{$name}} {
+	{{- range .Fields}}{{$fieldName := .Name}}
+	{{- with .Form}}
+	{{lowerCamel $name}}.{{$fieldName}} = a.{{.Name}}
+	{{- end}}
+    {{- end}}
+	return {{lowerCamel $name}}
 }
