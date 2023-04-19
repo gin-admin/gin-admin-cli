@@ -1,12 +1,18 @@
 - name: Menu
   comment: Menu management for RBAC
   disable_pagination: true
+  tpl_type: "tree"
   fields:
+    - name: Code
+      type: string
+      comment: Code of menu
+      gorm_tag: "size:32;"
+      form:
+        binding_tag: "required,max=32"
     - name: Name
       type: string
       comment: Display name of menu
       gorm_tag: "size:128;index"
-      custom_tag: form:"desc" validate:"max=255"
       query:
         name: LikeName
         in_query: true
@@ -17,25 +23,34 @@
     - name: Description
       type: string
       comment: Details about menu
-      gorm_tag: "size:512"
+      gorm_tag: "size:1024"
       form: {}
     - name: Sequence
       type: int
       comment: Sequence for sorting
-      order: ASC
+      order: DESC
       form: {}
     - name: Type
       type: string
-      comment: Type of menu (group/page/button)
+      comment: Type of menu (group, page, button)
       gorm_tag: "size:20;index"
       form:
         binding_tag: "required,oneof=group menu button"
+    - name: Path
+      type: string
+      comment: Access path of menu
+      gorm_tag: "size:255;"
+      form: {}
+    - name: Properties
+      type: string
+      comment: Properties of menu (JSON)
+      gorm_tag: "type:text;"
+      form: {}
     - name: Status
       type: string
-      comment: Status of menu (disabled/enabled)
+      comment: Status of menu (disabled, enabled)
       gorm_tag: "size:20;index"
-      query:
-        in_query: true
+      query: {}
       form:
         binding_tag: "required,oneof=disabled enabled"
 - name: MenuResource
@@ -56,12 +71,10 @@
       type: string
       comment: HTTP method
       gorm_tag: "size:20;"
-      form: {}
     - name: Path
       type: string
-      comment: HTTP request path
+      comment: API request path
       gorm_tag: "size:255;"
-      form: {}
     - name: CreatedAt
       type: time.Time
       comment: Create time

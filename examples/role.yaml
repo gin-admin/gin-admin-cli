@@ -1,0 +1,55 @@
+- name: Role
+  comment: Role management for RBAC
+  fields:
+    - name: Name
+      type: string
+      comment: Display name of role
+      gorm_tag: "size:128;index"
+      query:
+        name: LikeName
+        in_query: true
+        form_tag: name
+        op: LIKE
+      form:
+        binding_tag: "required,max=128"
+    - name: Description
+      type: string
+      comment: Details about role
+      gorm_tag: "size:1024"
+      form: {}
+    - name: Sequence
+      type: int
+      comment: Sequence for sorting
+      order: DESC
+      form: {}
+    - name: Status
+      type: string
+      comment: Status of role (disabled, enabled)
+      gorm_tag: "size:20;index"
+      query:
+        in_query: true
+      form:
+        binding_tag: "required,oneof=disabled enabled"
+- name: RoleMenu
+  comment: Role permissions for RBAC
+  outputs: ["schema", "dal"]
+  disable_default_fields: true
+  fields:
+    - name: ID
+      type: string
+      comment: Unique ID
+      gorm_tag: "size:20;primarykey"
+    - name: RoleID
+      type: string
+      comment: From Role.ID
+      gorm_tag: "size:20;index"
+      query: {}
+    - name: MenuID
+      type: string
+      comment: From Menu.ID
+      gorm_tag: "size:20;index"
+      query: {}
+    - name: CreatedAt
+      type: time.Time
+      comment: Create time
+      gorm_tag: "index;"

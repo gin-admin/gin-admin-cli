@@ -1,0 +1,76 @@
+- name: User
+  comment: User management for RBAC
+  fields:
+    - name: Username
+      type: string
+      comment: Username for login
+      gorm_tag: "size:64;index"
+      query:
+        name: LikeUsername
+        in_query: true
+        form_tag: username
+        op: LIKE
+      form:
+        binding_tag: "required,max=64"
+    - name: Name
+      type: string
+      comment: Name of user
+      gorm_tag: "size:64;index"
+      query:
+        name: LikeName
+        in_query: true
+        form_tag: name
+        op: LIKE
+      form:
+        binding_tag: "required,max=64"
+    - name: Password
+      type: string
+      comment: Password for login (encrypted)
+      gorm_tag: "size:64;"
+      form: {}
+    - name: Phone
+      type: string
+      comment: Phone number of user
+      gorm_tag: "size:32;"
+      form: {}
+    - name: Email
+      type: string
+      comment: Email of user
+      gorm_tag: "size:128;"
+      form: {}
+    - name: Remark
+      type: string
+      comment: Remark of user
+      gorm_tag: "size:1024;"
+      form: {}
+    - name: Status
+      type: string
+      comment: Status of user (activated, freezed)
+      gorm_tag: "size:20;index"
+      query:
+        in_query: true
+      form:
+        binding_tag: "required,oneof=activated freezed"
+- name: UserRole
+  comment: User roles for RBAC
+  outputs: ["schema", "dal"]
+  disable_default_fields: true
+  fields:
+    - name: ID
+      type: string
+      comment: Unique ID
+      gorm_tag: "size:20;primarykey"
+    - name: UserID
+      type: string
+      comment: From User.ID
+      gorm_tag: "size:20;index"
+      query: {}
+    - name: RoleID
+      type: string
+      comment: From Role.ID
+      gorm_tag: "size:20;index"
+      query: {}
+    - name: CreatedAt
+      type: time.Time
+      comment: Create time
+      gorm_tag: "index;"

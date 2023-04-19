@@ -17,6 +17,7 @@ type S struct {
 		Status    string
 		CreatedAt bool
 		UpdatedAt bool
+		Sequence  bool
 	} `yaml:"-" json:"-"`
 	Name                 string   `yaml:"name,omitempty" json:"name,omitempty"`
 	TableName            string   `yaml:"table_name,omitempty" json:"table_name,omitempty"`
@@ -41,6 +42,8 @@ func (a *S) Format() *S {
 			GormTag: "size:20;primarykey;",
 			Comment: "Unique ID",
 		})
+		fields = append(fields, a.Fields...)
+
 		if a.TplType == "tree" {
 			fields = append(fields, &Field{
 				Name:    "ParentID",
@@ -54,15 +57,21 @@ func (a *S) Format() *S {
 				Name:    "ParentPath",
 				Type:    "string",
 				GormTag: "size:255;index;",
-				Comment: "Parent path",
+				Comment: "Parent path (split by .)",
 				Query: &FieldQuery{
 					Name: "ParentPathPrefix",
 					OP:   "LIKE",
 					Args: `v + "%"`,
 				},
 			})
+			fields = append(fields, &Field{
+				Name:    "Children",
+				Type:    fmt.Sprintf("*%s", utils.ToPlural(a.Name)),
+				GormTag: "-",
+				Comment: "Child menus",
+			})
 		}
-		fields = append(fields, a.Fields...)
+
 		fields = append(fields, &Field{
 			Name:    "CreatedAt",
 			Type:    "time.Time",
@@ -88,6 +97,8 @@ func (a *S) Format() *S {
 			a.Include.CreatedAt = true
 		case "UpdatedAt":
 			a.Include.UpdatedAt = true
+		case "Sequence":
+			a.Include.Sequence = true
 		}
 		a.Fields[i] = item.Format()
 	}
