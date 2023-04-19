@@ -50,7 +50,7 @@ func Generate() *cli.Command {
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Usage:   "The config file to generate the struct from (JSON/YAML)",
+				Usage:   "The config file or directory to generate the struct from (JSON/YAML)",
 			},
 			&cli.StringFlag{
 				Name:    "structs",

@@ -58,3 +58,12 @@ func ParseYAMLFile(name string, obj interface{}) error {
 
 	return yaml.NewDecoder(f).Decode(obj)
 }
+
+// Checks if the given path is a directory
+func IsDir(name string) bool {
+	info, err := os.Stat(name)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
+}

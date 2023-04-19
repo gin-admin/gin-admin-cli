@@ -44,23 +44,36 @@ type Generate struct {
 }
 
 // Run generate command
-func (a *Generate) RunWithConfig(ctx context.Context, configFile string) error {
-	switch filepath.Ext(configFile) {
-	case ".json":
+func (a *Generate) RunWithConfig(ctx context.Context, cfgName string) error {
+	var parseFile = func(name string) error {
 		var data []*schema.S
-		if err := utils.ParseJSONFile(configFile, &data); err != nil {
-			return err
+		switch filepath.Ext(name) {
+		case ".json":
+			if err := utils.ParseJSONFile(name, &data); err != nil {
+				return err
+			}
+			return a.run(ctx, data)
+		case ".yaml", "yml":
+			if err := utils.ParseYAMLFile(name, &data); err != nil {
+				return err
+			}
+			return a.run(ctx, data)
+		default:
+			a.logger.Warnf("Ignore file %s, only support json/yaml/yml", name)
 		}
-		return a.run(ctx, data)
-	case ".yaml", "yml":
-		var data []*schema.S
-		if err := utils.ParseYAMLFile(configFile, &data); err != nil {
-			return err
-		}
-		return a.run(ctx, data)
-	default:
-		return fmt.Errorf("unsupported config file type: %s", configFile)
+		return nil
 	}
+
+	if utils.IsDir(cfgName) {
+		return filepath.WalkDir(cfgName, func(path string, d os.DirEntry, err error) error {
+			if d.IsDir() {
+				return nil
+			}
+			return parseFile(path)
+		})
+	}
+
+	return parseFile(cfgName)
 }
 
 func (a *Generate) RunWithStruct(ctx context.Context, structName, comment, output string) error {
