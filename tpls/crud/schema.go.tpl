@@ -58,6 +58,7 @@ func (a *{{$name}}Form) Validate() error {
 	return nil
 }
 
+// Convert `{{$name}}Form` to `{{$name}}` object.
 func (a *{{$name}}Form) FillTo({{lowerCamel $name}} *{{$name}}) error {
 	{{- range .Fields}}{{$fieldName := .Name}}
 	{{- with .Form}}

@@ -53,7 +53,7 @@ func GetStructRouterVarName(structName string) string {
 }
 
 func GetStructRouterGroupName(structName string) string {
-	return utils.ToLowerPlural(structName)
+	return utils.ToLowerHyphensPlural(structName)
 }
 
 func GetModuleImportName(moduleName string) string {

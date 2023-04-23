@@ -72,16 +72,24 @@ func ToPlural(v string) string {
 	return inflection.Plural(v)
 }
 
+func toLowerPlural(v, sep string) string {
+	ss := strings.Split(ToLowerUnderlinedNamer(v), "_")
+	if len(ss) > 0 {
+		ss[len(ss)-1] = ToPlural(ss[len(ss)-1])
+	}
+	return strings.Join(ss, sep)
+}
+
 func ToLowerPlural(v string) string {
-	return strings.ToLower(ToPlural(v))
+	return toLowerPlural(v, "")
 }
 
 func ToLowerSpacePlural(v string) string {
-	ss := strings.Split(ToLowerUnderlinedNamer(v), "_")
-	if len(ss) > 0 {
-		ss[len(ss)-1] = ToLowerPlural(ss[len(ss)-1])
-	}
-	return strings.Join(ss, " ")
+	return toLowerPlural(v, " ")
+}
+
+func ToLowerHyphensPlural(v string) string {
+	return toLowerPlural(v, "-")
 }
 
 func ToLowerCamel(v string) string {

@@ -7,19 +7,20 @@ import (
 
 // FuncMap is a map of functions that can be used in templates.
 var FuncMap = template.FuncMap{
-	"lower":            strings.ToLower,
-	"upper":            strings.ToUpper,
-	"title":            strings.ToTitle,
-	"lowerUnderline":   ToLowerUnderlinedNamer,
-	"plural":           ToPlural,
-	"lowerPlural":      ToLowerPlural,
-	"lowerSpacePlural": ToLowerSpacePlural,
-	"lowerCamel":       ToLowerCamel,
-	"lowerSpace":       ToLowerSpacedNamer,
-	"titleSpace":       ToTitleSpaceNamer,
-	"convIfCond":       tplConvToIfCond,
-	"convSwaggerType":  tplConvToSwaggerType,
-	"raw":              func(s string) template.HTML { return template.HTML(s) },
+	"lower":              strings.ToLower,
+	"upper":              strings.ToUpper,
+	"title":              strings.ToTitle,
+	"lowerUnderline":     ToLowerUnderlinedNamer,
+	"plural":             ToPlural,
+	"lowerPlural":        ToLowerPlural,
+	"lowerSpacePlural":   ToLowerSpacePlural,
+	"lowerHyphensPlural": ToLowerHyphensPlural,
+	"lowerCamel":         ToLowerCamel,
+	"lowerSpace":         ToLowerSpacedNamer,
+	"titleSpace":         ToTitleSpaceNamer,
+	"convIfCond":         tplConvToIfCond,
+	"convSwaggerType":    tplConvToSwaggerType,
+	"raw":                func(s string) template.HTML { return template.HTML(s) },
 }
 
 func tplConvToIfCond(t string) template.HTML {
