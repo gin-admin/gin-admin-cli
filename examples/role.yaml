@@ -48,7 +48,6 @@
       type: string
       comment: From Menu.ID
       gorm_tag: "size:20;index"
-      query: {}
     - name: CreatedAt
       type: time.Time
       comment: Create time

@@ -76,6 +76,14 @@ func ToLowerPlural(v string) string {
 	return strings.ToLower(ToPlural(v))
 }
 
+func ToLowerSpacePlural(v string) string {
+	ss := strings.Split(ToLowerUnderlinedNamer(v), "_")
+	if len(ss) > 0 {
+		ss[len(ss)-1] = ToLowerPlural(ss[len(ss)-1])
+	}
+	return strings.Join(ss, " ")
+}
+
 func ToLowerCamel(v string) string {
 	if v == "" {
 		return ""

@@ -22,7 +22,7 @@ type {{$name}} struct {
 	{{$name}}DAL *dal.{{$name}}
 }
 
-// Query {{lowerPlural .Name}} from the data access object based on the provided parameters and options.
+// Query {{lowerSpacePlural .Name}} from the data access object based on the provided parameters and options.
 func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam) (*schema.{{$name}}QueryResult, error) {
 	params.Pagination = {{if .DisablePagination}}false{{else}}true{{end}}
 
@@ -60,7 +60,9 @@ func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) 
 		{{if $includeID}}ID:          idx.NewXID(),{{end}}
 		{{if $includeCreatedAt}}CreatedAt:   time.Now(),{{end}}
 	}
-	formItem.FillTo({{lowerCamel $name}})
+	if err := formItem.FillTo({{lowerCamel $name}}); err != nil {
+		return nil, err
+	}
 
 	err := a.Trans.Exec(ctx, func(ctx context.Context) error {
 		if err := a.{{$name}}DAL.Create(ctx, {{lowerCamel $name}}); err != nil {
@@ -82,7 +84,9 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 	} else if {{lowerCamel $name}} == nil {
 		return errors.NotFound("", "{{titleSpace $name}} not found")
 	}
-    formItem.FillTo({{lowerCamel $name}})
+    if err := formItem.FillTo({{lowerCamel $name}}); err != nil {
+		return err
+	}
     {{if $includeUpdatedAt}}{{lowerCamel $name}}.UpdatedAt = time.Now(){{end}}
 	
 	return a.Trans.Exec(ctx, func(ctx context.Context) error {

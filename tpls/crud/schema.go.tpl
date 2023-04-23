@@ -60,11 +60,11 @@ func (a *{{$name}}Form) Validate() error {
 	return nil
 }
 
-func (a *{{$name}}Form) FillTo({{lowerCamel $name}} *{{$name}}) *{{$name}} {
+func (a *{{$name}}Form) FillTo({{lowerCamel $name}} *{{$name}}) error {
 	{{- range .Fields}}{{$fieldName := .Name}}
 	{{- with .Form}}
 	{{lowerCamel $name}}.{{$fieldName}} = a.{{.Name}}
 	{{- end}}
     {{- end}}
-	return {{lowerCamel $name}}
+	return nil
 }

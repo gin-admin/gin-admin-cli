@@ -23,7 +23,7 @@ type {{$name}} struct {
 	DB *gorm.DB
 }
 
-// Query {{lowerPlural .Name}} from the database based on the provided parameters and options.
+// Query {{lowerSpacePlural .Name}} from the database based on the provided parameters and options.
 func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam, opts ...schema.{{$name}}QueryOptions) (*schema.{{$name}}QueryResult, error) {
 	var opt schema.{{$name}}QueryOptions
 	if len(opts) > 0 {

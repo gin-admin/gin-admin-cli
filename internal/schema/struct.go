@@ -77,6 +77,7 @@ func (a *S) Format() *S {
 			Type:    "time.Time",
 			GormTag: "index;",
 			Comment: "Create time",
+			Order:   "DESC",
 		})
 		fields = append(fields, &Field{
 			Name:    "UpdatedAt",
