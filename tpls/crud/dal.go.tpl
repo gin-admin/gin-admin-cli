@@ -31,10 +31,10 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 
 	db := Get{{$name}}DB(ctx, a.DB)
 
-    {{- range .Fields}}{{$type := .Type}}
+    {{- range .Fields}}{{$type := .Type}}{{$fieldName := .Name}}
     {{- with .Query}}
 	if v := params.{{.Name}}; {{with .IfCond}}{{.}}{{else}}{{convIfCond $type}}{{end}} {
-		db = db.Where("{{lowerUnderline .Name}} {{.OP}} ?", {{if .Args}}{{raw .Args}}{{else}}{{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}}{{end}})
+		db = db.Where("{{lowerUnderline $fieldName}} {{.OP}} ?", {{if .Args}}{{raw .Args}}{{else}}{{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}}{{end}})
 	}
     {{- end}}
     {{- end}}
