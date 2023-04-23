@@ -30,6 +30,9 @@ type S struct {
 }
 
 func (a *S) Format() *S {
+	if a.TableName == "" {
+		a.TableName = utils.ToLowerUnderlinedNamer(a.Name)
+	}
 	if a.TplType != "" {
 		a.TplType = strings.ToLower(a.TplType)
 	}

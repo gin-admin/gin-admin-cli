@@ -16,12 +16,10 @@ type {{$name}} struct {
 	{{- end}}
 }
 
-{{- with .TableName}}
 // Defining the name of the database table that corresponds to the `{{$name}}` struct.
-func (a {{title $name}}) TableName() string {
-	return "{{.}}"
+func (a {{$name}}) TableName() string {
+	return "{{.TableName}}"
 }
-{{- end}}
 
 // Defining the query parameters for the `{{$name}}` struct.
 type {{$name}}QueryParam struct {
