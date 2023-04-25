@@ -214,7 +214,7 @@ func (v *astModuleMainVisitor) modifyRegisterV1Routers(x *ast.FuncDecl) {
 					Args: []ast.Expr{
 						&ast.BasicLit{
 							Kind:  token.STRING,
-							Value: fmt.Sprintf("\"/%s\"", GetStructRouterGroupName(v.args.StructName)),
+							Value: fmt.Sprintf("\"%s\"", GetStructRouterGroupName(v.args.StructName)),
 						},
 					},
 				},
@@ -223,10 +223,10 @@ func (v *astModuleMainVisitor) modifyRegisterV1Routers(x *ast.FuncDecl) {
 
 		routes := [][]string{
 			{"GET", "\"\"", "Query"},
-			{"GET", "\"/:id\"", "Get"},
+			{"GET", "\":id\"", "Get"},
 			{"POST", "\"\"", "Create"},
 			{"PUT", "\"\"", "Update"},
-			{"DELETE", "\"/:id\"", "Delete"},
+			{"DELETE", "\":id\"", "Delete"},
 		}
 
 		var blockList []ast.Stmt
