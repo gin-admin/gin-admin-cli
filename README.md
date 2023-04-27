@@ -1,112 +1,33 @@
-# gin-admin-cli - [gin-admin](https://github.com/LyricTian/gin-admin)
+# [gin-admin](https://github.com/LyricTian/gin-admin) efficiency assistant
 
-> gin-admin v8 辅助工具，提供创建项目、快速生成功能模块的功能
+> A gin-admin efficiency assistant that provides project initialization, code generation, greatly improves work efficiency, and quickly completes the development of business logic.
 
-## 下载并使用
+## Get and usage
 
 ```bash
-go get -u github.com/gin-admin/gin-admin-cli/v6
+go install github.com/gin-admin/gin-admin-cli/v10@latest
+
+gin-admin-cli help gen
 ```
 
-### 创建项目
-
-```bash
-USAGE:
-   gin-admin-cli new [command options] [arguments...]
-
-OPTIONS:
-   --dir value, -d value     项目生成目录(默认GOPATH+包名)
-   --pkg value, -p value     项目包名
-   --branch value, -b value  指定分支(默认master)
-   --mirror, -m              使用国内镜像(gitee.com)
-   --tpl                     Use gin-admin-tpl
-   --web, -w                 包含web项目
 ```
+NAME:
+   gin-admin-cli generate - Generate structs to the specified module, support config file
 
-> 使用示例
-
-```bash
-gin-admin-cli new -p test-gin-admin -m
-```
-
-### 生成业务模块
-
-#### 指定模块名称和说明生成模块
-
-```bash
 USAGE:
    gin-admin-cli generate [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value      项目生成目录(默认GOPATH)
-   --pkg value, -p value      项目包名
-   --name value, -n value     业务模块名称(结构体名称)
-   --comment value, -c value  业务模块注释(结构体注释)
-   --file value, -f value     指定模板文件(.yaml，模板配置可参考说明)
-   --module value, -m value   指定生成模块（默认生成全部模块，以逗号分隔，支持：schema,dao,service,api,mock,router）
-   --include_status           是否包含 status 字段
-   --include_creator          是否包含 creator 字段
+   --dir value, -d value      The directory to generate the struct from
+   --module value, -m value   The module to generate the struct from
+   --tpl-type value           The template type to generate the struct from (default: crud)
+   --module-path value        The module path to generate the struct from (default: internal/mods)
+   --wire-path value          The wire generate path to generate the struct from (default: internal/wirex)
+   --swag-path value          The swagger generate path to generate the struct from (default: internal/swagger)
+   --config value, -c value   The config file or directory to generate the struct from (JSON/YAML)
+   --structs value, -s value  The struct to generate (multiple structs can be separated by a comma)
+   --structs-comment value    Specify the struct comment
+   --structs-output value     Specify the packages to generate the struct (default: schema,dal,biz,api)
+   --tpl-path value           The template path to generate the struct from (default use tpls)
+   --help, -h                 show help
 ```
-
-> 使用示例
-
-```bash
-gin-admin-cli g -p test-gin-admin -n Task -c '任务管理'
-```
-
-#### 指定配置文件生成模块
-
-```bash
-gin-admin-cli g -p 包名 -f 配置文件(yaml)
-```
-
-> 配置文件说明
-
-```yaml
----
-name: 结构体名称
-comment: 结构体注释说明
-fields:
-  - name: 结构体字段名称
-    type: 结构体字段类型
-    comment: 结构体字段注释
-    required: 结构体字段是否是必选项
-    binding_options: binding配置项（不包含required，required由required字段控制）
-    gorm_options: gorm配置项
-```
-
-##### 使用示例
-
-> 创建`task.yaml`文件
-
-```yaml
-name: Task
-comment: 任务管理
-fields:
-  - name: Code
-    type: string
-    comment: 任务编号
-    required: true
-    binding_options: ""
-    gorm_options: "size:50;index;"
-  - name: Name
-    type: string
-    comment: 任务名称
-    required: true
-    binding_options: ""
-    gorm_options: "size:50;index;"
-  - name: Memo
-    type: string
-    comment: 任务备注
-    required: false
-    binding_options: ""
-    gorm_options: "size:1024;"
-```
-
-```bash
-gin-admin-cli g -p test-gin-admin -f task.yaml
-```
-
-## MIT License
-
-  Copyright (c) 2021 Lyric
