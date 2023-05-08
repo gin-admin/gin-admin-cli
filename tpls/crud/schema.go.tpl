@@ -3,7 +3,7 @@ package schema
 import (
 	"time"
 
-	"{{.UtilsImportPath}}"
+	"{{.UtilImportPath}}"
 )
 
 {{$name := .Name}}
@@ -22,7 +22,7 @@ func (a {{$name}}) TableName() string {
 
 // Defining the query parameters for the `{{$name}}` struct.
 type {{$name}}QueryParam struct {
-	utils.PaginationParam
+	util.PaginationParam
 	{{- range .Fields}}{{$fieldName := .Name}}{{$type :=.Type}}
 	{{- with .Query}}
 	{{.Name}} {{$type}} `form:"{{with .FormTag}}{{.}}{{else}}-{{end}}"{{with .BindingTag}} binding:"{{.}}"{{end}}{{with .CustomTag}} {{raw .}}{{end}}`{{with .Comment}}// {{.}}{{end}}
@@ -32,13 +32,13 @@ type {{$name}}QueryParam struct {
 
 // Defining the query options for the `{{$name}}` struct.
 type {{$name}}QueryOptions struct {
-	utils.QueryOptions
+	util.QueryOptions
 }
 
 // Defining the query result for the `{{$name}}` struct.
 type {{$name}}QueryResult struct {
 	Data       {{plural .Name}}
-	PageResult *utils.PaginationResult
+	PageResult *util.PaginationResult
 }
 
 // Defining the slice of `{{$name}}` struct.

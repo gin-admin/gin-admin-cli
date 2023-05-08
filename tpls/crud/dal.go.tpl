@@ -3,7 +3,7 @@ package dal
 import (
 	"context"
 
-	"{{.UtilsImportPath}}"
+	"{{.UtilImportPath}}"
 	"{{.ModuleImportPath}}/schema"
 	"{{.RootImportPath}}/pkg/errors"
 	"gorm.io/gorm"
@@ -14,7 +14,7 @@ import (
 
 // Get {{lowerSpace .Name}} storage instance
 func Get{{$name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
-	return utils.GetDB(ctx, defDB).Model(new(schema.{{$name}}))
+	return util.GetDB(ctx, defDB).Model(new(schema.{{$name}}))
 }
 
 {{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` data access object.{{end}}
@@ -40,7 +40,7 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
     {{- end}}
 
 	var list schema.{{plural .Name}}
-	pageResult, err := utils.WrapPageQuery(ctx, db, params.PaginationParam, opt.QueryOptions, &list)
+	pageResult, err := util.WrapPageQuery(ctx, db, params.PaginationParam, opt.QueryOptions, &list)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -60,7 +60,7 @@ func (a *{{$name}}) Get(ctx context.Context, id string, opts ...schema.{{$name}}
 	}
 
 	item := new(schema.{{$name}})
-	ok, err := utils.FindOne(ctx, Get{{$name}}DB(ctx, a.DB).Where("id=?", id), opt.QueryOptions, item)
+	ok, err := util.FindOne(ctx, Get{{$name}}DB(ctx, a.DB).Where("id=?", id), opt.QueryOptions, item)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	} else if !ok {
@@ -71,7 +71,7 @@ func (a *{{$name}}) Get(ctx context.Context, id string, opts ...schema.{{$name}}
 
 // Exist checks if the specified {{lowerSpace .Name}} exists in the database.
 func (a *{{$name}}) Exists(ctx context.Context, id string) (bool, error) {
-	ok, err := utils.Exists(ctx, Get{{$name}}DB(ctx, a.DB).Where("id=?", id))
+	ok, err := util.Exists(ctx, Get{{$name}}DB(ctx, a.DB).Where("id=?", id))
 	return ok, errors.WithStack(err)
 }
 

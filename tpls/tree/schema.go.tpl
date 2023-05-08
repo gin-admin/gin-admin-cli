@@ -3,7 +3,7 @@ package schema
 import (
 	"time"
 
-	"{{.UtilsImportPath}}"
+	"{{.UtilImportPath}}"
 )
 
 {{$name := .Name}}
@@ -23,7 +23,7 @@ func (a {{$name}}) TableName() string {
 
 // Defining the query parameters for the `{{$name}}` struct.
 type {{$name}}QueryParam struct {
-	utils.PaginationParam
+	util.PaginationParam
 	InIDs []string `form:"-"`
 	{{- range .Fields}}{{$fieldName := .Name}}{{$type :=.Type}}
 	{{- with .Query}}
@@ -34,13 +34,13 @@ type {{$name}}QueryParam struct {
 
 // Defining the query options for the `{{$name}}` struct.
 type {{$name}}QueryOptions struct {
-	utils.QueryOptions
+	util.QueryOptions
 }
 
 // Defining the query result for the `{{$name}}` struct.
 type {{$name}}QueryResult struct {
 	Data       {{plural .Name}}
-	PageResult *utils.PaginationResult
+	PageResult *util.PaginationResult
 }
 
 // Defining the slice of `{{$name}}` struct.
@@ -80,7 +80,7 @@ func (a {{plural .Name}}) SplitParentIDs() []string {
 		}
 		idMapper[item.ID] = struct{}{}
 		if pp := item.ParentPath; pp != "" {
-			for _, pid := range strings.Split(pp, utils.TreePathDelimiter) {
+			for _, pid := range strings.Split(pp, util.TreePathDelimiter) {
 				if pid == "" {
 					continue
 				}

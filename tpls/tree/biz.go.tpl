@@ -4,11 +4,10 @@ import (
 	"context"
 	"time"
 
-	"{{.UtilsImportPath}}"
+	"{{.UtilImportPath}}"
 	"{{.ModuleImportPath}}/dal"
 	"{{.ModuleImportPath}}/schema"
 	"{{.RootImportPath}}/pkg/errors"
-	"{{.RootImportPath}}/pkg/idx"
 )
 
 {{$name := .Name}}
@@ -19,7 +18,7 @@ import (
 
 {{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` business logic.{{end}}
 type {{$name}} struct {
-	Trans       *utils.Trans
+	Trans       *util.Trans
 	{{$name}}DAL *dal.{{$name}}
 }
 
@@ -28,11 +27,11 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 	params.Pagination = {{if .DisablePagination}}false{{else}}true{{end}}
 
 	result, err := a.{{$name}}DAL.Query(ctx, params, schema.{{$name}}QueryOptions{
-		QueryOptions: utils.QueryOptions{
-			OrderFields: []utils.OrderByParam{
+		QueryOptions: util.QueryOptions{
+			OrderFields: []util.OrderByParam{
                 {{- range .Fields}}{{$fieldName := .Name}}
 				{{- if .Order}}
-				{Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Order "DESC"}}utils.DESC{{else}}utils.ASC{{end}}},
+				{Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Order "DESC"}}util.DESC{{else}}util.ASC{{end}}},
 				{{- end}}
                 {{- end}}
 			},
@@ -61,7 +60,7 @@ func (a *{{$name}}) appendChildren(ctx context.Context, data schema.{{plural .Na
 
 	for _, item := range data {
 		childResult, err := a.{{$name}}DAL.Query(ctx, schema.{{$name}}QueryParam{
-			ParentPathPrefix: item.ParentPath + item.ID + utils.TreePathDelimiter,
+			ParentPathPrefix: item.ParentPath + item.ID + util.TreePathDelimiter,
 		})
 		if err != nil {
 			return nil, err
@@ -108,7 +107,7 @@ func (a *{{$name}}) Get(ctx context.Context, id string) (*schema.{{$name}}, erro
 // Create a new {{lowerSpace .Name}} in the data access object.
 func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) (*schema.{{$name}}, error) {
 	{{lowerCamel $name}} := &schema.{{$name}}{
-		{{if $includeID}}ID:          idx.NewXID(),{{end}}
+		{{if $includeID}}ID:          util.NewXID(),{{end}}
 		{{if $includeCreatedAt}}CreatedAt:   time.Now(),{{end}}
 	}
 
@@ -119,7 +118,7 @@ func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) 
 		} else if parent == nil {
 			return nil, errors.NotFound("", "Parent not found")
 		}
-		{{lowerCamel $name}}.ParentPath = parent.ParentPath + parent.ID + utils.TreePathDelimiter
+		{{lowerCamel $name}}.ParentPath = parent.ParentPath + parent.ID + util.TreePathDelimiter
 	}
 	if err := formItem.FillTo({{lowerCamel $name}}); err != nil {
 		return nil, err
@@ -159,15 +158,15 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 			} else if parent == nil {
 				return errors.NotFound("", "Parent not found")
 			}
-			{{lowerCamel $name}}.ParentPath = parent.ParentPath + parent.ID + utils.TreePathDelimiter
+			{{lowerCamel $name}}.ParentPath = parent.ParentPath + parent.ID + util.TreePathDelimiter
 		} else {
 			{{lowerCamel $name}}.ParentPath = ""
 		}
 
 		childResult, err := a.{{$name}}DAL.Query(ctx, schema.{{$name}}QueryParam{
-			ParentPathPrefix: oldParentPath + {{lowerCamel $name}}.ID + utils.TreePathDelimiter,
+			ParentPathPrefix: oldParentPath + {{lowerCamel $name}}.ID + util.TreePathDelimiter,
 		}, schema.{{$name}}QueryOptions{
-			QueryOptions: utils.QueryOptions{
+			QueryOptions: util.QueryOptions{
 				SelectFields: []string{"id", "parent_path"},
 			},
 		})
@@ -188,7 +187,7 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 
 		{{- if $includeStatus}}
 		if oldStatus != formItem.Status {
-			opath := oldParentPath + {{lowerCamel $name}}.ID + utils.TreePathDelimiter
+			opath := oldParentPath + {{lowerCamel $name}}.ID + util.TreePathDelimiter
 			if err := a.{{$name}}DAL.UpdateStatusByParentPath(ctx, opath, formItem.Status); err != nil {
 				return err
 			}
@@ -196,8 +195,8 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 		{{- end}}
 
 		for _, child := range childData {
-			opath := oldParentPath + {{lowerCamel $name}}.ID + utils.TreePathDelimiter
-			npath := {{lowerCamel $name}}.ParentPath + {{lowerCamel $name}}.ID + utils.TreePathDelimiter
+			opath := oldParentPath + {{lowerCamel $name}}.ID + util.TreePathDelimiter
+			npath := {{lowerCamel $name}}.ParentPath + {{lowerCamel $name}}.ID + util.TreePathDelimiter
 			err := a.{{$name}}DAL.UpdateParentPath(ctx, child.ID, strings.Replace(child.ParentPath, opath, npath, 1))
 			if err != nil {
 				return err
@@ -218,9 +217,9 @@ func (a *{{$name}}) Delete(ctx context.Context, id string) error {
 	}
 
 	childResult, err := a.{{$name}}DAL.Query(ctx, schema.{{$name}}QueryParam{
-		ParentPathPrefix: {{lowerCamel $name}}.ParentPath + {{lowerCamel $name}}.ID + utils.TreePathDelimiter,
+		ParentPathPrefix: {{lowerCamel $name}}.ParentPath + {{lowerCamel $name}}.ID + util.TreePathDelimiter,
 		}, schema.{{$name}}QueryOptions{
-		QueryOptions: utils.QueryOptions{
+		QueryOptions: util.QueryOptions{
 			SelectFields: []string{"id"},
 		},
 	})

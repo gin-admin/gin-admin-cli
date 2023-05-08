@@ -30,7 +30,7 @@ func NewGenerate(cfg *GenerateConfig) *Generate {
 		fs:               tfs.Ins,
 		rootImportPath:   parser.GetRootImportPath(cfg.Dir),
 		moduleImportPath: parser.GetModuleImportPath(cfg.Dir, cfg.ModulePath, cfg.ModuleName),
-		utilsImportPath:  parser.GetUtilsImportPath(cfg.Dir, cfg.ModulePath),
+		UtilImportPath:   parser.GetUtilImportPath(cfg.Dir, cfg.ModulePath),
 	}
 }
 
@@ -40,7 +40,7 @@ type Generate struct {
 	fs               tfs.FS
 	rootImportPath   string
 	moduleImportPath string
-	utilsImportPath  string
+	UtilImportPath   string
 }
 
 // Run generate command
@@ -191,7 +191,7 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 	dataItem.RootImportPath = a.rootImportPath
 	dataItem.ModuleName = a.cfg.ModuleName
 	dataItem.ModuleImportPath = a.moduleImportPath
-	dataItem.UtilsImportPath = a.utilsImportPath
+	dataItem.UtilImportPath = a.UtilImportPath
 
 	genPackages := parser.StructPackages
 	if len(dataItem.Outputs) > 0 {

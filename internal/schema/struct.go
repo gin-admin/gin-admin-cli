@@ -11,7 +11,7 @@ type S struct {
 	RootImportPath   string `yaml:"-" json:"-"`
 	ModuleName       string `yaml:"-" json:"-"`
 	ModuleImportPath string `yaml:"-" json:"-"`
-	UtilsImportPath  string `yaml:"-" json:"-"`
+	UtilImportPath   string `yaml:"-" json:"-"`
 	Include          struct {
 		ID        bool
 		Status    string

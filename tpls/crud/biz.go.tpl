@@ -4,11 +4,10 @@ import (
 	"context"
 	"time"
 
-	"{{.UtilsImportPath}}"
+	"{{.UtilImportPath}}"
 	"{{.ModuleImportPath}}/dal"
 	"{{.ModuleImportPath}}/schema"
 	"{{.RootImportPath}}/pkg/errors"
-	"{{.RootImportPath}}/pkg/idx"
 )
 
 {{$name := .Name}}
@@ -18,7 +17,7 @@ import (
 
 {{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` business logic.{{end}}
 type {{$name}} struct {
-	Trans       *utils.Trans
+	Trans       *util.Trans
 	{{$name}}DAL *dal.{{$name}}
 }
 
@@ -27,11 +26,11 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 	params.Pagination = {{if .DisablePagination}}false{{else}}true{{end}}
 
 	result, err := a.{{$name}}DAL.Query(ctx, params, schema.{{$name}}QueryOptions{
-		QueryOptions: utils.QueryOptions{
-			OrderFields: []utils.OrderByParam{
+		QueryOptions: util.QueryOptions{
+			OrderFields: []util.OrderByParam{
                 {{- range .Fields}}{{$fieldName := .Name}}
 				{{- if .Order}}
-				{Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Order "DESC"}}utils.DESC{{else}}utils.ASC{{end}}},
+				{Field: "{{lowerUnderline $fieldName}}", Direction: {{if eq .Order "DESC"}}util.DESC{{else}}util.ASC{{end}}},
 				{{- end}}
                 {{- end}}
 			},
@@ -57,7 +56,7 @@ func (a *{{$name}}) Get(ctx context.Context, id string) (*schema.{{$name}}, erro
 // Create a new {{lowerSpace .Name}} in the data access object.
 func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) (*schema.{{$name}}, error) {
 	{{lowerCamel $name}} := &schema.{{$name}}{
-		{{if $includeID}}ID:          idx.NewXID(),{{end}}
+		{{if $includeID}}ID:          util.NewXID(),{{end}}
 		{{if $includeCreatedAt}}CreatedAt:   time.Now(),{{end}}
 	}
 	if err := formItem.FillTo({{lowerCamel $name}}); err != nil {
