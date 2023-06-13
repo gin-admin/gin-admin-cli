@@ -66,6 +66,9 @@ func (a *Generate) RunWithConfig(ctx context.Context, cfgName string) error {
 
 	if utils.IsDir(cfgName) {
 		return filepath.WalkDir(cfgName, func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
 			if d.IsDir() {
 				return nil
 			}
@@ -116,7 +119,11 @@ func (a *Generate) getGoTplFile(pkgName, tplType string) string {
 	}
 
 	if tplType != "" {
-		return filepath.Join(tplType, pkgName)
+		p := filepath.Join(tplType, pkgName)
+		if ok, _ := utils.ExistsFile(p); ok {
+			return p
+		}
+		return filepath.Join("default", pkgName)
 	}
 	return pkgName
 }

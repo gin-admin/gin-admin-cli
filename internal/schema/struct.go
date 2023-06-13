@@ -71,7 +71,7 @@ func (a *S) Format() *S {
 				Name:    "Children",
 				Type:    fmt.Sprintf("*%s", utils.ToPlural(a.Name)),
 				GormTag: "-",
-				Comment: "Child menus",
+				Comment: "Child nodes",
 			})
 		}
 

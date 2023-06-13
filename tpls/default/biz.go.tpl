@@ -15,6 +15,7 @@ import (
 {{$includeCreatedAt := .Include.CreatedAt}}
 {{$includeUpdatedAt := .Include.UpdatedAt}}
 {{$includeStatus := .Include.Status}}
+{{$treeTpl := eq .TplType "tree"}}
 
 {{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` business logic.{{end}}
 type {{$name}} struct {
@@ -40,10 +41,13 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 	if err != nil {
 		return nil, err
 	}
+	{{- if $treeTpl}}
 	result.Data = result.Data.ToTree()
+	{{- end}}
 	return result, nil
 }
 
+{{- if $treeTpl}}
 func (a *{{$name}}) appendChildren(ctx context.Context, data schema.{{plural .Name}}) (schema.{{plural .Name}}, error) {
 	if len(data) == 0 {
 		return data, nil
@@ -92,6 +96,7 @@ func (a *{{$name}}) appendChildren(ctx context.Context, data schema.{{plural .Na
 
 	return data, nil
 }
+{{- end}}
 
 // Get the specified {{lowerSpace .Name}} from the data access object.
 func (a *{{$name}}) Get(ctx context.Context, id string) (*schema.{{$name}}, error) {
@@ -111,6 +116,7 @@ func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) 
 		{{if $includeCreatedAt}}CreatedAt:   time.Now(),{{end}}
 	}
 
+	{{- if $treeTpl}}
 	if parentID := formItem.ParentID; parentID != "" {
 		parent, err := a.{{$name}}DAL.Get(ctx, parentID)
 		if err != nil {
@@ -120,6 +126,8 @@ func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) 
 		}
 		{{lowerCamel $name}}.ParentPath = parent.ParentPath + parent.ID + util.TreePathDelimiter
 	}
+	{{- end}}
+
 	if err := formItem.FillTo({{lowerCamel $name}}); err != nil {
 		return nil, err
 	}
@@ -145,6 +153,7 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 		return errors.NotFound("", "{{titleSpace $name}} not found")
 	}
 
+	{{- if $treeTpl}}
 	oldParentPath := {{lowerCamel $name}}.ParentPath
 	{{- if $includeStatus}}
 	oldStatus := {{lowerCamel $name}}.Status
@@ -175,16 +184,19 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 		}
 		childData = childResult.Data
 	}
-	if err := formItem.FillTo({{lowerCamel $name}}); err != nil {
+	{{- end}}
+
+    if err := formItem.FillTo({{lowerCamel $name}}); err != nil {
 		return err
 	}
-	{{if $includeUpdatedAt}}{{lowerCamel $name}}.UpdatedAt = time.Now(){{end}}
+    {{if $includeUpdatedAt}}{{lowerCamel $name}}.UpdatedAt = time.Now(){{end}}
 	
 	return a.Trans.Exec(ctx, func(ctx context.Context) error {
 		if err := a.{{$name}}DAL.Update(ctx, {{lowerCamel $name}}); err != nil {
 			return err
 		}
 
+		{{- if $treeTpl}}
 		{{- if $includeStatus}}
 		if oldStatus != formItem.Status {
 			opath := oldParentPath + {{lowerCamel $name}}.ID + util.TreePathDelimiter
@@ -202,13 +214,14 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 				return err
 			}
 		}
-
+		{{- end}}
 		return nil
 	})
 }
 
 // Delete the specified {{lowerSpace .Name}} from the data access object.
 func (a *{{$name}}) Delete(ctx context.Context, id string) error {
+	{{- if $treeTpl}}
 	{{lowerCamel $name}}, err := a.{{$name}}DAL.Get(ctx, id)
 	if err != nil {
 		return err
@@ -226,18 +239,26 @@ func (a *{{$name}}) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
+	{{- else}}
+	exists, err := a.{{$name}}DAL.Exists(ctx, id)
+	if err != nil {
+		return err
+	} else if !exists {
+		return errors.NotFound("", "{{titleSpace $name}} not found")
+	}
+	{{- end}}
 
 	return a.Trans.Exec(ctx, func(ctx context.Context) error {
 		if err := a.{{$name}}DAL.Delete(ctx, id); err != nil {
 			return err
 		}
-
+		{{- if $treeTpl}}
 		for _, child := range childResult.Data {
 			if err := a.{{$name}}DAL.Delete(ctx, child.ID); err != nil {
 				return err
 			}
 		}
-
+		{{- end}}
 		return nil
 	})
 }
