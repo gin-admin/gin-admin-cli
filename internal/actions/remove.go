@@ -20,19 +20,19 @@ type RemoveConfig struct {
 	SwaggerPath string
 }
 
-func NewRemove(cfg *RemoveConfig) *Remove {
-	return &Remove{
-		logger: zap.S().Named("[RM]"),
-		cfg:    cfg,
+func Remove(cfg RemoveConfig) *RemoveAction {
+	return &RemoveAction{
+		logger: zap.S().Named("[REMOVE]"),
+		cfg:    &cfg,
 	}
 }
 
-type Remove struct {
+type RemoveAction struct {
 	logger *zap.SugaredLogger
 	cfg    *RemoveConfig
 }
 
-func (a *Remove) RunWithConfig(ctx context.Context, configFile string) error {
+func (a *RemoveAction) RunWithConfig(ctx context.Context, configFile string) error {
 	var data []*schema.S
 	switch filepath.Ext(configFile) {
 	case ".json":
@@ -56,7 +56,7 @@ func (a *Remove) RunWithConfig(ctx context.Context, configFile string) error {
 	return a.Run(ctx, structs)
 }
 
-func (a *Remove) Run(ctx context.Context, structs []string) error {
+func (a *RemoveAction) Run(ctx context.Context, structs []string) error {
 	for _, name := range structs {
 		for _, pkgName := range parser.StructPackages {
 			err := a.modify(ctx, a.cfg.ModuleName, name, parser.StructPackageTplPaths[pkgName], nil, true)
@@ -98,7 +98,7 @@ func (a *Remove) Run(ctx context.Context, structs []string) error {
 	return a.execWireAndSwag(ctx)
 }
 
-func (a Remove) getAbsPath(file string) (string, error) {
+func (a RemoveAction) getAbsPath(file string) (string, error) {
 	modPath := a.cfg.ModulePath
 	file = filepath.Join(a.cfg.Dir, modPath, file)
 	fullpath, err := filepath.Abs(file)
@@ -109,7 +109,7 @@ func (a Remove) getAbsPath(file string) (string, error) {
 	return fullpath, nil
 }
 
-func (a *Remove) modify(ctx context.Context, moduleName, structName, tpl string, data []byte, deleted bool) error {
+func (a *RemoveAction) modify(ctx context.Context, moduleName, structName, tpl string, data []byte, deleted bool) error {
 	file, err := parser.ParseFilePathFromTpl(moduleName, structName, tpl)
 	if err != nil {
 		a.logger.Errorf("Failed to parse file path from tpl, err: %s, #struct %s, #tpl %s", err, structName, tpl)
@@ -153,14 +153,14 @@ func (a *Remove) modify(ctx context.Context, moduleName, structName, tpl string,
 		return nil
 	}
 
-	if err := utils.ExecGoImports(file); err != nil {
+	if err := utils.ExecGoImports(a.cfg.Dir, file); err != nil {
 		a.logger.Errorf("Failed to exec go imports, err: %s, #file %s", err, file)
 		return nil
 	}
 	return nil
 }
 
-func (a *Remove) execWireAndSwag(ctx context.Context) error {
+func (a *RemoveAction) execWireAndSwag(ctx context.Context) error {
 	if p := a.cfg.WirePath; p != "" {
 		if err := utils.ExecWireGen(a.cfg.Dir, p); err != nil {
 			a.logger.Errorf("Failed to exec wire, err: %s, #wirePath %s", err, p)

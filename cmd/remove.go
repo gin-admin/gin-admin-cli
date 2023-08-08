@@ -53,7 +53,7 @@ func Remove() *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			rm := actions.NewRemove(&actions.RemoveConfig{
+			rm := actions.Remove(actions.RemoveConfig{
 				Dir:         c.String("dir"),
 				ModuleName:  c.String("module"),
 				ModulePath:  c.String("module-path"),

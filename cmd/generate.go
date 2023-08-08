@@ -75,7 +75,7 @@ func Generate() *cli.Command {
 				tfs.SetIns(tfs.NewOSFS(tplPath))
 			}
 
-			gen := actions.NewGenerate(&actions.GenerateConfig{
+			gen := actions.Generate(actions.GenerateConfig{
 				Dir:         c.String("dir"),
 				TplType:     c.String("tpl-type"),
 				ModuleName:  c.String("module"),

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"io/fs"
 	"os"
 
 	jsoniter "github.com/json-iterator/go"
@@ -66,4 +67,12 @@ func IsDir(name string) bool {
 		return false
 	}
 	return info.IsDir()
+}
+
+func ReplaceFileContent(file string, old, new []byte, m fs.FileMode) error {
+	f, err := os.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(file, bytes.Replace(f, old, new, -1), m)
 }

@@ -23,10 +23,10 @@ type GenerateConfig struct {
 	SwaggerPath string
 }
 
-func NewGenerate(cfg *GenerateConfig) *Generate {
-	return &Generate{
+func Generate(cfg GenerateConfig) *GenerateAction {
+	return &GenerateAction{
 		logger:           zap.S().Named("[GEN]"),
-		cfg:              cfg,
+		cfg:              &cfg,
 		fs:               tfs.Ins,
 		rootImportPath:   parser.GetRootImportPath(cfg.Dir),
 		moduleImportPath: parser.GetModuleImportPath(cfg.Dir, cfg.ModulePath, cfg.ModuleName),
@@ -34,7 +34,7 @@ func NewGenerate(cfg *GenerateConfig) *Generate {
 	}
 }
 
-type Generate struct {
+type GenerateAction struct {
 	logger           *zap.SugaredLogger
 	cfg              *GenerateConfig
 	fs               tfs.FS
@@ -44,7 +44,7 @@ type Generate struct {
 }
 
 // Run generate command
-func (a *Generate) RunWithConfig(ctx context.Context, cfgName string) error {
+func (a *GenerateAction) RunWithConfig(ctx context.Context, cfgName string) error {
 	var parseFile = func(name string) error {
 		var data []*schema.S
 		switch filepath.Ext(name) {
@@ -79,13 +79,13 @@ func (a *Generate) RunWithConfig(ctx context.Context, cfgName string) error {
 	return parseFile(cfgName)
 }
 
-func (a *Generate) RunWithStruct(ctx context.Context, structName, comment, output string) error {
+func (a *GenerateAction) RunWithStruct(ctx context.Context, structName, comment, output string) error {
 	return a.run(ctx, []*schema.S{
 		{Name: structName, Comment: comment, Outputs: strings.Split(output, ",")},
 	})
 }
 
-func (a *Generate) run(ctx context.Context, data []*schema.S) error {
+func (a *GenerateAction) run(ctx context.Context, data []*schema.S) error {
 	for _, d := range data {
 		err := a.generate(ctx, d)
 		if err != nil {
@@ -112,7 +112,7 @@ func (a *Generate) run(ctx context.Context, data []*schema.S) error {
 	return a.execWireAndSwag(ctx)
 }
 
-func (a *Generate) getGoTplFile(pkgName, tplType string) string {
+func (a *GenerateAction) getGoTplFile(pkgName, tplType string) string {
 	pkgName = fmt.Sprintf("%s.go.tpl", pkgName)
 	if tplType == "" && a.cfg.TplType != "" {
 		tplType = a.cfg.TplType
@@ -128,7 +128,7 @@ func (a *Generate) getGoTplFile(pkgName, tplType string) string {
 	return pkgName
 }
 
-func (a Generate) getAbsPath(file string) (string, error) {
+func (a GenerateAction) getAbsPath(file string) (string, error) {
 	modPath := a.cfg.ModulePath
 	file = filepath.Join(a.cfg.Dir, modPath, file)
 	fullpath, err := filepath.Abs(file)
@@ -139,7 +139,7 @@ func (a Generate) getAbsPath(file string) (string, error) {
 	return fullpath, nil
 }
 
-func (a *Generate) write(ctx context.Context, moduleName, structName, tpl string, data []byte, checkExists bool) error {
+func (a *GenerateAction) write(ctx context.Context, moduleName, structName, tpl string, data []byte, checkExists bool) error {
 	file, err := parser.ParseFilePathFromTpl(moduleName, structName, tpl)
 	if err != nil {
 		a.logger.Errorf("Failed to parse file path from tpl, err: %s, #tpl %s", err, tpl)
@@ -186,14 +186,14 @@ func (a *Generate) write(ctx context.Context, moduleName, structName, tpl string
 		return nil
 	}
 
-	if err := utils.ExecGoImports(file); err != nil {
+	if err := utils.ExecGoImports(a.cfg.Dir, file); err != nil {
 		a.logger.Errorf("Failed to exec go imports, err: %s, #file %s", err, file)
 		return nil
 	}
 	return nil
 }
 
-func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
+func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error {
 	dataItem = dataItem.Format()
 	dataItem.RootImportPath = a.rootImportPath
 	dataItem.ModuleName = a.cfg.ModuleName
@@ -252,7 +252,7 @@ func (a *Generate) generate(ctx context.Context, dataItem *schema.S) error {
 	return nil
 }
 
-func (a *Generate) execWireAndSwag(ctx context.Context) error {
+func (a *GenerateAction) execWireAndSwag(ctx context.Context) error {
 	if p := a.cfg.WirePath; p != "" {
 		if err := utils.ExecWireGen(a.cfg.Dir, p); err != nil {
 			a.logger.Errorf("Failed to exec wire, err: %s, #wirePath %s", err, p)

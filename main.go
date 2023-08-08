@@ -30,13 +30,14 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gin-admin-cli"
 	app.Version = VERSION
-	app.Usage = "gin-admin-cli is a command line tool for gin-admin."
+	app.Usage = "A command line tool for gin-admin."
 	app.Authors = append(app.Authors, &cli.Author{
 		Name:  "LyricTian",
 		Email: "tiannianshou@gmail.com",
 	})
 	app.Commands = []*cli.Command{
 		cmd.Version(VERSION),
+		cmd.New(),
 		cmd.Generate(),
 		cmd.Remove(),
 	}
