@@ -21,7 +21,7 @@ func main() {
 	// Set the embed.FS to the fs package
 	tfs.SetEFS(f)
 
-	logger, err := zap.NewDevelopmentConfig().Build()
+	logger, err := zap.NewDevelopmentConfig().Build(zap.WithCaller(false))
 	if err != nil {
 		panic(err)
 	}

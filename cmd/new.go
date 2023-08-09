@@ -41,7 +41,7 @@ func New() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:     "git-url",
-				Usage:    "Use git repository to initialize the project",
+				Usage:    "Use git repository to initialize the project (default: https://github.com/LyricTian/gin-admin.git)",
 				Required: false,
 			},
 			&cli.StringFlag{

@@ -15,19 +15,19 @@ func ExecGoFormat(name string) error {
 	// read the contents of the file
 	content, err := os.ReadFile(name)
 	if err != nil {
-		return fmt.Errorf("error reading file: %v", err)
+		return fmt.Errorf("failed to reading file: %v", err)
 	}
 
 	// format the source code
 	formatted, err := format.Source(content)
 	if err != nil {
-		return fmt.Errorf("error formatting file: %v", err)
+		return fmt.Errorf("failed to formatting file: %v", err)
 	}
 
 	// overwrite the existing file with the formatted code
 	err = WriteFile(name, formatted)
 	if err != nil {
-		return fmt.Errorf("error writing formatted file: %v", err)
+		return fmt.Errorf("failed to writing formatted file: %v", err)
 	}
 	return nil
 }
@@ -51,7 +51,7 @@ func ExecGoImports(dir, name string) error {
 func ExecGoInstall(dir, path string) error {
 	localPath, err := exec.LookPath("go")
 	if err != nil {
-		zap.S().Warn("Not found go command, please install go first")
+		zap.S().Warn("not found go command, please install go first")
 		return nil
 	}
 
@@ -65,7 +65,7 @@ func ExecGoInstall(dir, path string) error {
 func ExecGoModTidy(dir string) error {
 	localPath, err := exec.LookPath("go")
 	if err != nil {
-		zap.S().Warn("Not found go command, please install go first")
+		zap.S().Warn("not found go command, please install go first")
 		return nil
 	}
 
@@ -78,14 +78,14 @@ func ExecGoModTidy(dir string) error {
 
 // Executes the wire command on the given file
 func ExecWireGen(dir, path string) error {
-	_, err := exec.LookPath("wire")
+	localPath, err := exec.LookPath("wire")
 	if err != nil {
 		if err := ExecGoInstall(dir, "github.com/google/wire/cmd/wire@latest"); err != nil {
 			return nil
 		}
 	}
 
-	cmd := exec.Command("wire", "gen", "./"+path)
+	cmd := exec.Command(localPath, "gen", "./"+path)
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
@@ -101,8 +101,8 @@ func ExecSwagGen(dir, generalInfo, output string) error {
 		}
 	}
 
-	zap.S().Infof(fmt.Sprintf("%s init --parseDependency --generalInfo %s --output %s", localPath, generalInfo, output))
-	cmd := exec.Command("swag", "init", "--parseDependency", "--generalInfo", generalInfo, "--output", output)
+	fmt.Printf("swag init --parseDependency --generalInfo %s --output %s \n", generalInfo, output)
+	cmd := exec.Command(localPath, "init", "--parseDependency", "--generalInfo", generalInfo, "--output", output)
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
@@ -112,7 +112,7 @@ func ExecSwagGen(dir, generalInfo, output string) error {
 func ExecGitInit(dir string) error {
 	localPath, err := exec.LookPath("git")
 	if err != nil {
-		zap.S().Warn("Not found git command, please install git first")
+		zap.S().Warn("not found git command, please install git first")
 		return nil
 	}
 
@@ -126,7 +126,7 @@ func ExecGitInit(dir string) error {
 func ExecGitClone(dir, url, branch, name string) error {
 	localPath, err := exec.LookPath("git")
 	if err != nil {
-		zap.S().Warn("Not found git command, please install git first")
+		zap.S().Warn("not found git command, please install git first")
 		return nil
 	}
 
@@ -141,7 +141,7 @@ func ExecGitClone(dir, url, branch, name string) error {
 		args = append(args, name)
 	}
 
-	zap.S().Infof("git %s", strings.Join(args, " "))
+	fmt.Printf("git %s \n", strings.Join(args, " "))
 	cmd := exec.Command(localPath, args...)
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
@@ -155,7 +155,7 @@ func ExecTree(dir string) error {
 		return nil
 	}
 
-	cmd := exec.Command(localPath, "-L", "2", "-I", ".git")
+	cmd := exec.Command(localPath, "-L", "4", "-I", ".git", "-I", "pkg")
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout

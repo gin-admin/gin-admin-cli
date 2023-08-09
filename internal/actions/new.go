@@ -63,19 +63,18 @@ func (a *NewAction) Run(ctx context.Context) error {
 	}
 	_ = os.MkdirAll(a.cfg.Dir, os.ModePerm)
 
-	a.logger.Infof("Clone project from %s", a.cfg.GitURL)
 	if err := utils.ExecGitClone(a.cfg.Dir, a.cfg.GitURL, a.cfg.GitBranch, a.cfg.Name); err != nil {
 		return err
 	}
 
-	cleanFiles := []string{".git", "CHANGELOG.md", "LICENSE", "README.md", "internal/swagger", "internal/wirex/wire_gen.go"}
+	cleanFiles := []string{".git", "CHANGELOG.md", "LICENSE", "README.md", "internal/swagger/v3", "internal/wirex/wire_gen.go"}
 	for _, f := range cleanFiles {
 		if err := os.RemoveAll(filepath.Join(projectDir, f)); err != nil {
 			return err
 		}
 	}
 
-	a.logger.Infof("Start update project info...")
+	a.logger.Infof("Update project info...")
 	oldModuleName, err := a.getModuleName(projectDir)
 	if err != nil {
 		return err
@@ -100,7 +99,8 @@ func (a *NewAction) Run(ctx context.Context) error {
 		}
 
 		name := d.Name()
-		if name == "main.go" {
+		if name == "main.go" || name == "config.go" ||
+			name == "Makefile" || name == "Dockerfile" || name == ".gitignore" {
 			f, err := os.ReadFile(path)
 			if err != nil {
 				return err
@@ -134,8 +134,9 @@ func (a *NewAction) Run(ctx context.Context) error {
 
 	a.logger.Infof("Generate wire and swagger files...")
 	_ = utils.ExecGoModTidy(projectDir)
-	_ = utils.ExecWireGen(projectDir, "internal/wirex")
 	_ = utils.ExecSwagGen(projectDir, "./main.go", "./internal/swagger")
+	_ = utils.ExecWireGen(projectDir, "internal/wirex")
+	_ = utils.ExecGitInit(projectDir)
 
 	fmt.Println("🎉  Congratulations, your project has been created successfully.")
 	fmt.Println("------------------------------------------------------------")
@@ -146,6 +147,7 @@ func (a *NewAction) Run(ctx context.Context) error {
 	fmt.Println("------------------------------------------------------------")
 	fmt.Printf("cd %s\n", projectDir)
 	fmt.Println("make start")
+	fmt.Println("------------------------------------------------------------")
 	return nil
 }
 
