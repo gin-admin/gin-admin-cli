@@ -19,6 +19,13 @@ func Get{{$name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
 	return util.GetDB(ctx, defDB).Model(new(schema.{{$name}}))
 }
 
+// Get {{lowerSpace .Name}} table name
+func Get{{$name}}TableName(defDB *gorm.DB) string {
+	stat := gorm.Statement{DB: defDB}
+	stat.Parse(&schema.{{$name}}{})
+	return stat.Table
+}
+
 {{with .Comment}}// {{.}}{{else}}// Defining the `{{$name}}` data access object.{{end}}
 type {{$name}} struct {
 	DB *gorm.DB

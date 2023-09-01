@@ -17,11 +17,6 @@ type {{$name}} struct {
 	{{- end}}
 }
 
-// Defining the name of the database table that corresponds to the `{{$name}}` struct.
-func (a {{$name}}) TableName() string {
-	return "{{.TableName}}"
-}
-
 // Defining the query parameters for the `{{$name}}` struct.
 type {{$name}}QueryParam struct {
 	util.PaginationParam
