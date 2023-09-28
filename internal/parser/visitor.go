@@ -225,7 +225,7 @@ func (v *astModuleMainVisitor) modifyRegisterV1Routers(x *ast.FuncDecl) {
 			{"GET", "\"\"", "Query"},
 			{"GET", "\":id\"", "Get"},
 			{"POST", "\"\"", "Create"},
-			{"PUT", "\"\"", "Update"},
+			{"PUT", "\":id\"", "Update"},
 			{"DELETE", "\":id\"", "Delete"},
 		}
 
