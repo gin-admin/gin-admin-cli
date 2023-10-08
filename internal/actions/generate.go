@@ -80,8 +80,13 @@ func (a *GenerateAction) RunWithConfig(ctx context.Context, cfgName string) erro
 }
 
 func (a *GenerateAction) RunWithStruct(ctx context.Context, structName, comment, output string) error {
+	var outputs []string
+	if output != "" {
+		outputs = strings.Split(output, ",")
+	}
+
 	return a.run(ctx, []*schema.S{
-		{Name: structName, Comment: comment, Outputs: strings.Split(output, ",")},
+		{Name: structName, Comment: comment, Outputs: outputs},
 	})
 }
 

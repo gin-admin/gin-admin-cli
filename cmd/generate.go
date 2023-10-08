@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/actions"
 	"github.com/gin-admin/gin-admin-cli/v10/internal/tfs"
@@ -24,7 +25,7 @@ func Generate() *cli.Command {
 			&cli.StringFlag{
 				Name:     "module",
 				Aliases:  []string{"m"},
-				Usage:    "The module to generate the struct from",
+				Usage:    "The module to generate the struct from (like: RBAC)",
 				Required: true,
 			},
 			&cli.StringFlag{
@@ -87,7 +88,7 @@ func Generate() *cli.Command {
 			if c.String("config") != "" {
 				return gen.RunWithConfig(c.Context, c.String("config"))
 			} else if c.String("structs") != "" {
-				return gen.RunWithStruct(c.Context, c.String("structs"), c.String("structs-comment"), c.String("structs-output"))
+				return gen.RunWithStruct(c.Context, c.String("structs"), c.String("structs-comment"), strings.TrimSpace(c.String("structs-output")))
 			} else {
 				return errors.New("structs or config must be specified")
 			}

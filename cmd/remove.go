@@ -23,7 +23,7 @@ func Remove() *cli.Command {
 			&cli.StringFlag{
 				Name:     "module",
 				Aliases:  []string{"m"},
-				Usage:    "The module to remove the struct from",
+				Usage:    "The module to remove the struct from (like: RBAC)",
 				Required: true,
 			},
 			&cli.StringFlag{

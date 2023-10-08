@@ -35,8 +35,8 @@ func New() *cli.Command {
 				Required: false,
 			},
 			&cli.StringFlag{
-				Name:     "module",
-				Usage:    "The project module name (default: project name)",
+				Name:     "pkg",
+				Usage:    "The project package name (default: project name)",
 				Required: false,
 			},
 			&cli.StringFlag{
@@ -55,7 +55,7 @@ func New() *cli.Command {
 				Dir:         c.String("dir"),
 				Name:        c.String("name"),
 				Description: c.String("desc"),
-				PkgName:     c.String("module"),
+				PkgName:     c.String("pkg"),
 				Version:     c.String("version"),
 				GitURL:      c.String("git-url"),
 				GitBranch:   c.String("git-branch"),
