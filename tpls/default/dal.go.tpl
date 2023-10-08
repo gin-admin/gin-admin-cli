@@ -22,7 +22,7 @@ func Get{{$name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
 // Get {{lowerSpace .Name}} table name
 func Get{{$name}}TableName(defDB *gorm.DB) string {
 	stat := gorm.Statement{DB: defDB}
-	stat.Parse(&schema.{{$name}}{})
+	_ = stat.Parse(&schema.{{$name}}{})
 	return stat.Table
 }
 
