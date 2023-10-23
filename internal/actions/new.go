@@ -67,7 +67,7 @@ func (a *NewAction) Run(ctx context.Context) error {
 		return err
 	}
 
-	cleanFiles := []string{".git", "CHANGELOG.md", "LICENSE", "README.md", "internal/swagger/v3", "internal/wirex/wire_gen.go"}
+	cleanFiles := []string{".git", "CHANGELOG.md", "LICENSE", "README.md", "README_CN.md", "internal/swagger/v3", "internal/wirex/wire_gen.go"}
 	for _, f := range cleanFiles {
 		if err := os.RemoveAll(filepath.Join(projectDir, f)); err != nil {
 			return err
