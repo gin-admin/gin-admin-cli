@@ -19,7 +19,7 @@ func Generate() *cli.Command {
 			&cli.StringFlag{
 				Name:     "dir",
 				Aliases:  []string{"d"},
-				Usage:    "The directory to generate the struct from",
+				Usage:    "The project directory to generate the struct",
 				Required: true,
 			},
 			&cli.StringFlag{

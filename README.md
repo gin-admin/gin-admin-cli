@@ -13,7 +13,7 @@ go install github.com/gin-admin/gin-admin-cli/v10@latest
 ### Create a new project
 
 ```bash
-gin-admin-cli new -d ~/go/src --name testapp --desc 'A test API service based on golang.' --module 'github.com/xxx/testapp'
+gin-admin-cli new -d ~/go/src --name testapp --desc 'A test API service based on golang.' --pkg 'github.com/xxx/testapp'
 ```
 
 ### Generate a new module
@@ -67,7 +67,7 @@ Using `Dictionary` as an example, the configuration file is as follows `dictiona
 ./gin-admin-cli gen -d ~/go/src/testapp -m SYS -c dictionary.yaml
 ```
 
-### Remove a module
+### Remove a struct from the module
 
 ```bash
 gin-admin-cli rm -d ~/go/src/testapp -m SYS -s Dictionary
@@ -87,9 +87,9 @@ OPTIONS:
    --name value           The project name
    --desc value           The project description
    --version value        The project version (default: 1.0.0)
-   --module value         The project module name (default: project name)
+   --pkg value            The project package name (default: project name)
    --git-url value        Use git repository to initialize the project (default: https://github.com/LyricTian/gin-admin.git)
-   --git-branch value     Use git branch to initialize the project
+   --git-branch value     Use git branch to initialize the project (default: master)
    --help, -h             show help
 ```
 

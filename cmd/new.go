@@ -46,7 +46,7 @@ func New() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:     "git-branch",
-				Usage:    "Use git branch to initialize the project",
+				Usage:    "Use git branch to initialize the project (default: master)",
 				Required: false,
 			},
 		},
