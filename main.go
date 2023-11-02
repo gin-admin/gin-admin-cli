@@ -16,7 +16,9 @@ var f embed.FS
 var VERSION = "v10.0.0"
 
 func main() {
-	defer zap.S().Sync()
+	defer func() {
+		_ = zap.S().Sync()
+	}()
 
 	// Set the embed.FS to the fs package
 	tfs.SetEFS(f)

@@ -155,9 +155,70 @@ func ExecTree(dir string) error {
 		return nil
 	}
 
-	cmd := exec.Command(localPath, "-L", "4", "-I", ".git", "-I", "pkg")
+	cmd := exec.Command(localPath, "-L", "4", "-I", ".git", "-I", "pkg", "--dirsfirst")
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
 	return cmd.Run()
+}
+
+func GetDefaultProjectTree() string {
+	return `
+	├── cmd
+	│   ├── start.go
+	│   ├── stop.go
+	│   └── version.go
+	├── configs
+	│   ├── dev
+	│   │   ├── logging.toml
+	│   │   ├── middleware.toml
+	│   │   └── server.toml
+	│   ├── menu.json
+	│   └── rbac_model.conf
+	├── internal
+	│   ├── bootstrap
+	│   │   ├── bootstrap.go
+	│   │   ├── http.go
+	│   │   └── logger.go
+	│   ├── config
+	│   │   ├── config.go
+	│   │   ├── consts.go
+	│   │   ├── middleware.go
+	│   │   └── parse.go
+	│   ├── mods
+	│   │   ├── rbac
+	│   │   │   ├── api
+	│   │   │   ├── biz
+	│   │   │   ├── dal
+	│   │   │   ├── schema
+	│   │   │   ├── casbin.go
+	│   │   │   ├── main.go
+	│   │   │   └── wire.go
+	│   │   ├── sys
+	│   │   │   ├── api
+	│   │   │   ├── biz
+	│   │   │   ├── dal
+	│   │   │   ├── schema
+	│   │   │   ├── main.go
+	│   │   │   └── wire.go
+	│   │   └── mods.go
+	│   ├── utility
+	│   │   └── prom
+	│   │       └── prom.go
+	│   └── wirex
+	│       ├── injector.go
+	│       ├── wire.go
+	│       └── wire_gen.go
+	├── test
+	│   ├── menu_test.go
+	│   ├── role_test.go
+	│   ├── test.go
+	│   └── user_test.go
+	├── Dockerfile
+	├── Makefile
+	├── README.md
+	├── go.mod
+	├── go.sum
+	└── main.go
+	`
 }

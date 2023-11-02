@@ -140,7 +140,7 @@ func (a *NewAction) Run(ctx context.Context) error {
 
 	fmt.Println("🎉  Congratulations, your project has been created successfully.")
 	fmt.Println("------------------------------------------------------------")
-	_ = utils.ExecTree(projectDir)
+	fmt.Println(utils.GetDefaultProjectTree())
 	fmt.Println("------------------------------------------------------------")
 
 	fmt.Println("🚀  You can execute the following commands to start the project:")

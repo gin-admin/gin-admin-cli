@@ -1,6 +1,12 @@
-# [gin-admin](https://github.com/LyricTian/gin-admin) efficiency assistant
+# [GIN-Admin](https://github.com/LyricTian/gin-admin) efficiency assistant
 
 > A gin-admin efficiency assistant that provides project initialization, code generation, greatly improves work efficiency, and quickly completes the development of business logic.
+
+## Dependencies
+
+- [Go](https://golang.org/) 1.19+
+- [Wire](github.com/google/wire) `go install github.com/google/wire/cmd/wire@latest`
+- [Swag](github.com/swaggo/swag) `go install github.com/swaggo/swag/cmd/swag@latest`
 
 ## Quick start
 
@@ -16,7 +22,9 @@ go install github.com/gin-admin/gin-admin-cli/v10@latest
 gin-admin-cli new -d ~/go/src --name testapp --desc 'A test API service based on golang.' --pkg 'github.com/xxx/testapp'
 ```
 
-### Generate a new module
+### Generate a new struct
+
+> More examples can be found in the [examples directory](https://github.com/gin-admin/gin-admin-cli/tree/master/examples)
 
 Using `Dictionary` as an example, the configuration file is as follows `dictionary.yaml`:
 
@@ -75,6 +83,8 @@ gin-admin-cli rm -d ~/go/src/testapp -m SYS -s Dictionary
 
 ## Command help
 
+### New command
+
 ```text
 NAME:
    gin-admin-cli new - Create a new project
@@ -92,6 +102,8 @@ OPTIONS:
    --git-branch value     Use git branch to initialize the project (default: master)
    --help, -h             show help
 ```
+
+### Generate command
 
 ```text
 NAME:
@@ -114,6 +126,8 @@ OPTIONS:
    --tpl-path value           The template path to generate the struct from (default use tpls)
    --help, -h                 show help
 ```
+
+### Remove command
 
 ```text
 NAME:
