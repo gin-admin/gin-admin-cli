@@ -14,7 +14,7 @@ type S struct {
 	UtilImportPath   string `yaml:"-" json:"-"`
 	Include          struct {
 		ID        bool
-		Status    string
+		Status    bool
 		CreatedAt bool
 		UpdatedAt bool
 		Sequence  bool
@@ -26,6 +26,7 @@ type S struct {
 	TplType              string   `yaml:"tpl_type,omitempty" json:"tpl_type,omitempty"` // crud/tree
 	DisablePagination    bool     `yaml:"disable_pagination,omitempty" json:"disable_pagination,omitempty"`
 	DisableDefaultFields bool     `yaml:"disable_default_fields,omitempty" json:"disable_default_fields,omitempty"`
+	FillGormCommit       bool     `yaml:"fill_gorm_commit,omitempty" json:"fill_gorm_commit,omitempty"`
 	Fields               []*Field `yaml:"fields,omitempty" json:"fields,omitempty"`
 }
 
@@ -96,13 +97,19 @@ func (a *S) Format() *S {
 		case "ID":
 			a.Include.ID = true
 		case "Status":
-			a.Include.Status = item.Type
+			a.Include.Status = true
 		case "CreatedAt":
 			a.Include.CreatedAt = true
 		case "UpdatedAt":
 			a.Include.UpdatedAt = true
 		case "Sequence":
 			a.Include.Sequence = true
+		}
+		if a.FillGormCommit && item.Comment != "" {
+			if len([]byte(item.GormTag)) > 0 && !strings.HasSuffix(item.GormTag, ";") {
+				item.GormTag += ";"
+			}
+			item.GormTag += fmt.Sprintf("comment:%s;", item.Comment)
 		}
 		a.Fields[i] = item.Format()
 	}
