@@ -6,7 +6,7 @@ import { PageContainer } from '@ant-design/pro-components';
 import React, { useRef, useReducer } from 'react';
 import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Space, Tag, message } from 'antd';
+import { Space,{{if $includeStatus}} Tag,{{end}} message } from 'antd';
 import { fetch{{$name}}, del{{$name}} } from '@/services/{{.Extra.ImportService}}';
 import {{$name}}Modal from './components/SaveForm';
 import { AddButton, EditIconButton, DelIconButton } from '@/components/Button';
@@ -63,8 +63,8 @@ const {{$name}}: React.FC = () => {
 
   const columns: ProColumns<API.{{$name}}>[] = [
     {{- range .Fields}}
-    {{$fieldName := .Name}}
-    {{$fieldLabel :=.Extra.Label}}
+    {{- $fieldName := .Name}}
+    {{- $fieldLabel :=.Extra.Label}}
     {{- if eq .Extra.InColumn "true"}}
     {{- if eq $fieldName "Status"}}
     {
