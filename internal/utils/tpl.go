@@ -21,6 +21,14 @@ var FuncMap = template.FuncMap{
 	"convIfCond":         tplConvToIfCond,
 	"convSwaggerType":    tplConvToSwaggerType,
 	"raw":                func(s string) template.HTML { return template.HTML(s) },
+	"convGoTypeToTsType": func(goType string) string {
+		if strings.Contains(goType, "int") || strings.Contains(goType, "float") {
+			return "number"
+		} else if goType == "bool" {
+			return "boolean"
+		}
+		return "string"
+	},
 }
 
 func tplConvToIfCond(t string) template.HTML {

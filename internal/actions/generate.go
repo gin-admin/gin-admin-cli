@@ -21,6 +21,8 @@ type GenerateConfig struct {
 	ModulePath  string
 	WirePath    string
 	SwaggerPath string
+	FEDir       string
+	FETplType   string
 }
 
 func Generate(cfg GenerateConfig) *GenerateAction {
@@ -85,16 +87,23 @@ func (a *GenerateAction) RunWithStruct(ctx context.Context, structName, comment,
 		outputs = strings.Split(output, ",")
 	}
 
-	return a.run(ctx, []*schema.S{
+	input := []*schema.S{
 		{Name: structName, Comment: comment, Outputs: outputs},
-	})
+	}
+
+	return a.run(ctx, input)
 }
 
 func (a *GenerateAction) run(ctx context.Context, data []*schema.S) error {
 	for _, d := range data {
-		err := a.generate(ctx, d)
-		if err != nil {
+		if err := a.generate(ctx, d); err != nil {
 			return err
+		}
+
+		if d.GenerateFE {
+			if err := a.generateFE(ctx, d); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -270,5 +279,38 @@ func (a *GenerateAction) execWireAndSwag(ctx context.Context) error {
 		}
 	}
 
+	return nil
+}
+
+func (a *GenerateAction) generateFE(ctx context.Context, dataItem *schema.S) error {
+	for tpl, file := range dataItem.FEMapping {
+		tplPath := filepath.Join(a.cfg.FETplType, tpl)
+		tplData, err := a.fs.ParseTpl(tplPath, dataItem)
+		if err != nil {
+			a.logger.Errorf("Failed to parse tpl, err: %s, #struct %s, #tpl %s", err, dataItem.Name, tplPath)
+			return err
+		}
+
+		file, err := filepath.Abs(filepath.Join(a.cfg.FEDir, file))
+		if err != nil {
+			return err
+		}
+
+		exists, err := utils.ExistsFile(file)
+		if err != nil {
+			return err
+		}
+		if exists {
+			a.logger.Infof("File exists, skip, #file %s", file)
+			continue
+		}
+
+		_ = os.MkdirAll(filepath.Dir(file), os.ModePerm)
+		if err := utils.WriteFile(file, tplData); err != nil {
+			a.logger.Errorf("Failed to write file, err: %s, #file %s", err, file)
+			return err
+		}
+		a.logger.Info("Write file: ", file)
+	}
 	return nil
 }

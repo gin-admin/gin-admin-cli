@@ -29,11 +29,6 @@ func Generate() *cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
-				Name:  "tpl-type",
-				Usage: "The template type to generate the struct from (default: crud)",
-				Value: "crud",
-			},
-			&cli.StringFlag{
 				Name:  "module-path",
 				Usage: "The module path to generate the struct from (default: internal/mods)",
 				Value: "internal/mods",
@@ -70,6 +65,20 @@ func Generate() *cli.Command {
 				Name:  "tpl-path",
 				Usage: "The template path to generate the struct from (default use tpls)",
 			},
+			&cli.StringFlag{
+				Name:  "tpl-type",
+				Usage: "The template type to generate the struct from (default: default)",
+				Value: "default",
+			},
+			&cli.StringFlag{
+				Name:  "fe-dir",
+				Usage: "The frontend project directory to generate the UI",
+			},
+			&cli.StringFlag{
+				Name:  "fe-tpl-type",
+				Usage: "The template type to generate the frontend from (default: react)",
+				Value: "react",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			if tplPath := c.String("tpl-path"); tplPath != "" {
@@ -83,6 +92,8 @@ func Generate() *cli.Command {
 				ModulePath:  c.String("module-path"),
 				WirePath:    c.String("wire-path"),
 				SwaggerPath: c.String("swag-path"),
+				FEDir:       c.String("fe-dir"),
+				FETplType:   c.String("fe-tpl-type"),
 			})
 
 			if c.String("config") != "" {

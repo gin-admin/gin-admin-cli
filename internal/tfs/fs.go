@@ -2,9 +2,9 @@ package tfs
 
 import (
 	"bytes"
-	"html/template"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/utils"
 )
