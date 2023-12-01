@@ -4,7 +4,7 @@
 /* eslint-disable */
 import { request } from 'umi';
 
-/** 查询列表 GET /api/v1/{{$lowerPluralName}} */
+/** Query list GET /api/v1/{{$lowerPluralName}} */
 export async function fetch{{$name}}(params: API.PaginationParam, options?: { [key: string]: any }) {
   return request<API.ResponseResult<API.{{$name}}[]>>('/api/v1/{{$lowerPluralName}}', {
     method: 'GET',
@@ -17,7 +17,7 @@ export async function fetch{{$name}}(params: API.PaginationParam, options?: { [k
   });
 }
 
-/** 创建数据 POST /api/v1/{{$lowerPluralName}} */
+/** Create record POST /api/v1/{{$lowerPluralName}} */
 export async function add{{$name}}(body: API.{{$name}}, options?: { [key: string]: any }) {
   return request<API.ResponseResult<API.{{$name}}>>('/api/v1/{{$lowerPluralName}}', {
     method: 'POST',
@@ -26,7 +26,7 @@ export async function add{{$name}}(body: API.{{$name}}, options?: { [key: string
   });
 }
 
-/** 获取单条记录 GET /api/v1/{{$lowerPluralName}}/${id} */
+/** Get record by ID GET /api/v1/{{$lowerPluralName}}/${id} */
 export async function get{{$name}}(id: string, options?: { [key: string]: any }) {
   return request<API.ResponseResult<API.{{$name}}>>(`/api/v1/{{$lowerPluralName}}/${id}`, {
     method: 'GET',
@@ -34,7 +34,7 @@ export async function get{{$name}}(id: string, options?: { [key: string]: any })
   });
 }
 
-/** 更新记录 PUT /api/v1/{{$lowerPluralName}}/${id} */
+/** Update record by ID PUT /api/v1/{{$lowerPluralName}}/${id} */
 export async function update{{$name}}(id: string, body: API.{{$name}}, options?: { [key: string]: any }) {
   return request<API.ResponseResult<any>>(`/api/v1/{{$lowerPluralName}}/${id}`, {
     method: 'PUT',
@@ -43,7 +43,7 @@ export async function update{{$name}}(id: string, body: API.{{$name}}, options?:
   });
 }
 
-/** 删除记录 DELETE /api/v1/{{$lowerPluralName}}/${id} */
+/** Delete record by ID DELETE /api/v1/{{$lowerPluralName}}/${id} */
 export async function del{{$name}}(id: string, options?: { [key: string]: any }) {
   return request<API.ResponseResult<any>>(`/api/v1/{{$lowerPluralName}}/${id}`, {
     method: 'DELETE',
