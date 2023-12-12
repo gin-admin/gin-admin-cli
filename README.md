@@ -95,11 +95,16 @@ USAGE:
 OPTIONS:
    --dir value, -d value  The directory to generate the project (default: current directory)
    --name value           The project name
+   --app-name value       The application name (default: project name)
    --desc value           The project description
    --version value        The project version (default: 1.0.0)
    --pkg value            The project package name (default: project name)
    --git-url value        Use git repository to initialize the project (default: https://github.com/LyricTian/gin-admin.git)
-   --git-branch value     Use git branch to initialize the project (default: master)
+   --git-branch value     Use git branch to initialize the project (default: main)
+   --fe-dir value         The frontend directory to generate the project (if empty, the frontend project will not be generated)
+   --fe-name value        The frontend project name (default: frontend)
+   --fe-git-url value     Use git repository to initialize the frontend project (default: https://github.com/gin-admin/gin-admin-frontend.git)
+   --fe-git-branch value  Use git branch to initialize the frontend project (default: main)
    --help, -h             show help
 ```
 
@@ -113,9 +118,8 @@ USAGE:
    gin-admin-cli generate [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value      The directory to generate the struct from
-   --module value, -m value   The module to generate the struct from
-   --tpl-type value           The template type to generate the struct from (default: crud)
+   --dir value, -d value      The project directory to generate the struct
+   --module value, -m value   The module to generate the struct from (like: RBAC)
    --module-path value        The module path to generate the struct from (default: internal/mods)
    --wire-path value          The wire generate path to generate the struct from (default: internal/wirex)
    --swag-path value          The swagger generate path to generate the struct from (default: internal/swagger)
@@ -124,6 +128,9 @@ OPTIONS:
    --structs-comment value    Specify the struct comment
    --structs-output value     Specify the packages to generate the struct (default: schema,dal,biz,api)
    --tpl-path value           The template path to generate the struct from (default use tpls)
+   --tpl-type value           The template type to generate the struct from (default: default)
+   --fe-dir value             The frontend project directory to generate the UI
+   --fe-tpl-type value        The template type to generate the frontend from (default: react)
    --help, -h                 show help
 ```
 
