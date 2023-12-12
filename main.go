@@ -13,7 +13,7 @@ import (
 //go:embed tpls
 var f embed.FS
 
-var VERSION = "v10.1.0"
+var VERSION = "v10.2.0"
 
 func main() {
 	defer func() {
@@ -32,7 +32,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gin-admin-cli"
 	app.Version = VERSION
-	app.Usage = "A command line tool for gin-admin."
+	app.Usage = "A command line tool for [gin-admin](https://github.com/LyricTian/gin-admin)."
 	app.Authors = append(app.Authors, &cli.Author{
 		Name:  "LyricTian",
 		Email: "tiannianshou@gmail.com",
