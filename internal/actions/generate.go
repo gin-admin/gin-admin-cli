@@ -54,16 +54,17 @@ func (a *GenerateAction) RunWithConfig(ctx context.Context, cfgName string) erro
 			if err := utils.ParseJSONFile(name, &data); err != nil {
 				return err
 			}
-			return a.run(ctx, data)
 		case ".yaml", "yml":
 			if err := utils.ParseYAMLFile(name, &data); err != nil {
 				return err
 			}
-			return a.run(ctx, data)
 		default:
 			a.logger.Warnf("Ignore file %s, only support json/yaml/yml", name)
 		}
-		return nil
+		if len(data) == 0 {
+			return nil
+		}
+		return a.run(ctx, data)
 	}
 
 	if utils.IsDir(cfgName) {
@@ -227,7 +228,7 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 			return err
 		}
 
-		err = a.write(ctx, dataItem.ModuleName, dataItem.Name, parser.StructPackageTplPaths[pkgName], tplData, true)
+		err = a.write(ctx, dataItem.ModuleName, dataItem.Name, parser.StructPackageTplPaths[pkgName], tplData, !dataItem.ForceWrite)
 		if err != nil {
 			return err
 		}

@@ -23,6 +23,7 @@ type S struct {
 	TableName            string            `yaml:"table_name,omitempty" json:"table_name,omitempty"`
 	Comment              string            `yaml:"comment,omitempty" json:"comment,omitempty"`
 	Outputs              []string          `yaml:"outputs,omitempty" json:"outputs,omitempty"`
+	ForceWrite           bool              `yaml:"force_write,omitempty" json:"force_write,omitempty"`
 	TplType              string            `yaml:"tpl_type,omitempty" json:"tpl_type,omitempty"` // crud/tree
 	DisablePagination    bool              `yaml:"disable_pagination,omitempty" json:"disable_pagination,omitempty"`
 	DisableDefaultFields bool              `yaml:"disable_default_fields,omitempty" json:"disable_default_fields,omitempty"`
