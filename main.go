@@ -13,7 +13,7 @@ import (
 //go:embed tpls
 var f embed.FS
 
-var VERSION = "v10.2.0"
+var VERSION = "v10.2.1"
 
 func main() {
 	defer func() {
