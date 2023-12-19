@@ -30,6 +30,10 @@ func (a *$$ModuleName$$) Init(ctx context.Context) error {
 func (a *$$ModuleName$$) RegisterV1Routers(ctx context.Context, v1 *gin.RouterGroup) error {
 	return nil
 }
+
+func (a *$$ModuleName$$) Release(ctx context.Context) error {
+	return nil
+}
 `
 
 var tplModuleWire = `

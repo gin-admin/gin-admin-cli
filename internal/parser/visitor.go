@@ -419,6 +419,8 @@ func (v *astModsVisitor) Visit(node ast.Node) ast.Visitor {
 			v.modifyFuncInit(x)
 		} else if x.Name.Name == "RegisterRouters" {
 			v.modifyFuncRegisterRouters(x)
+		} else if x.Name.Name == "Release" {
+			v.modifyFuncRelease(x)
 		}
 	}
 	return v
@@ -594,6 +596,59 @@ func (v *astModsVisitor) modifyFuncRegisterRouters(x *ast.FuncDecl) {
 	if v.args.Flag&AstFlagGen != 0 {
 		if findIndex == -1 {
 			e, err := parser.ParseExpr(fmt.Sprintf("a.%s.RegisterV1Routers(ctx, v1)", v.args.ModuleName))
+			if err == nil {
+				list = append(list[:len(list)-1], append([]ast.Stmt{&ast.IfStmt{
+					Init: &ast.AssignStmt{
+						Lhs: []ast.Expr{
+							ast.NewIdent("err"),
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							e,
+						},
+					},
+					Cond: &ast.BinaryExpr{
+						X:  ast.NewIdent("err"),
+						Op: token.NEQ,
+						Y:  ast.NewIdent("nil"),
+					},
+					Body: &ast.BlockStmt{
+						List: []ast.Stmt{
+							&ast.ReturnStmt{
+								Results: []ast.Expr{
+									ast.NewIdent("err"),
+								},
+							},
+						},
+					},
+				}}, list[len(list)-1])...)
+				x.Body.List = list
+			}
+		}
+	} else if v.args.Flag&AstFlagRem != 0 {
+		if findIndex != -1 {
+			list = append(list[:findIndex], list[findIndex+1:]...)
+			x.Body.List = list
+		}
+	}
+}
+
+func (v *astModsVisitor) modifyFuncRelease(x *ast.FuncDecl) {
+	findIndex := -1
+	list := x.Body.List
+	for i, stmt := range list {
+		if s, ok := stmt.(*ast.IfStmt); ok {
+			var sb strings.Builder
+			printer.Fprint(&sb, v.fset, s.Init)
+			if strings.Contains(sb.String(), fmt.Sprintf("%s.Release", v.args.ModuleName)) {
+				findIndex = i
+				break
+			}
+		}
+	}
+	if v.args.Flag&AstFlagGen != 0 {
+		if findIndex == -1 {
+			e, err := parser.ParseExpr(fmt.Sprintf("a.%s.Release(ctx)", v.args.ModuleName))
 			if err == nil {
 				list = append(list[:len(list)-1], append([]ast.Stmt{&ast.IfStmt{
 					Init: &ast.AssignStmt{
