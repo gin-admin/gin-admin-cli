@@ -47,7 +47,7 @@ func (a *S) Format() *S {
 		fields = append(fields, &Field{
 			Name:    "ID",
 			Type:    "string",
-			GormTag: "size:20;primarykey;",
+			GormTag: "size:20;primaryKey;",
 			Comment: "Unique ID",
 		})
 		fields = append(fields, a.Fields...)

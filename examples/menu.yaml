@@ -61,7 +61,7 @@
     - name: ID
       type: string
       comment: Unique ID
-      gorm_tag: "size:20;primarykey"
+      gorm_tag: "size:20;primaryKey"
     - name: MenuID
       type: string
       comment: From Menu.ID
