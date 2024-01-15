@@ -85,11 +85,19 @@ func (a *{{$name}}) Exists(ctx context.Context, id string) (bool, error) {
 
 {{- range .Fields}}
 {{- if .Unique}}
+{{- if $treeTpl}}
+// Exist checks if the specified {{lowerSpace .Name}} exists in the database.
+func (a *{{$name}}) Exists{{.Name}}(ctx context.Context, parentID string, {{lowerCamel .Name}} string) (bool, error) {
+	ok, err := util.Exists(ctx, Get{{$name}}DB(ctx, a.DB).Where("parent_id=? AND {{lowerUnderline .Name}}=?", parentID, {{lowerCamel .Name}}))
+	return ok, errors.WithStack(err)
+}
+{{- else}}
 // Exist checks if the specified {{lowerSpace .Name}} exists in the database.
 func (a *{{$name}}) Exists{{.Name}}(ctx context.Context, {{lowerCamel .Name}} string) (bool, error) {
 	ok, err := util.Exists(ctx, Get{{$name}}DB(ctx, a.DB).Where("{{lowerUnderline .Name}}=?", {{lowerCamel .Name}}))
 	return ok, errors.WithStack(err)
 }
+{{- end}}
 {{- end}}
 {{- end}}
 

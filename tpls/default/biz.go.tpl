@@ -118,11 +118,19 @@ func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) 
 
 	{{- range .Fields}}
 	{{- if .Unique}}
+	{{- if $treeTpl}}
+	if exists,err := a.{{$name}}DAL.Exists{{.Name}}(ctx, formItem.ParentID, formItem.{{.Name}}); err != nil {
+		return nil, err
+	} else if exists {
+		return nil, errors.BadRequest("", "{{.Name}} already exists")
+	}
+	{{- else}}
 	if exists,err := a.{{$name}}DAL.Exists{{.Name}}(ctx, formItem.{{.Name}}); err != nil {
 		return nil, err
 	} else if exists {
 		return nil, errors.BadRequest("", "{{.Name}} already exists")
 	}
+	{{- end}}
 	{{- end}}
 	{{- end}}
 
@@ -162,8 +170,18 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 	} else if {{lowerCamel $name}} == nil {
 		return errors.NotFound("", "{{titleSpace $name}} not found")
 	}
+
 	{{- range .Fields}}
 	{{- if .Unique}}
+	{{- if $treeTpl}}
+	if {{lowerCamel $name}}.{{.Name}} != formItem.{{.Name}} {
+		if exists,err := a.{{$name}}DAL.Exists{{.Name}}(ctx, formItem.ParentID, formItem.{{.Name}}); err != nil {
+			return err
+		} else if exists {
+			return errors.BadRequest("", "{{.Name}} already exists")
+		}
+	}
+	{{- else}}
 	if {{lowerCamel $name}}.{{.Name}} != formItem.{{.Name}} {
 		if exists,err := a.{{$name}}DAL.Exists{{.Name}}(ctx, formItem.{{.Name}}); err != nil {
 			return err
@@ -171,6 +189,7 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 			return errors.BadRequest("", "{{.Name}} already exists")
 		}
 	}
+	{{- end}}
 	{{- end}}
 	{{- end}}
 
