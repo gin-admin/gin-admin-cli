@@ -22,7 +22,13 @@ go install github.com/gin-admin/gin-admin-cli/v10@latest
 gin-admin-cli new -d ~/go/src --name testapp --desc 'A test API service based on golang.' --pkg 'github.com/xxx/testapp'
 ```
 
-### Generate a new struct
+### Quick generate a struct
+
+```bash
+gin-admin-cli gen -d ~/go/src/testapp -m SYS --structs Dictionary --structs-comment "Dictionaries management" --structs-router-prefix
+```
+
+### Use config file to generate struct
 
 > More examples can be found in the [examples directory](https://github.com/gin-admin/gin-admin-cli/tree/master/examples)
 
@@ -30,8 +36,10 @@ Using `Dictionary` as an example, the configuration file is as follows `dictiona
 
 ```yaml
 - name: Dictionary
-  comment: Dictionary management for system
+  comment: Dictionaries management
   disable_pagination: true
+  fill_gorm_commit: true
+  fill_router_prefix: true
   tpl_type: "tree"
   fields:
     - name: Code
@@ -118,20 +126,20 @@ USAGE:
    gin-admin-cli generate [command options] [arguments...]
 
 OPTIONS:
-   --dir value, -d value      The project directory to generate the struct
-   --module value, -m value   The module to generate the struct from (like: RBAC)
-   --module-path value        The module path to generate the struct from (default: internal/mods)
-   --wire-path value          The wire generate path to generate the struct from (default: internal/wirex)
-   --swag-path value          The swagger generate path to generate the struct from (default: internal/swagger)
-   --config value, -c value   The config file or directory to generate the struct from (JSON/YAML)
-   --structs value, -s value  The struct to generate (multiple structs can be separated by a comma)
-   --structs-comment value    Specify the struct comment
-   --structs-output value     Specify the packages to generate the struct (default: schema,dal,biz,api)
-   --tpl-path value           The template path to generate the struct from (default use tpls)
-   --tpl-type value           The template type to generate the struct from (default: default)
-   --fe-dir value             The frontend project directory to generate the UI
-   --fe-tpl-type value        The template type to generate the frontend from (default: react)
-   --help, -h                 show help
+   --dir value, -d value     The project directory to generate the struct
+   --module value, -m value  The module to generate the struct from (like: RBAC)
+   --module-path value       The module path to generate the struct from (default: internal/mods)
+   --wire-path value         The wire generate path to generate the struct from (default: internal/wirex)
+   --swag-path value         The swagger generate path to generate the struct from (default: internal/swagger)
+   --config value, -c value  The config file or directory to generate the struct from (JSON/YAML)
+   --structs value           The struct name to generate
+   --structs-comment value   Specify the struct comment
+   --structs-router-prefix   Use module name as router prefix (default: false)
+   --structs-output value    Specify the packages to generate the struct (default: schema,dal,biz,api)
+   --tpl-path value          The template path to generate the struct from (default use tpls)
+   --tpl-type value          The template type to generate the struct from (default: default)
+   --fe-dir value            The frontend project directory to generate the UI
+   --help, -h                show help
 ```
 
 ### Remove command
