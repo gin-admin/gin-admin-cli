@@ -5,6 +5,7 @@ package $$LowerModuleName$$
 
 import (
 	"context"
+	"$$RootImportPath$$/internal/config"
 
 	"$$ModuleImportPath$$/api"
 	"$$ModuleImportPath$$/schema"
@@ -21,8 +22,10 @@ func (a *$$ModuleName$$) AutoMigrate(ctx context.Context) error {
 }
 
 func (a *$$ModuleName$$) Init(ctx context.Context) error {
-	if err := a.AutoMigrate(ctx); err != nil {
-		return err
+	if config.C.Storage.DB.AutoMigrate {
+		if err := a.AutoMigrate(ctx); err != nil {
+			return err
+		}
 	}
 	return nil
 }
