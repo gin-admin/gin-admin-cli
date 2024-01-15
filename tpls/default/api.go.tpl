@@ -14,6 +14,7 @@ type {{$name}} struct {
 	{{$name}}BIZ *biz.{{$name}}
 }
 
+// Query
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Query {{lowerSpace .Name}} list
@@ -31,7 +32,7 @@ type {{$name}} struct {
 // @Success 200 {object} util.ResponseResult{data=[]schema.{{$name}}}
 // @Failure 401 {object} util.ResponseResult
 // @Failure 500 {object} util.ResponseResult
-// @Router /api/v1/{{lowerHyphensPlural .Name}} [get]
+// @Router /api/v1/{{lower .ModuleName}}/{{lowerHyphensPlural .Name}} [get]
 func (a *{{$name}}) Query(c *gin.Context) {
 	ctx := c.Request.Context()
 	var params schema.{{$name}}QueryParam
@@ -48,6 +49,7 @@ func (a *{{$name}}) Query(c *gin.Context) {
 	util.ResPage(c, result.Data, result.PageResult)
 }
 
+// Get
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Get {{lowerSpace .Name}} record by ID
@@ -55,7 +57,7 @@ func (a *{{$name}}) Query(c *gin.Context) {
 // @Success 200 {object} util.ResponseResult{data=schema.{{$name}}}
 // @Failure 401 {object} util.ResponseResult
 // @Failure 500 {object} util.ResponseResult
-// @Router /api/v1/{{lowerHyphensPlural .Name}}/{id} [get]
+// @Router /api/v1/{{lower .ModuleName}}/{{lowerHyphensPlural .Name}}/{id} [get]
 func (a *{{$name}}) Get(c *gin.Context) {
 	ctx := c.Request.Context()
 	item, err := a.{{$name}}BIZ.Get(ctx, c.Param("id"))
@@ -66,6 +68,7 @@ func (a *{{$name}}) Get(c *gin.Context) {
 	util.ResSuccess(c, item)
 }
 
+// Create
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Create {{lowerSpace .Name}} record
@@ -74,7 +77,7 @@ func (a *{{$name}}) Get(c *gin.Context) {
 // @Failure 400 {object} util.ResponseResult
 // @Failure 401 {object} util.ResponseResult
 // @Failure 500 {object} util.ResponseResult
-// @Router /api/v1/{{lowerHyphensPlural .Name}} [post]
+// @Router /api/v1/{{lower .ModuleName}}/{{lowerHyphensPlural .Name}} [post]
 func (a *{{$name}}) Create(c *gin.Context) {
 	ctx := c.Request.Context()
 	item := new(schema.{{$name}}Form)
@@ -94,6 +97,7 @@ func (a *{{$name}}) Create(c *gin.Context) {
 	util.ResSuccess(c, result)
 }
 
+// Update
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Update {{lowerSpace .Name}} record by ID
@@ -103,7 +107,7 @@ func (a *{{$name}}) Create(c *gin.Context) {
 // @Failure 400 {object} util.ResponseResult
 // @Failure 401 {object} util.ResponseResult
 // @Failure 500 {object} util.ResponseResult
-// @Router /api/v1/{{lowerHyphensPlural .Name}}/{id} [put]
+// @Router /api/v1/{{lower .ModuleName}}/{{lowerHyphensPlural .Name}}/{id} [put]
 func (a *{{$name}}) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 	item := new(schema.{{$name}}Form)
@@ -123,6 +127,7 @@ func (a *{{$name}}) Update(c *gin.Context) {
 	util.ResOK(c)
 }
 
+// Delete
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Delete {{lowerSpace .Name}} record by ID
@@ -130,7 +135,7 @@ func (a *{{$name}}) Update(c *gin.Context) {
 // @Success 200 {object} util.ResponseResult
 // @Failure 401 {object} util.ResponseResult
 // @Failure 500 {object} util.ResponseResult
-// @Router /api/v1/{{lowerHyphensPlural .Name}}/{id} [delete]
+// @Router /api/v1/{{lower .ModuleName}}/{{lowerHyphensPlural .Name}}/{id} [delete]
 func (a *{{$name}}) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
 	err := a.{{$name}}BIZ.Delete(ctx, c.Param("id"))

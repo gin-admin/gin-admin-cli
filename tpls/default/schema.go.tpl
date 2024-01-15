@@ -17,7 +17,7 @@ type {{$name}} struct {
 	{{- end}}
 }
 
-// Defining the query parameters for the `{{$name}}` struct.
+// {{$name}}QueryParam Defining the query parameters for the `{{$name}}` struct.
 type {{$name}}QueryParam struct {
 	util.PaginationParam
 	{{if $treeTpl}}InIDs []string `form:"-"`{{- end}}
@@ -28,25 +28,27 @@ type {{$name}}QueryParam struct {
 	{{- end}}
 }
 
-// Defining the query options for the `{{$name}}` struct.
+// {{$name}}QueryOptions Defining the query options for the `{{$name}}` struct.
 type {{$name}}QueryOptions struct {
 	util.QueryOptions
 }
 
-// Defining the query result for the `{{$name}}` struct.
+// {{$name}}QueryResult Defining the query result for the `{{$name}}` struct.
 type {{$name}}QueryResult struct {
 	Data       {{plural .Name}}
 	PageResult *util.PaginationResult
 }
 
-// Defining the slice of `{{$name}}` struct.
+// {{plural .Name}} Defining the slice of `{{$name}}` struct.
 type {{plural .Name}} []*{{$name}}
 
 {{- if $includeSequence}}
+// Len
 func (a {{plural .Name}}) Len() int {
 	return len(a)
 }
 
+// Less
 func (a {{plural .Name}}) Less(i, j int) bool {
 	if a[i].Sequence == a[j].Sequence {
 		return a[i].CreatedAt.Unix() > a[j].CreatedAt.Unix()
@@ -54,12 +56,14 @@ func (a {{plural .Name}}) Less(i, j int) bool {
 	return a[i].Sequence > a[j].Sequence
 }
 
+// Swap
 func (a {{plural .Name}}) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
 {{- end}}
 
 {{- if $treeTpl}}
+// ToMap
 func (a {{plural .Name}}) ToMap() map[string]*{{$name}} {
 	m := make(map[string]*{{$name}})
 	for _, item := range a {
@@ -68,6 +72,7 @@ func (a {{plural .Name}}) ToMap() map[string]*{{$name}} {
 	return m
 }
 
+// SplitParentIDs
 func (a {{plural .Name}}) SplitParentIDs() []string {
 	parentIDs := make([]string, 0, len(a))
 	idMapper := make(map[string]struct{})
@@ -92,6 +97,7 @@ func (a {{plural .Name}}) SplitParentIDs() []string {
 	return parentIDs
 }
 
+// ToTree
 func (a {{plural .Name}}) ToTree() {{plural .Name}} {
 	var list {{plural .Name}}
 	m := a.ToMap()
@@ -113,7 +119,7 @@ func (a {{plural .Name}}) ToTree() {{plural .Name}} {
 }
 {{- end}}
 
-// Defining the data structure for creating a `{{$name}}` struct.
+// {{$name}}Form Defining the data structure for creating a `{{$name}}` struct.
 type {{$name}}Form struct {
 	{{- range .Fields}}{{$fieldName := .Name}}{{$type :=.Type}}
 	{{- with .Form}}
@@ -122,12 +128,12 @@ type {{$name}}Form struct {
 	{{- end}}
 }
 
-// A validation function for the `{{$name}}Form` struct.
+// Validate A validation function for the `{{$name}}Form` struct.
 func (a *{{$name}}Form) Validate() error {
 	return nil
 }
 
-// Convert `{{$name}}Form` to `{{$name}}` object.
+// FillTo Convert `{{$name}}Form` to `{{$name}}` object.
 func (a *{{$name}}Form) FillTo({{lowerCamel $name}} *{{$name}}) error {
 	{{- range .Fields}}{{$fieldName := .Name}}
 	{{- with .Form}}

@@ -59,7 +59,7 @@
     - name: ID
       type: string
       comment: Unique ID
-      gorm_tag: "size:20;primarykey"
+      gorm_tag: "size:20;primaryKey"
     - name: UserID
       type: string
       comment: From User.ID

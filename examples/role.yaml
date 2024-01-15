@@ -38,7 +38,7 @@
     - name: ID
       type: string
       comment: Unique ID
-      gorm_tag: "size:20;primarykey"
+      gorm_tag: "size:20;primaryKey"
     - name: RoleID
       type: string
       comment: From Role.ID
