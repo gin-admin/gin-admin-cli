@@ -28,6 +28,7 @@ func (a *$$ModuleName$$) Init(ctx context.Context) error {
 }
 
 func (a *$$ModuleName$$) RegisterV1Routers(ctx context.Context, v1 *gin.RouterGroup) error {
+	v1 = v1.Group("$$LowerModuleName$$")
 	return nil
 }
 
