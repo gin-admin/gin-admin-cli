@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/actions"
+	"github.com/gin-admin/gin-admin-cli/v10/internal/schema"
 	"github.com/gin-admin/gin-admin-cli/v10/internal/tfs"
 	"github.com/urfave/cli/v2"
 )
@@ -49,13 +50,16 @@ func Generate() *cli.Command {
 				Usage:   "The config file or directory to generate the struct from (JSON/YAML)",
 			},
 			&cli.StringFlag{
-				Name:    "structs",
-				Aliases: []string{"s"},
-				Usage:   "The struct to generate (multiple structs can be separated by a comma)",
+				Name:  "structs",
+				Usage: "The struct name to generate",
 			},
 			&cli.StringFlag{
 				Name:  "structs-comment",
 				Usage: "Specify the struct comment",
+			},
+			&cli.BoolFlag{
+				Name:  "structs-router-prefix",
+				Usage: "Use module name as router prefix",
 			},
 			&cli.StringFlag{
 				Name:  "structs-output",
@@ -92,8 +96,17 @@ func Generate() *cli.Command {
 
 			if c.String("config") != "" {
 				return gen.RunWithConfig(c.Context, c.String("config"))
-			} else if c.String("structs") != "" {
-				return gen.RunWithStruct(c.Context, c.String("structs"), c.String("structs-comment"), strings.TrimSpace(c.String("structs-output")))
+			} else if name := c.String("structs"); name != "" {
+				var outputs []string
+				if v := c.String("structs-output"); v != "" {
+					outputs = strings.Split(v, ",")
+				}
+				return gen.RunWithStruct(c.Context, &schema.S{
+					Name:             name,
+					Comment:          c.String("structs-comment"),
+					Outputs:          outputs,
+					FillRouterPrefix: c.Bool("structs-router-prefix"),
+				})
 			} else {
 				return errors.New("structs or config must be specified")
 			}

@@ -28,6 +28,7 @@ type S struct {
 	DisablePagination    bool              `yaml:"disable_pagination,omitempty" json:"disable_pagination,omitempty"`
 	DisableDefaultFields bool              `yaml:"disable_default_fields,omitempty" json:"disable_default_fields,omitempty"`
 	FillGormCommit       bool              `yaml:"fill_gorm_commit,omitempty" json:"fill_gorm_commit,omitempty"`
+	FillRouterPrefix     bool              `yaml:"fill_router_module_name,omitempty" json:"fill_router_module_name,omitempty"`
 	Fields               []*Field          `yaml:"fields,omitempty" json:"fields,omitempty"`
 	GenerateFE           bool              `yaml:"generate_fe,omitempty" json:"generate_fe,omitempty"`
 	FETpl                string            `yaml:"fe_tpl,omitempty" json:"fe_tpl,omitempty"`         // react/react-v5-i18n

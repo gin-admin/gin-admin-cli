@@ -9,6 +9,7 @@ import (
 	"go/token"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/utils"
 )
@@ -27,7 +28,12 @@ func ModifyModuleMainFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 		tplData := strings.ReplaceAll(tplModuleMain, "$$LowerModuleName$$", GetModuleImportName(args.ModuleName))
 		tplData = strings.ReplaceAll(tplData, "$$ModuleName$$", args.ModuleName)
 		tplData = strings.ReplaceAll(tplData, "$$ModuleImportPath$$", GetModuleImportPath(args.Dir, args.ModulePath, args.ModuleName))
-		if err := utils.WriteFile(fullname, []byte(tplData)); err != nil {
+		buf := new(bytes.Buffer)
+		err := template.Must(template.New("").Parse(tplData)).Execute(buf, args)
+		if err != nil {
+			return nil, err
+		}
+		if err := utils.WriteFile(fullname, buf.Bytes()); err != nil {
 			return nil, err
 		}
 	}

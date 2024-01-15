@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gin-admin/gin-admin-cli/v10/internal/parser"
 	"github.com/gin-admin/gin-admin-cli/v10/internal/schema"
@@ -81,17 +80,8 @@ func (a *GenerateAction) RunWithConfig(ctx context.Context, cfgName string) erro
 	return parseFile(cfgName)
 }
 
-func (a *GenerateAction) RunWithStruct(ctx context.Context, structName, comment, output string) error {
-	var outputs []string
-	if output != "" {
-		outputs = strings.Split(output, ",")
-	}
-
-	input := []*schema.S{
-		{Name: structName, Comment: comment, Outputs: outputs},
-	}
-
-	return a.run(ctx, input)
+func (a *GenerateAction) RunWithStruct(ctx context.Context, s *schema.S) error {
+	return a.run(ctx, []*schema.S{s})
 }
 
 func (a *GenerateAction) run(ctx context.Context, data []*schema.S) error {
@@ -234,12 +224,13 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 	}
 
 	basicArgs := parser.BasicArgs{
-		Dir:         a.cfg.Dir,
-		ModuleName:  dataItem.ModuleName,
-		ModulePath:  a.cfg.ModulePath,
-		StructName:  dataItem.Name,
-		GenPackages: genPackages,
-		Flag:        parser.AstFlagGen,
+		Dir:              a.cfg.Dir,
+		ModuleName:       dataItem.ModuleName,
+		ModulePath:       a.cfg.ModulePath,
+		StructName:       dataItem.Name,
+		GenPackages:      genPackages,
+		Flag:             parser.AstFlagGen,
+		FillRouterPrefix: dataItem.FillRouterPrefix,
 	}
 	moduleMainTplData, err := parser.ModifyModuleMainFile(ctx, basicArgs)
 	if err != nil {
