@@ -74,11 +74,6 @@ func Generate() *cli.Command {
 				Name:  "fe-dir",
 				Usage: "The frontend project directory to generate the UI",
 			},
-			&cli.StringFlag{
-				Name:  "fe-tpl-type",
-				Usage: "The template type to generate the frontend from (default: react)",
-				Value: "react",
-			},
 		},
 		Action: func(c *cli.Context) error {
 			if tplPath := c.String("tpl-path"); tplPath != "" {
@@ -93,7 +88,6 @@ func Generate() *cli.Command {
 				WirePath:    c.String("wire-path"),
 				SwaggerPath: c.String("swag-path"),
 				FEDir:       c.String("fe-dir"),
-				FETplType:   c.String("fe-tpl-type"),
 			})
 
 			if c.String("config") != "" {

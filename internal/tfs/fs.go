@@ -41,7 +41,10 @@ func (fs *osFS) ParseTpl(name string, data interface{}) ([]byte, error) {
 }
 
 func parseTplData(text string, data interface{}) ([]byte, error) {
-	t := template.Must(template.New("").Funcs(utils.FuncMap).Parse(text))
+	t, err := template.New("").Funcs(utils.FuncMap).Parse(text)
+	if err != nil {
+		return nil, err
+	}
 	buf := new(bytes.Buffer)
 	if err := t.Execute(buf, data); err != nil {
 		return nil, err

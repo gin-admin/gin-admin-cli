@@ -1,10 +1,13 @@
 {{- $name := .Name}}
+{{- $lowerCamelName := lowerCamel .Name}}
+{{- $parentName := .Extra.ParentName}}
 import { PageContainer } from '@ant-design/pro-components';
 import React, { useRef, useReducer } from 'react';
+import { useIntl } from '@umijs/max';
 import type { ProColumns, ActionType } from '@ant-design/pro-components';
-import { ProTable{{if .Extra.IndexProComponentsImport}}, {{.Extra.IndexProComponentsImport}}{{end}}} } from '@ant-design/pro-components';
-import { Space, message{{if .Extra.IndexAntdImport}}, {{.Extra.IndexAntdImport}}{{end}}} from 'antd';
-import { fetch{{$name}}, del{{$name}} } from '@/services/{{.Extra.ImportService}}';
+import { ProTable{{if .Extra.IndexProComponentsImport}}, {{.Extra.IndexProComponentsImport}}{{end}} } from '@ant-design/pro-components';
+import { Space, message{{if .Extra.IndexAntdImport}}, {{.Extra.IndexAntdImport}}{{end}} } from 'antd';
+import { fetch{{$name}}, del{{$name}} } from '@/services/{{$parentName}}/{{$lowerCamelName}}';
 import {{$name}}Modal from './components/SaveForm';
 import { AddButton, EditIconButton, DelIconButton } from '@/components/Button';
 
@@ -26,10 +29,11 @@ interface State {
 }
 
 const {{$name}}: React.FC = () => {
+  const intl = useIntl();
   const actionRef = useRef<ActionType>();
-  const addTitle = "{{.Extra.AddTitle}}";
-  const editTitle = "{{.Extra.EditTitle}}";
-  const delTip = "{{.Extra.DelTip}}";
+  const addTitle = intl.formatMessage({ id: 'pages.{{$parentName}}.{{$lowerCamelName}}.add', defaultMessage: 'Add {{$name}}' });
+  const editTitle = intl.formatMessage({ id: 'pages.{{$parentName}}.{{$lowerCamelName}}.edit', defaultMessage: 'Edit {{$name}}' });
+  const delTip = intl.formatMessage({ id: 'pages.{{$parentName}}.{{$lowerCamelName}}.delTip', defaultMessage: 'Are you sure you want to delete this record?' });
 
   const [state, dispatch] = useReducer(
     (pre: State, action: Action) => {
@@ -60,35 +64,30 @@ const {{$name}}: React.FC = () => {
 
   const columns: ProColumns<API.{{$name}}>[] = [
     {{- range .Fields}}
-    {{- $fieldName := .Name}}
-    {{- $fieldLabel :=.Extra.Label}}
-    {{- if eq .Extra.InColumn "true"}}
     {{- if .Extra.ColumnComponent}}
     {{.Extra.ColumnComponent}},
-    {{- else}}
+    {{- end}}
+    {{- end}}
+    {{- if .Extra.IncludeCreatedAt}}
     {
-      title: "{{$fieldLabel}}",
-      dataIndex: '{{lowerUnderline $fieldName}}',
-      {{- if .Extra.Ellipsis}}
-      ellipsis: true,
-      {{- end}}
-      {{- if .Extra.Width}}
-      width: {{.Extra.Width}},
-      {{- end}}
-      {{- if .Extra.SearchKey}}
-      key: '{{.Extra.SearchKey}}',
-      {{- else}}
+      title: intl.formatMessage({ id: 'pages.table.column.created_at' }),
+      dataIndex: 'created_at',
+      valueType: 'dateTime',
       search: false,
-      {{- end}}
-      {{- if .Extra.ValueType}}
-      valueType: '{{.Extra.ValueType}}',
-      {{- end}}
+      width: 160,
     },
     {{- end}}
-    {{- end}}
+    {{- if .Extra.IncludeUpdatedAt}}
+    {
+      title: intl.formatMessage({ id: 'pages.table.column.updated_at' }),
+      dataIndex: 'updated_at',
+      valueType: 'dateTime',
+      search: false,
+      width: 160,
+    },
     {{- end}}
     {
-      title: "{{.Extra.ActionText}}",
+      title: intl.formatMessage({ id: 'pages.table.column.operation' }),
       valueType: 'option',
       key: 'option',
       width: 130,
@@ -108,7 +107,7 @@ const {{$name}}: React.FC = () => {
             onConfirm={async () => {
               const res = await del{{$name}}(record.id!);
               if (res.success) {
-                message.success("{{.Extra.DeleteSuccessMessage}}");
+                message.success(intl.formatMessage({ id: 'component.message.success.delete' }));
                 actionRef.current?.reload();
               }
             {{`}}`}}
@@ -129,7 +128,7 @@ const {{$name}}: React.FC = () => {
         search={{`{{`}}
           labelWidth: 'auto',
         {{`}}`}}
-        pagination={{`{{`}} pageSize: 10, showSizeChanger: true {{`}}`}}
+        pagination={{`{{`}} defaultPageSize: 10, showSizeChanger: true {{`}}`}}
         options={{`{{`}}
           density: true,
           fullScreen: true,
@@ -146,6 +145,7 @@ const {{$name}}: React.FC = () => {
           />,
         ]}
       />
+
       <{{$name}}Modal
         visible={state.visible}
         title={state.title}

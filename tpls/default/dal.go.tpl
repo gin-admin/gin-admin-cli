@@ -83,6 +83,16 @@ func (a *{{$name}}) Exists(ctx context.Context, id string) (bool, error) {
 	return ok, errors.WithStack(err)
 }
 
+{{- range .Fields}}
+{{- if .Unique}}
+// Exist checks if the specified {{lowerSpace .Name}} exists in the database.
+func (a *{{$name}}) Exists{{.Name}}(ctx context.Context, {{lowerCamel .Name}} string) (bool, error) {
+	ok, err := util.Exists(ctx, Get{{$name}}DB(ctx, a.DB).Where("{{lowerUnderline .Name}}=?", {{lowerCamel .Name}}))
+	return ok, errors.WithStack(err)
+}
+{{- end}}
+{{- end}}
+
 // Create a new {{lowerSpace .Name}}.
 func (a *{{$name}}) Create(ctx context.Context, item *schema.{{$name}}) error {
 	result := Get{{$name}}DB(ctx, a.DB).Create(item)

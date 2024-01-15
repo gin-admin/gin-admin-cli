@@ -30,6 +30,7 @@ type S struct {
 	FillGormCommit       bool              `yaml:"fill_gorm_commit,omitempty" json:"fill_gorm_commit,omitempty"`
 	Fields               []*Field          `yaml:"fields,omitempty" json:"fields,omitempty"`
 	GenerateFE           bool              `yaml:"generate_fe,omitempty" json:"generate_fe,omitempty"`
+	FETpl                string            `yaml:"fe_tpl,omitempty" json:"fe_tpl,omitempty"`         // react/react-v5-i18n
 	FEMapping            map[string]string `yaml:"fe_mapping,omitempty" json:"fe_mapping,omitempty"` // tpl -> file
 	Extra                map[string]string `yaml:"extra,omitempty" json:"extra,omitempty"`
 }
@@ -131,6 +132,7 @@ type Field struct {
 	Query     *FieldQuery       `yaml:"query,omitempty" json:"query,omitempty"`
 	Order     string            `yaml:"order,omitempty" json:"order,omitempty"`
 	Form      *FieldForm        `yaml:"form,omitempty" json:"form,omitempty"`
+	Unique    bool              `yaml:"unique,omitempty" json:"unique,omitempty"`
 	Extra     map[string]string `yaml:"extra,omitempty" json:"extra,omitempty"`
 }
 

@@ -116,6 +116,16 @@ func (a *{{$name}}) Create(ctx context.Context, formItem *schema.{{$name}}Form) 
 		{{if $includeCreatedAt}}CreatedAt:   time.Now(),{{end}}
 	}
 
+	{{- range .Fields}}
+	{{- if .Unique}}
+	if exists,err := a.{{$name}}DAL.Exists{{.Name}}(ctx, formItem.{{.Name}}); err != nil {
+		return nil, err
+	} else if exists {
+		return nil, errors.BadRequest("", "{{.Name}} already exists")
+	}
+	{{- end}}
+	{{- end}}
+
 	{{- if $treeTpl}}
 	if parentID := formItem.ParentID; parentID != "" {
 		parent, err := a.{{$name}}DAL.Get(ctx, parentID)
@@ -152,6 +162,17 @@ func (a *{{$name}}) Update(ctx context.Context, id string, formItem *schema.{{$n
 	} else if {{lowerCamel $name}} == nil {
 		return errors.NotFound("", "{{titleSpace $name}} not found")
 	}
+	{{- range .Fields}}
+	{{- if .Unique}}
+	if {{lowerCamel $name}}.{{.Name}} != formItem.{{.Name}} {
+		if exists,err := a.{{$name}}DAL.Exists{{.Name}}(ctx, formItem.{{.Name}}); err != nil {
+			return err
+		} else if exists {
+			return errors.BadRequest("", "{{.Name}} already exists")
+		}
+	}
+	{{- end}}
+	{{- end}}
 
 	{{- if $treeTpl}}
 	oldParentPath := {{lowerCamel $name}}.ParentPath

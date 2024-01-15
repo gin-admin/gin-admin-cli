@@ -22,7 +22,6 @@ type GenerateConfig struct {
 	WirePath    string
 	SwaggerPath string
 	FEDir       string
-	FETplType   string
 }
 
 func Generate(cfg GenerateConfig) *GenerateAction {
@@ -285,7 +284,7 @@ func (a *GenerateAction) execWireAndSwag(ctx context.Context) error {
 
 func (a *GenerateAction) generateFE(ctx context.Context, dataItem *schema.S) error {
 	for tpl, file := range dataItem.FEMapping {
-		tplPath := filepath.Join(a.cfg.FETplType, tpl)
+		tplPath := filepath.Join(dataItem.FETpl, tpl)
 		tplData, err := a.fs.ParseTpl(tplPath, dataItem)
 		if err != nil {
 			a.logger.Errorf("Failed to parse tpl, err: %s, #struct %s, #tpl %s", err, dataItem.Name, tplPath)
