@@ -14,7 +14,7 @@ import (
 {{$includeStatus := .Include.Status}}
 {{$treeTpl := eq .TplType "tree"}}
 
-// Get {{lowerSpace .Name}} storage instance
+// Get{{$name}}DB Get {{lowerSpace .Name}} storage instance
 func Get{{$name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
 	return util.GetDB(ctx, defDB).Model(new(schema.{{$name}}))
 }
@@ -77,7 +77,7 @@ func (a *{{$name}}) Get(ctx context.Context, id string, opts ...schema.{{$name}}
 	return item, nil
 }
 
-// Exist checks if the specified {{lowerSpace .Name}} exists in the database.
+// Exists checks if the specified {{lowerSpace .Name}} exists in the database.
 func (a *{{$name}}) Exists(ctx context.Context, id string) (bool, error) {
 	ok, err := util.Exists(ctx, Get{{$name}}DB(ctx, a.DB).Where("id=?", id))
 	return ok, errors.WithStack(err)
@@ -102,14 +102,14 @@ func (a *{{$name}}) Delete(ctx context.Context, id string) error {
 }
 
 {{- if $treeTpl}}
-// Updates the parent path of the specified {{lowerSpace .Name}}.
+// UpdateParentPath Updates the parent path of the specified {{lowerSpace .Name}}.
 func (a *{{$name}}) UpdateParentPath(ctx context.Context, id, parentPath string) error {
 	result := Get{{$name}}DB(ctx, a.DB).Where("id=?", id).Update("parent_path", parentPath)
 	return errors.WithStack(result.Error)
 }
 
 {{- if $includeStatus}}
-// Updates the status of all {{lowerPlural .Name}} whose parent path starts with the provided parent path.
+// UpdateStatusByParentPath Updates the status of all {{lowerPlural .Name}} whose parent path starts with the provided parent path.
 func (a *{{$name}}) UpdateStatusByParentPath(ctx context.Context, parentPath, status string) error {
 	result := Get{{$name}}DB(ctx, a.DB).Where("parent_path like ?", parentPath+"%").Update("status", status)
 	return errors.WithStack(result.Error)
