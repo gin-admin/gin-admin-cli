@@ -14,7 +14,6 @@ type {{$name}} struct {
 	{{$name}}BIZ *biz.{{$name}}
 }
 
-// Query
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Query {{lowerSpace .Name}} list
@@ -49,7 +48,6 @@ func (a *{{$name}}) Query(c *gin.Context) {
 	util.ResPage(c, result.Data, result.PageResult)
 }
 
-// Get
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Get {{lowerSpace .Name}} record by ID
@@ -68,7 +66,6 @@ func (a *{{$name}}) Get(c *gin.Context) {
 	util.ResSuccess(c, item)
 }
 
-// Create
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Create {{lowerSpace .Name}} record
@@ -97,7 +94,6 @@ func (a *{{$name}}) Create(c *gin.Context) {
 	util.ResSuccess(c, result)
 }
 
-// Update
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Update {{lowerSpace .Name}} record by ID
@@ -127,7 +123,6 @@ func (a *{{$name}}) Update(c *gin.Context) {
 	util.ResOK(c)
 }
 
-// Delete
 // @Tags {{$name}}API
 // @Security ApiKeyAuth
 // @Summary Delete {{lowerSpace .Name}} record by ID
