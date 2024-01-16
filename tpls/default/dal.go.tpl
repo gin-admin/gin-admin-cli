@@ -14,7 +14,7 @@ import (
 {{$includeStatus := .Include.Status}}
 {{$treeTpl := eq .TplType "tree"}}
 
-// Get{{$name}}DB Get {{lowerSpace .Name}} storage instance
+// Get {{lowerSpace .Name}} storage instance
 func Get{{$name}}DB(ctx context.Context, defDB *gorm.DB) *gorm.DB {
 	return util.GetDB(ctx, defDB).Model(new(schema.{{$name}}))
 }
@@ -120,14 +120,14 @@ func (a *{{$name}}) Delete(ctx context.Context, id string) error {
 }
 
 {{- if $treeTpl}}
-// UpdateParentPath Updates the parent path of the specified {{lowerSpace .Name}}.
+// Updates the parent path of the specified {{lowerSpace .Name}}.
 func (a *{{$name}}) UpdateParentPath(ctx context.Context, id, parentPath string) error {
 	result := Get{{$name}}DB(ctx, a.DB).Where("id=?", id).Update("parent_path", parentPath)
 	return errors.WithStack(result.Error)
 }
 
 {{- if $includeStatus}}
-// UpdateStatusByParentPath Updates the status of all {{lowerPlural .Name}} whose parent path starts with the provided parent path.
+// Updates the status of all {{lowerPlural .Name}} whose parent path starts with the provided parent path.
 func (a *{{$name}}) UpdateStatusByParentPath(ctx context.Context, parentPath, status string) error {
 	result := Get{{$name}}DB(ctx, a.DB).Where("parent_path like ?", parentPath+"%").Update("status", status)
 	return errors.WithStack(result.Error)
