@@ -27,6 +27,7 @@ func ModifyModuleMainFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	} else if !exists {
 		tplData := strings.ReplaceAll(tplModuleMain, "$$LowerModuleName$$", GetModuleImportName(args.ModuleName))
 		tplData = strings.ReplaceAll(tplData, "$$ModuleName$$", args.ModuleName)
+		tplData = strings.ReplaceAll(tplData, "$$RootImportPath$$", GetRootImportPath(args.Dir))
 		tplData = strings.ReplaceAll(tplData, "$$ModuleImportPath$$", GetModuleImportPath(args.Dir, args.ModulePath, args.ModuleName))
 		buf := new(bytes.Buffer)
 		err := template.Must(template.New("").Parse(tplData)).Execute(buf, args)
@@ -77,6 +78,7 @@ func ModifyModuleWireFile(ctx context.Context, args BasicArgs) ([]byte, error) {
 	} else if !exists {
 		tplData := strings.ReplaceAll(tplModuleWire, "$$LowerModuleName$$", GetModuleImportName(args.ModuleName))
 		tplData = strings.ReplaceAll(tplData, "$$ModuleName$$", args.ModuleName)
+		tplData = strings.ReplaceAll(tplData, "$$RootImportPath$$", GetRootImportPath(args.Dir))
 		tplData = strings.ReplaceAll(tplData, "$$ModuleImportPath$$", GetModuleImportPath(args.Dir, args.ModulePath, args.ModuleName))
 		if err := utils.WriteFile(fullname, []byte(tplData)); err != nil {
 			return nil, err
