@@ -3,6 +3,7 @@ package schema
 import (
 	"time"
 
+	{{if .TableName}}"{{.RootImportPath}}/internal/config"{{end}}
 	"{{.UtilImportPath}}"
 )
 
@@ -16,6 +17,12 @@ type {{$name}} struct {
 	{{$fieldName}} {{.Type}} `json:"{{.JSONTag}}"{{with .GormTag}} gorm:"{{.}}"{{end}}{{with .CustomTag}} {{raw .}}{{end}}`{{with .Comment}}// {{.}}{{end}}
 	{{- end}}
 }
+
+{{- if .TableName}}
+func (a {{$name}}) TableName() string {
+	return config.C.FormatTableName("{{.TableName}}")
+}
+{{-end}}
 
 // Defining the query parameters for the `{{$name}}` struct.
 type {{$name}}QueryParam struct {
