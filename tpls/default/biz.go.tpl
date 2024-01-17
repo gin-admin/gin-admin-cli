@@ -43,6 +43,7 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 	}
 	{{- if $treeTpl}}
 	result.Data = result.Data.ToTree()
+	sort.Sort(result.Data)
 	{{- end}}
 	return result, nil
 }

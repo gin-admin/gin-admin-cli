@@ -103,11 +103,11 @@ func (a {{plural .Name}}) ToTree() {{plural .Name}} {
 	var list {{plural .Name}}
 	m := a.ToMap()
 	for _, item := range a {
-		if item.ParentPath == "" {
+		if item.ParentID == "" {
 			list = append(list, item)
 			continue
 		}
-		if parent, ok := m[item.ParentPath]; ok {
+		if parent, ok := m[item.ParentID]; ok {
 			if parent.Children == nil {
 				children := {{plural .Name}}{item}
 				parent.Children = &children
