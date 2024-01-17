@@ -56,7 +56,7 @@ func (a *S) Format() *S {
 				Name:    "ParentID",
 				Type:    "string",
 				GormTag: "size:20;index;",
-				Comment: fmt.Sprintf("Parent ID (From %s.ID)", a.Name),
+				Comment: "Parent ID",
 				Query:   &FieldQuery{},
 				Form:    &FieldForm{},
 			})
@@ -75,7 +75,7 @@ func (a *S) Format() *S {
 				Name:    "Children",
 				Type:    fmt.Sprintf("*%s", utils.ToPlural(a.Name)),
 				GormTag: "-",
-				Comment: "Child nodes",
+				Comment: "Children nodes",
 			})
 		}
 
