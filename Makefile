@@ -1,6 +1,6 @@
 .PHONY: build
 
-RELEASE_VERSION = v10.3.0
+RELEASE_VERSION = v10.3.1
 
 APP 			= gin-admin-cli
 BIN  			= ${APP}
