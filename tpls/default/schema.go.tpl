@@ -22,7 +22,7 @@ type {{$name}} struct {
 func (a {{$name}}) TableName() string {
 	return config.C.FormatTableName("{{.TableName}}")
 }
-{{-end}}
+{{- end}}
 
 // Defining the query parameters for the `{{$name}}` struct.
 type {{$name}}QueryParam struct {
