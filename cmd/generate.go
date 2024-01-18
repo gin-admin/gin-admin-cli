@@ -27,7 +27,7 @@ func Generate() *cli.Command {
 				Name:     "module",
 				Aliases:  []string{"m"},
 				Usage:    "The module to generate the struct from (like: RBAC)",
-				Required: true,
+				Required: false,
 			},
 			&cli.StringFlag{
 				Name:  "module-path",
@@ -87,7 +87,7 @@ func Generate() *cli.Command {
 			gen := actions.Generate(actions.GenerateConfig{
 				Dir:         c.String("dir"),
 				TplType:     c.String("tpl-type"),
-				ModuleName:  c.String("module"),
+				Module:      c.String("module"),
 				ModulePath:  c.String("module-path"),
 				WirePath:    c.String("wire-path"),
 				SwaggerPath: c.String("swag-path"),

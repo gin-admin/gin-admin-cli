@@ -9,7 +9,6 @@ import (
 
 type S struct {
 	RootImportPath   string `yaml:"-" json:"-"`
-	ModuleName       string `yaml:"-" json:"-"`
 	ModuleImportPath string `yaml:"-" json:"-"`
 	UtilImportPath   string `yaml:"-" json:"-"`
 	Include          struct {
@@ -19,6 +18,7 @@ type S struct {
 		UpdatedAt bool
 		Sequence  bool
 	} `yaml:"-" json:"-"`
+	Module               string                 `yaml:"module,omitempty" json:"module,omitempty"`
 	Name                 string                 `yaml:"name,omitempty" json:"name,omitempty"`
 	TableName            string                 `yaml:"table_name,omitempty" json:"table_name,omitempty"`
 	Comment              string                 `yaml:"comment,omitempty" json:"comment,omitempty"`

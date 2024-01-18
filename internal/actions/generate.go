@@ -16,7 +16,7 @@ import (
 type GenerateConfig struct {
 	Dir         string
 	TplType     string
-	ModuleName  string
+	Module      string
 	ModulePath  string
 	WirePath    string
 	SwaggerPath string
@@ -29,7 +29,7 @@ func Generate(cfg GenerateConfig) *GenerateAction {
 		cfg:              &cfg,
 		fs:               tfs.Ins,
 		rootImportPath:   parser.GetRootImportPath(cfg.Dir),
-		moduleImportPath: parser.GetModuleImportPath(cfg.Dir, cfg.ModulePath, cfg.ModuleName),
+		moduleImportPath: parser.GetModuleImportPath(cfg.Dir, cfg.ModulePath, cfg.Module),
 		UtilImportPath:   parser.GetUtilImportPath(cfg.Dir, cfg.ModulePath),
 	}
 }
@@ -85,11 +85,22 @@ func (a *GenerateAction) RunWithStruct(ctx context.Context, s *schema.S) error {
 }
 
 func (a *GenerateAction) run(ctx context.Context, data []*schema.S) error {
+	moduleMap := make(map[string]bool)
+
 	for _, d := range data {
+		if d.Module == "" && a.cfg.Module == "" {
+			return fmt.Errorf("Struct %s module is empty", d.Name)
+		}
+
+		if d.Module == "" {
+			d.Module = a.cfg.Module
+		}
+		if !moduleMap[d.Module] {
+			moduleMap[d.Module] = true
+		}
 		if err := a.generate(ctx, d); err != nil {
 			return err
 		}
-
 		if d.GenerateFE {
 			if err := a.generateFE(ctx, d); err != nil {
 				return err
@@ -97,20 +108,22 @@ func (a *GenerateAction) run(ctx context.Context, data []*schema.S) error {
 		}
 	}
 
-	modsTplData, err := parser.ModifyModsFile(ctx, parser.BasicArgs{
-		Dir:        a.cfg.Dir,
-		ModuleName: a.cfg.ModuleName,
-		ModulePath: a.cfg.ModulePath,
-		Flag:       parser.AstFlagGen,
-	})
-	if err != nil {
-		a.logger.Errorf("Failed to modify mods file, err: %s", err)
-		return err
-	}
+	for module := range moduleMap {
+		modsTplData, err := parser.ModifyModsFile(ctx, parser.BasicArgs{
+			Dir:        a.cfg.Dir,
+			ModuleName: module,
+			ModulePath: a.cfg.ModulePath,
+			Flag:       parser.AstFlagGen,
+		})
+		if err != nil {
+			a.logger.Errorf("Failed to modify mods file, err: %s", err)
+			return err
+		}
 
-	err = a.write(ctx, a.cfg.ModuleName, "", parser.FileForMods, modsTplData, false)
-	if err != nil {
-		return err
+		err = a.write(ctx, module, "", parser.FileForMods, modsTplData, false)
+		if err != nil {
+			return err
+		}
 	}
 
 	return a.execWireAndSwag(ctx)
@@ -200,7 +213,6 @@ func (a *GenerateAction) write(ctx context.Context, moduleName, structName, tpl 
 func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error {
 	dataItem = dataItem.Format()
 	dataItem.RootImportPath = a.rootImportPath
-	dataItem.ModuleName = a.cfg.ModuleName
 	dataItem.ModuleImportPath = a.moduleImportPath
 	dataItem.UtilImportPath = a.UtilImportPath
 
@@ -217,7 +229,7 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 			return err
 		}
 
-		err = a.write(ctx, dataItem.ModuleName, dataItem.Name, parser.StructPackageTplPaths[pkgName], tplData, !dataItem.ForceWrite)
+		err = a.write(ctx, dataItem.Module, dataItem.Name, parser.StructPackageTplPaths[pkgName], tplData, !dataItem.ForceWrite)
 		if err != nil {
 			return err
 		}
@@ -225,7 +237,7 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 
 	basicArgs := parser.BasicArgs{
 		Dir:              a.cfg.Dir,
-		ModuleName:       dataItem.ModuleName,
+		ModuleName:       dataItem.Module,
 		ModulePath:       a.cfg.ModulePath,
 		StructName:       dataItem.Name,
 		GenPackages:      genPackages,
@@ -238,7 +250,7 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 		return err
 	}
 
-	err = a.write(ctx, dataItem.ModuleName, dataItem.Name, parser.FileForModuleMain, moduleMainTplData, false)
+	err = a.write(ctx, dataItem.Module, dataItem.Name, parser.FileForModuleMain, moduleMainTplData, false)
 	if err != nil {
 		return err
 	}
@@ -249,7 +261,7 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 		return err
 	}
 
-	err = a.write(ctx, dataItem.ModuleName, dataItem.Name, parser.FileForModuleWire, moduleWireTplData, false)
+	err = a.write(ctx, dataItem.Module, dataItem.Name, parser.FileForModuleWire, moduleWireTplData, false)
 	if err != nil {
 		return err
 	}
