@@ -19,21 +19,21 @@ type S struct {
 		UpdatedAt bool
 		Sequence  bool
 	} `yaml:"-" json:"-"`
-	Name                 string            `yaml:"name,omitempty" json:"name,omitempty"`
-	TableName            string            `yaml:"table_name,omitempty" json:"table_name,omitempty"`
-	Comment              string            `yaml:"comment,omitempty" json:"comment,omitempty"`
-	Outputs              []string          `yaml:"outputs,omitempty" json:"outputs,omitempty"`
-	ForceWrite           bool              `yaml:"force_write,omitempty" json:"force_write,omitempty"`
-	TplType              string            `yaml:"tpl_type,omitempty" json:"tpl_type,omitempty"` // crud/tree
-	DisablePagination    bool              `yaml:"disable_pagination,omitempty" json:"disable_pagination,omitempty"`
-	DisableDefaultFields bool              `yaml:"disable_default_fields,omitempty" json:"disable_default_fields,omitempty"`
-	FillGormCommit       bool              `yaml:"fill_gorm_commit,omitempty" json:"fill_gorm_commit,omitempty"`
-	FillRouterPrefix     bool              `yaml:"fill_router_prefix,omitempty" json:"fill_router_prefix,omitempty"`
-	Fields               []*Field          `yaml:"fields,omitempty" json:"fields,omitempty"`
-	GenerateFE           bool              `yaml:"generate_fe,omitempty" json:"generate_fe,omitempty"`
-	FETpl                string            `yaml:"fe_tpl,omitempty" json:"fe_tpl,omitempty"`         // react/react-v5-i18n
-	FEMapping            map[string]string `yaml:"fe_mapping,omitempty" json:"fe_mapping,omitempty"` // tpl -> file
-	Extra                map[string]string `yaml:"extra,omitempty" json:"extra,omitempty"`
+	Name                 string                 `yaml:"name,omitempty" json:"name,omitempty"`
+	TableName            string                 `yaml:"table_name,omitempty" json:"table_name,omitempty"`
+	Comment              string                 `yaml:"comment,omitempty" json:"comment,omitempty"`
+	Outputs              []string               `yaml:"outputs,omitempty" json:"outputs,omitempty"`
+	ForceWrite           bool                   `yaml:"force_write,omitempty" json:"force_write,omitempty"`
+	TplType              string                 `yaml:"tpl_type,omitempty" json:"tpl_type,omitempty"` // crud/tree
+	DisablePagination    bool                   `yaml:"disable_pagination,omitempty" json:"disable_pagination,omitempty"`
+	DisableDefaultFields bool                   `yaml:"disable_default_fields,omitempty" json:"disable_default_fields,omitempty"`
+	FillGormCommit       bool                   `yaml:"fill_gorm_commit,omitempty" json:"fill_gorm_commit,omitempty"`
+	FillRouterPrefix     bool                   `yaml:"fill_router_prefix,omitempty" json:"fill_router_prefix,omitempty"`
+	Fields               []*Field               `yaml:"fields,omitempty" json:"fields,omitempty"`
+	GenerateFE           bool                   `yaml:"generate_fe,omitempty" json:"generate_fe,omitempty"`
+	FETpl                string                 `yaml:"fe_tpl,omitempty" json:"fe_tpl,omitempty"`         // react/react-v5-i18n
+	FEMapping            map[string]string      `yaml:"fe_mapping,omitempty" json:"fe_mapping,omitempty"` // tpl -> file
+	Extra                map[string]interface{} `yaml:"extra,omitempty" json:"extra,omitempty"`
 }
 
 func (a *S) Format() *S {
@@ -121,17 +121,17 @@ func (a *S) Format() *S {
 }
 
 type Field struct {
-	Name      string            `yaml:"name,omitempty" json:"name,omitempty"`
-	Type      string            `yaml:"type,omitempty" json:"type,omitempty"`
-	GormTag   string            `yaml:"gorm_tag,omitempty" json:"gorm_tag,omitempty"`
-	JSONTag   string            `yaml:"json_tag,omitempty" json:"json_tag,omitempty"`
-	CustomTag string            `yaml:"custom_tag,omitempty" json:"custom_tag,omitempty"`
-	Comment   string            `yaml:"comment,omitempty" json:"comment,omitempty"`
-	Query     *FieldQuery       `yaml:"query,omitempty" json:"query,omitempty"`
-	Order     string            `yaml:"order,omitempty" json:"order,omitempty"`
-	Form      *FieldForm        `yaml:"form,omitempty" json:"form,omitempty"`
-	Unique    bool              `yaml:"unique,omitempty" json:"unique,omitempty"`
-	Extra     map[string]string `yaml:"extra,omitempty" json:"extra,omitempty"`
+	Name      string                 `yaml:"name,omitempty" json:"name,omitempty"`
+	Type      string                 `yaml:"type,omitempty" json:"type,omitempty"`
+	GormTag   string                 `yaml:"gorm_tag,omitempty" json:"gorm_tag,omitempty"`
+	JSONTag   string                 `yaml:"json_tag,omitempty" json:"json_tag,omitempty"`
+	CustomTag string                 `yaml:"custom_tag,omitempty" json:"custom_tag,omitempty"`
+	Comment   string                 `yaml:"comment,omitempty" json:"comment,omitempty"`
+	Query     *FieldQuery            `yaml:"query,omitempty" json:"query,omitempty"`
+	Order     string                 `yaml:"order,omitempty" json:"order,omitempty"`
+	Form      *FieldForm             `yaml:"form,omitempty" json:"form,omitempty"`
+	Unique    bool                   `yaml:"unique,omitempty" json:"unique,omitempty"`
+	Extra     map[string]interface{} `yaml:"extra,omitempty" json:"extra,omitempty"`
 }
 
 func (a *Field) Format() *Field {

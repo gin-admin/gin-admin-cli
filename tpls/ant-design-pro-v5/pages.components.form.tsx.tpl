@@ -1,6 +1,7 @@
 {{- $name := .Name}}
 {{- $lowerCamelName := lowerCamel .Name}}
 {{- $parentName := .Extra.ParentName}}
+{{- $includeStatus := .Include.Status}}
 import React, { useEffect, useRef } from 'react';
 import { useIntl } from '@umijs/max';
 import { message{{if .Extra.FormAntdImport}}, {{.Extra.FormAntdImport}}{{end}} } from 'antd';
@@ -30,6 +31,9 @@ const {{$name}}Modal: React.FC<{{$name}}ModalProps> = (props: {{$name}}ModalProp
       get{{$name}}(props.id).then(async (res) => {
         if (res.data) {
           const data = res.data;
+          {{- if $includeStatus}}
+          data.statusChecked = data.status === 'enabled';
+          {{-end}}
           formRef.current?.setFieldsValue(data);
         }
       });
@@ -60,6 +64,9 @@ const {{$name}}Modal: React.FC<{{$name}}ModalProps> = (props: {{$name}}ModalProp
         },
       {{`}}`}}
       onFinish={async (values: API.{{$name}}) => {
+        {{- if $includeStatus}}
+        values.status = values.statusChecked ? 'enabled' : 'disabled';
+        {{-end}}
         if (props.id) {
           await update{{$name}}(props.id, values);
         } else {
@@ -70,7 +77,7 @@ const {{$name}}Modal: React.FC<{{$name}}ModalProps> = (props: {{$name}}ModalProp
         props.onSuccess();
         return true;
       {{`}}`}}
-      initialValues={{`{{ }}`}}
+      initialValues={{`{{`}} {{if $includeStatus}}statusChecked: true{{end}} {{`}}`}}
     >
       {{- range .Fields}}
       {{- if .Form}}
