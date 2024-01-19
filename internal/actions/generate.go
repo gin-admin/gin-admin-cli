@@ -129,20 +129,20 @@ func (a *GenerateAction) run(ctx context.Context, data []*schema.S) error {
 	return a.execWireAndSwag(ctx)
 }
 
-func (a *GenerateAction) getGoTplFile(pkgName, tplType string) string {
-	pkgName = fmt.Sprintf("%s.go.tpl", pkgName)
+func (a *GenerateAction) getGoTplFile(tplName, tplType string) string {
+	tplName = fmt.Sprintf("%s.go.tpl", tplName)
 	if tplType == "" && a.cfg.TplType != "" {
 		tplType = a.cfg.TplType
 	}
 
 	if tplType != "" {
-		p := filepath.Join(tplType, pkgName)
+		p := filepath.Join(tplType, tplName)
 		if ok, _ := utils.ExistsFile(p); ok {
 			return p
 		}
-		return filepath.Join("default", pkgName)
+		return filepath.Join("default", tplName)
 	}
-	return pkgName
+	return tplName
 }
 
 func (a GenerateAction) getAbsPath(file string) (string, error) {

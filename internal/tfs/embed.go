@@ -3,6 +3,8 @@ package tfs
 import (
 	"embed"
 	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 var efsIns embed.FS
@@ -23,7 +25,11 @@ func NewEmbedFS() FS {
 }
 
 func (fs *embedFS) ReadFile(name string) ([]byte, error) {
-	return efsIns.ReadFile(filepath.Join("tpls", name))
+	fullname := filepath.Join("tpls", name)
+	if runtime.GOOS == "windows" {
+		fullname = strings.ReplaceAll(fullname, "\\", "/")
+	}
+	return efsIns.ReadFile(fullname)
 }
 
 func (fs *embedFS) ParseTpl(name string, data interface{}) ([]byte, error) {
