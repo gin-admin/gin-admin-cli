@@ -33,7 +33,7 @@ const {{$name}}Modal: React.FC<{{$name}}ModalProps> = (props: {{$name}}ModalProp
           const data = res.data;
           {{- if $includeStatus}}
           data.statusChecked = data.status === 'enabled';
-          {{-end}}
+          {{- end}}
           formRef.current?.setFieldsValue(data);
         }
       });
@@ -66,7 +66,7 @@ const {{$name}}Modal: React.FC<{{$name}}ModalProps> = (props: {{$name}}ModalProp
       onFinish={async (values: API.{{$name}}) => {
         {{- if $includeStatus}}
         values.status = values.statusChecked ? 'enabled' : 'disabled';
-        {{-end}}
+        {{- end}}
         if (props.id) {
           await update{{$name}}(props.id, values);
         } else {
