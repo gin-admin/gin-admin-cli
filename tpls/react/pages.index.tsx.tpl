@@ -2,7 +2,7 @@
 import { PageContainer } from '@ant-design/pro-components';
 import React, { useRef, useReducer } from 'react';
 import type { ProColumns, ActionType } from '@ant-design/pro-components';
-import { ProTable{{if .Extra.IndexProComponentsImport}}, {{.Extra.IndexProComponentsImport}}{{end}}} } from '@ant-design/pro-components';
+import { ProTable{{if .Extra.IndexProComponentsImport}}, {{.Extra.IndexProComponentsImport}}{{end}} } from '@ant-design/pro-components';
 import { Space, message{{if .Extra.IndexAntdImport}}, {{.Extra.IndexAntdImport}}{{end}}} from 'antd';
 import { fetch{{$name}}, del{{$name}} } from '@/services/{{.Extra.ImportService}}';
 import {{$name}}Modal from './components/SaveForm';

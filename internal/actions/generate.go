@@ -52,7 +52,7 @@ func (a *GenerateAction) RunWithConfig(ctx context.Context, cfgName string) erro
 			if err := utils.ParseJSONFile(name, &data); err != nil {
 				return err
 			}
-		case ".yaml", "yml":
+		case ".yaml", ".yml":
 			if err := utils.ParseYAMLFile(name, &data); err != nil {
 				return err
 			}
