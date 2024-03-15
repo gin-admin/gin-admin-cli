@@ -1,0 +1,47 @@
+# use command like [gin-admin-cli gen -d . -m SOME_MODULE --structs SomeTable --fe-dir ./frontend -c ./configs/schema/some_table.yaml]
+- name: SomeTable
+  module: SomeModule
+  comment: example for generate api code and react component
+  disable_pagination: false
+  fill_gorm_commit: true
+  fill_router_prefix: true # ex) GET /api/some_module/some_tables/:id
+  force_write: true # overwrite even if exist current file
+  generate_fe: true # generate react component by fe_mapping
+  disable_default_fields: false # id, created_at, updated_at columns
+  tpl_type: crud # crud/tree
+  fe_tpl: react
+  fe_mapping: # tpl -> file
+    services.typings.d.ts.tpl: src/services/some_module/some_table_typing.d.ts
+    services.index.ts.tpl: src/services/some_module/some_table_service.ts
+    pages.index.tsx.tpl: src/pages/some_module/some_table/index.tsx
+    pages.components.SaveForm.tsx.tpl: src/pages/some_module/some_table/components/SaveForm.tsx
+  extra: # need to generate code
+    ImportService: some_module/some_table
+    ActionText: Option
+    AddTitle: Add
+    EditTitle: Edit
+    DelTip: Delete
+    SubmitText: Submit
+    ResetText: Reset
+    SaveSuccessMessage: Saved.
+    DeleteSuccessMessage: Deleted.
+  fields:
+    - name: Order
+      type: int
+      unique: true
+      comment: test text
+      gorm_tag: "type:int unsigned;"
+      form: # used in save, edit form
+        binding_tag: "required"
+        required: true
+      extra: # used in generate code
+        Label: TestText
+        Required: true
+    - name: Description
+      type: string
+      comment: comment for admin
+      gorm_tag: "size:128;"
+      form:
+        binding_tag: "max=128"
+      extra:
+        Label: Description
