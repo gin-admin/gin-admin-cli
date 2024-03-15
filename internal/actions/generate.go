@@ -84,6 +84,7 @@ func (a *GenerateAction) RunWithConfig(ctx context.Context, cfgName string) erro
 		if err != nil {
 			return err
 		}
+		return a.run(ctx, data)
 	}
 
 	data, err := parseFile(cfgName)
