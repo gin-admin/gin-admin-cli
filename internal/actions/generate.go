@@ -45,39 +45,55 @@ type GenerateAction struct {
 
 // Run generate command
 func (a *GenerateAction) RunWithConfig(ctx context.Context, cfgName string) error {
-	var parseFile = func(name string) error {
+	var parseFile = func(name string) ([]*schema.S, error) {
 		var data []*schema.S
 		switch filepath.Ext(name) {
 		case ".json":
 			if err := utils.ParseJSONFile(name, &data); err != nil {
-				return err
+				return nil, err
 			}
 		case ".yaml", "yml":
 			if err := utils.ParseYAMLFile(name, &data); err != nil {
-				return err
+				return nil, err
 			}
 		default:
 			a.logger.Warnf("Ignore file %s, only support json/yaml/yml", name)
 		}
 		if len(data) == 0 {
-			return nil
+			return nil, nil
 		}
-		return a.run(ctx, data)
+		return data, nil
 	}
 
 	if utils.IsDir(cfgName) {
-		return filepath.WalkDir(cfgName, func(path string, d os.DirEntry, err error) error {
+		var data []*schema.S
+		err := filepath.WalkDir(cfgName, func(path string, d os.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 			if d.IsDir() {
 				return nil
 			}
-			return parseFile(path)
+			items, err := parseFile(path)
+			if err != nil {
+				return err
+			}
+			data = append(data, items...)
+			return nil
 		})
+		if err != nil {
+			return err
+		}
 	}
 
-	return parseFile(cfgName)
+	data, err := parseFile(cfgName)
+	if err != nil {
+		return err
+	} else if len(data) == 0 {
+		a.logger.Warnf("No data found in file %s", cfgName)
+		return nil
+	}
+	return a.run(ctx, data)
 }
 
 func (a *GenerateAction) RunWithStruct(ctx context.Context, s *schema.S) error {
