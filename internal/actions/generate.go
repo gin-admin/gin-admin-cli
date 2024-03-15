@@ -164,15 +164,15 @@ func (a *GenerateAction) getGoTplFile(tplName, tplType string) string {
 func (a GenerateAction) getAbsPath(file string) (string, error) {
 	modPath := a.cfg.ModulePath
 	file = filepath.Join(a.cfg.Dir, modPath, file)
-	fullpath, err := filepath.Abs(file)
+	fullPath, err := filepath.Abs(file)
 	if err != nil {
 		a.logger.Errorf("Failed to get abs path, err: %s, #file %s", err, file)
 		return "", err
 	}
-	return fullpath, nil
+	return fullPath, nil
 }
 
-func (a *GenerateAction) write(ctx context.Context, moduleName, structName, tpl string, data []byte, checkExists bool) error {
+func (a *GenerateAction) write(_ context.Context, moduleName, structName, tpl string, data []byte, checkExists bool) error {
 	file, err := parser.ParseFilePathFromTpl(moduleName, structName, tpl)
 	if err != nil {
 		a.logger.Errorf("Failed to parse file path from tpl, err: %s, #tpl %s", err, tpl)
@@ -285,7 +285,7 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 	return nil
 }
 
-func (a *GenerateAction) execWireAndSwag(ctx context.Context) error {
+func (a *GenerateAction) execWireAndSwag(_ context.Context) error {
 	if p := a.cfg.WirePath; p != "" {
 		if err := utils.ExecWireGen(a.cfg.Dir, p); err != nil {
 			a.logger.Errorf("Failed to exec wire, err: %s, #wirePath %s", err, p)
@@ -301,7 +301,7 @@ func (a *GenerateAction) execWireAndSwag(ctx context.Context) error {
 	return nil
 }
 
-func (a *GenerateAction) generateFE(ctx context.Context, dataItem *schema.S) error {
+func (a *GenerateAction) generateFE(_ context.Context, dataItem *schema.S) error {
 	for tpl, file := range dataItem.FEMapping {
 		tplPath := filepath.Join(dataItem.FETpl, tpl)
 		tplData, err := a.fs.ParseTpl(tplPath, dataItem)

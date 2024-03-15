@@ -50,8 +50,9 @@ func Generate() *cli.Command {
 				Usage:   "The config file or directory to generate the struct from (JSON/YAML)",
 			},
 			&cli.StringFlag{
-				Name:  "structs",
-				Usage: "The struct name to generate",
+				Name:    "structs",
+				Aliases: []string{"s"},
+				Usage:   "The struct name to generate",
 			},
 			&cli.StringFlag{
 				Name:  "structs-comment",

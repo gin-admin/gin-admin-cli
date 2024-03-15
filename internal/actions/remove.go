@@ -101,15 +101,15 @@ func (a *RemoveAction) Run(ctx context.Context, structs []string) error {
 func (a RemoveAction) getAbsPath(file string) (string, error) {
 	modPath := a.cfg.ModulePath
 	file = filepath.Join(a.cfg.Dir, modPath, file)
-	fullpath, err := filepath.Abs(file)
+	fullPath, err := filepath.Abs(file)
 	if err != nil {
 		a.logger.Errorf("Failed to get abs path, err: %s, #file %s", err, file)
 		return "", err
 	}
-	return fullpath, nil
+	return fullPath, nil
 }
 
-func (a *RemoveAction) modify(ctx context.Context, moduleName, structName, tpl string, data []byte, deleted bool) error {
+func (a *RemoveAction) modify(_ context.Context, moduleName, structName, tpl string, data []byte, deleted bool) error {
 	file, err := parser.ParseFilePathFromTpl(moduleName, structName, tpl)
 	if err != nil {
 		a.logger.Errorf("Failed to parse file path from tpl, err: %s, #struct %s, #tpl %s", err, structName, tpl)
@@ -160,7 +160,7 @@ func (a *RemoveAction) modify(ctx context.Context, moduleName, structName, tpl s
 	return nil
 }
 
-func (a *RemoveAction) execWireAndSwag(ctx context.Context) error {
+func (a *RemoveAction) execWireAndSwag(_ context.Context) error {
 	if p := a.cfg.WirePath; p != "" {
 		if err := utils.ExecWireGen(a.cfg.Dir, p); err != nil {
 			a.logger.Errorf("Failed to exec wire, err: %s, #wirePath %s", err, p)

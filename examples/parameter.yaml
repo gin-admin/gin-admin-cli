@@ -1,0 +1,129 @@
+- name: Parameter
+  comment: System parameter management
+  generate_fe: true
+  fe_tpl: "ant-design-pro-v5"
+  extra:
+    ParentName: system
+    IndexAntdImport: "Tag"
+    IndexProComponentsImport: ""
+    FormAntdImport: ""
+    FormProComponentsImport: "ProFormText, ProFormTextArea, ProFormSwitch"
+    IncludeCreatedAt: true
+    IncludeUpdatedAt: true
+  fe_mapping:
+    services.typings.d.ts.tpl: "src/services/system/parameter/typings.d.ts"
+    services.index.ts.tpl: "src/services/system/parameter/index.ts"
+    pages.components.form.tsx.tpl: "src/pages/system/Parameter/components/SaveForm.tsx"
+    pages.index.tsx.tpl: "src/pages/system/Parameter/index.tsx"
+    locales.en.page.ts.tpl: "src/locales/en-US/pages/system.parameter.ts"
+  fields:
+    - name: Name
+      type: string
+      comment: Name of parameter
+      gorm_tag: "size:128;index"
+      unique: true
+      query:
+        name: LikeName
+        in_query: true
+        form_tag: name
+        op: LIKE
+      form:
+        binding_tag: "required,max=128"
+      extra:
+        ColumnComponent: >
+          {
+            title: intl.formatMessage({ id: 'pages.system.parameter.form.name' }),
+            dataIndex: 'name',
+            width: 160,
+            key: 'name', // Query field name
+          }
+        FormComponent: >
+          <ProFormText
+           name="name"
+           label={intl.formatMessage({ id: 'pages.system.parameter.form.name' })}
+           placeholder={intl.formatMessage({ id: 'pages.system.parameter.form.name.placeholder' })}
+           rules={[
+             {
+               required: true,
+               message: intl.formatMessage({ id: 'pages.system.parameter.form.name.required' }),
+             },
+           ]}
+           colProps={{ span: 24 }}
+           labelCol={{ span: 2 }}
+          />
+    - name: Value
+      type: string
+      comment: Value of parameter
+      gorm_tag: "size:1024;"
+      form:
+        binding_tag: "max=1024"
+      extra:
+        ColumnComponent: >
+          {
+            title: intl.formatMessage({ id: 'pages.system.parameter.form.value' }),
+            dataIndex: 'value',
+            width: 200,
+          }
+        FormComponent: >
+          <ProFormTextArea
+            name="value"
+            label={intl.formatMessage({ id: 'pages.system.parameter.form.value' })}
+            fieldProps={{ rows: 3 }}
+            colProps={{ span: 24 }}
+            labelCol={{ span: 2 }}
+          />
+    - name: Remark
+      type: string
+      comment: Remark of parameter
+      gorm_tag: "size:255;"
+      form: {}
+      extra:
+        ColumnComponent: >
+          {
+            title: intl.formatMessage({ id: 'pages.system.parameter.form.remark' }),
+            dataIndex: 'remark',
+            width: 180,
+          }
+        FormComponent: >
+          <ProFormText
+            name="remark"
+            label={intl.formatMessage({ id: 'pages.system.parameter.form.remark' })}
+            colProps={{ span: 24 }}
+            labelCol={{ span: 2 }}
+          />
+    - name: Status
+      type: string
+      comment: Status of parameter (enabled, disabled)
+      gorm_tag: "size:20;index"
+      query:
+        in_query: true
+      form:
+        binding_tag: "required,oneof=enabled disabled"
+      extra:
+        ColumnComponent: >
+          {
+            title: intl.formatMessage({ id: 'pages.system.parameter.form.status' }),
+            dataIndex: 'status',
+            width: 130,
+            search: false,
+            render: (status) => {
+              return (
+                <Tag color={status === 'enabled' ? 'success' : 'error'}>
+                  {status === 'enabled'
+                    ? intl.formatMessage({ id: 'pages.system.parameter.form.status.enabled', defaultMessage: 'Enabled' })
+                    : intl.formatMessage({ id: 'pages.system.parameter.form.status.disabled', defaultMessage: 'Disabled' })}
+                </Tag>
+              );
+            },
+          }
+        FormComponent: >
+          <ProFormSwitch
+            name="statusChecked"
+            label={intl.formatMessage({ id: 'pages.system.parameter.form.status' })}
+            fieldProps={{
+              checkedChildren: intl.formatMessage({ id: 'pages.system.parameter.form.status.enabled', defaultMessage: 'Enabled' }),
+              unCheckedChildren: intl.formatMessage({ id: 'pages.system.parameter.form.status.disabled', defaultMessage: 'Disabled' }),
+            }}
+            colProps={{ span: 24 }}
+            labelCol={{ span: 2 }}
+          />

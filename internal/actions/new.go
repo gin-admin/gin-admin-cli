@@ -240,7 +240,7 @@ func (a *NewAction) getReadme() string {
 	return sb.String()
 }
 
-func (a *NewAction) generateFE(ctx context.Context) error {
+func (a *NewAction) generateFE(_ context.Context) error {
 	if a.cfg.FeDir == "" {
 		return nil
 	}
