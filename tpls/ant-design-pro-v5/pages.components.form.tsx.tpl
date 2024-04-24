@@ -7,7 +7,7 @@ import { useIntl } from '@umijs/max';
 import { message{{if .Extra.FormAntdImport}}, {{.Extra.FormAntdImport}}{{end}} } from 'antd';
 import { ModalForm{{if .Extra.FormProComponentsImport}}, {{.Extra.FormProComponentsImport}}{{end}} } from '@ant-design/pro-components';
 import type { ProFormInstance } from '@ant-design/pro-components';
-import { add{{$name}}, get{{$name}}, update{{$name}} } from '@/services/{{$parentName}}/{{$lowerCamelName}}';
+import { add{{$name}}, get{{$name}}, update{{$name}} } from '@/services/{{with $parentName}}{{.}}/{{end}}{{$lowerCamelName}}';
 
 type {{$name}}ModalProps = {
   onSuccess: () => void;

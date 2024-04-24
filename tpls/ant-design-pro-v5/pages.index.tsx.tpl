@@ -7,7 +7,7 @@ import { useIntl } from '@umijs/max';
 import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import { ProTable{{if .Extra.IndexProComponentsImport}}, {{.Extra.IndexProComponentsImport}}{{end}} } from '@ant-design/pro-components';
 import { Space, message{{if .Extra.IndexAntdImport}}, {{.Extra.IndexAntdImport}}{{end}} } from 'antd';
-import { fetch{{$name}}, del{{$name}} } from '@/services/{{$parentName}}/{{$lowerCamelName}}';
+import { fetch{{$name}}, del{{$name}} } from '@/services/{{with $parentName}}{{.}}/{{end}}{{$lowerCamelName}}';
 import {{$name}}Modal from './components/SaveForm';
 import { AddButton, EditIconButton, DelIconButton } from '@/components/Button';
 
@@ -31,9 +31,9 @@ interface State {
 const {{$name}}: React.FC = () => {
   const intl = useIntl();
   const actionRef = useRef<ActionType>();
-  const addTitle = intl.formatMessage({ id: 'pages.{{$parentName}}.{{$lowerCamelName}}.add', defaultMessage: 'Add {{$name}}' });
-  const editTitle = intl.formatMessage({ id: 'pages.{{$parentName}}.{{$lowerCamelName}}.edit', defaultMessage: 'Edit {{$name}}' });
-  const delTip = intl.formatMessage({ id: 'pages.{{$parentName}}.{{$lowerCamelName}}.delTip', defaultMessage: 'Are you sure you want to delete this record?' });
+  const addTitle = intl.formatMessage({ id: 'pages.{{with $parentName}}{{.}}.{{end}}{{$lowerCamelName}}.add', defaultMessage: 'Add {{$name}}' });
+  const editTitle = intl.formatMessage({ id: 'pages.{{with $parentName}}{{.}}.{{end}}{{$lowerCamelName}}.edit', defaultMessage: 'Edit {{$name}}' });
+  const delTip = intl.formatMessage({ id: 'pages.{{with $parentName}}{{.}}.{{end}}{{$lowerCamelName}}.delTip', defaultMessage: 'Are you sure you want to delete this record?' });
 
   const [state, dispatch] = useReducer(
     (pre: State, action: Action) => {
