@@ -246,7 +246,27 @@ func (a *GenerateAction) generate(ctx context.Context, dataItem *schema.S) error
 			return err
 		}
 
-		err = a.write(ctx, dataItem.Module, dataItem.Name, parser.StructPackageTplPaths[pkgName], tplData, !dataItem.ForceWrite)
+		var rewrite bool
+		switch pkgName {
+		case "schema":
+			if dataItem.Rewrite != nil && dataItem.Rewrite.Schema {
+				rewrite = true
+			}
+		case "dal":
+			if dataItem.Rewrite != nil && dataItem.Rewrite.Dal {
+				rewrite = true
+			}
+		case "biz":
+			if dataItem.Rewrite != nil && dataItem.Rewrite.Biz {
+				rewrite = true
+			}
+		case "api":
+			if dataItem.Rewrite != nil && dataItem.Rewrite.Api {
+				rewrite = true
+			}
+		}
+
+		err = a.write(ctx, dataItem.Module, dataItem.Name, parser.StructPackageTplPaths[pkgName], tplData, !rewrite)
 		if err != nil {
 			return err
 		}
