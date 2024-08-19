@@ -32,6 +32,11 @@ type {{$name}}QueryParam struct {
 	{{- with .Query}}
 	{{.Name}} {{$type}} `form:"{{with .FormTag}}{{.}}{{else}}-{{end}}"{{with .BindingTag}} binding:"{{.}}"{{end}}{{with .CustomTag}} {{raw .}}{{end}}`{{with .Comment}}// {{.}}{{end}}
 	{{- end}}
+	{{- range .Queries}}
+	{{- with .}}
+	{{.Name}} {{$type}} `form:"{{with .FormTag}}{{.}}{{else}}-{{end}}"{{with .BindingTag}} binding:"{{.}}"{{end}}{{with .CustomTag}} {{raw .}}{{end}}`{{with .Comment}}// {{.}}{{end}}
+	{{- end}}
+	{{- end}}
 	{{- end}}
 }
 

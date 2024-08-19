@@ -128,6 +128,7 @@ type Field struct {
 	CustomTag string                 `yaml:"custom_tag,omitempty" json:"custom_tag,omitempty"`
 	Comment   string                 `yaml:"comment,omitempty" json:"comment,omitempty"`
 	Query     *FieldQuery            `yaml:"query,omitempty" json:"query,omitempty"`
+	Queries   []*FieldQuery          `yaml:"queries,omitempty" json:"queries,omitempty"`
 	Order     string                 `yaml:"order,omitempty" json:"order,omitempty"`
 	Form      *FieldForm             `yaml:"form,omitempty" json:"form,omitempty"`
 	Unique    bool                   `yaml:"unique,omitempty" json:"unique,omitempty"`

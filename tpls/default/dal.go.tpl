@@ -45,19 +45,34 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 		db = db.Where("{{lowerUnderline $fieldName}} {{.OP}} ?", {{if .Args}}{{raw .Args}}{{else}}{{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}}{{end}})
 	}
     {{- end}}
+	{{- range .Queries}}
+ 	{{- with .}}
+	if v := params.{{.Name}}; {{with .IfCond}}{{.}}{{else}}{{convIfCond $type}}{{end}} {
+		db = db.Where("{{lowerUnderline $fieldName}} {{.OP}} ?", {{if .Args}}{{raw .Args}}{{else}}{{if eq .OP "LIKE"}}"%"+v+"%"{{else}}v{{end}}{{end}})
+	}
     {{- end}}
+	{{- end}}
+    {{- end}}
+
+	if opt.Result != nil {
+		pageResult, err := util.WrapPageQuery(ctx, db, params.PaginationParam, opt.QueryOptions, opt.Result)
+		if err != nil {
+			return nil, err
+		}
+		return &schema.{{$name}}QueryResult{
+			PageResult: pageResult,
+		}, nil
+	}
 
 	var list schema.{{plural .Name}}
 	pageResult, err := util.WrapPageQuery(ctx, db, params.PaginationParam, opt.QueryOptions, &list)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-
-	queryResult := &schema.{{$name}}QueryResult{
+	return &schema.{{$name}}QueryResult{
 		PageResult: pageResult,
 		Data:       list,
-	}
-	return queryResult, nil
+	}, nil
 }
 
 // Get the specified {{lowerSpace .Name}} from the database.

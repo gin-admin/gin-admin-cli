@@ -27,6 +27,13 @@ type {{$name}} struct {
 // @Param {{.FormTag}} query {{convSwaggerType $fieldType}} false "{{.Comment}}"
 {{- end}}
 {{- end}}
+{{- range .Queries}}
+{{- with .}}
+{{- if .InQuery}}
+// @Param {{.FormTag}} query {{convSwaggerType $fieldType}} false "{{.Comment}}"
+{{- end}}
+{{- end}}
+{{- end}}
 {{- end}}
 // @Success 200 {object} util.ResponseResult{data=[]schema.{{$name}}}
 // @Failure 401 {object} util.ResponseResult
