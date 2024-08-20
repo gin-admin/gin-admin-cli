@@ -23,7 +23,7 @@ type S struct {
 	TableName            string                 `yaml:"table_name,omitempty" json:"table_name,omitempty"`
 	Comment              string                 `yaml:"comment,omitempty" json:"comment,omitempty"`
 	Outputs              []string               `yaml:"outputs,omitempty" json:"outputs,omitempty"`
-	ForceWrite           bool                   `yaml:"force_write,omitempty" json:"force_write,omitempty"`
+	Rewrite              *Rewrite               `yaml:"rewrite,omitempty" json:"force_write,omitempty"`
 	TplType              string                 `yaml:"tpl_type,omitempty" json:"tpl_type,omitempty"` // crud/tree
 	DisablePagination    bool                   `yaml:"disable_pagination,omitempty" json:"disable_pagination,omitempty"`
 	DisableDefaultFields bool                   `yaml:"disable_default_fields,omitempty" json:"disable_default_fields,omitempty"`
@@ -118,6 +118,13 @@ func (a *S) Format() *S {
 	}
 
 	return a
+}
+
+type Rewrite struct {
+	Schema bool `yaml:"schema,omitempty" json:"schema,omitempty"`
+	Dal    bool `yaml:"dal,omitempty" json:"dal,omitempty"`
+	Biz    bool `yaml:"biz,omitempty" json:"biz,omitempty"`
+	Api    bool `yaml:"api,omitempty" json:"api,omitempty"`
 }
 
 type Field struct {

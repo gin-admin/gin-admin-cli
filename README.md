@@ -40,6 +40,11 @@ Using `Dictionary` as an example, the configuration file is as follows `dictiona
   disable_pagination: true
   fill_gorm_commit: true
   fill_router_prefix: true
+  rewrite:
+    schema: true
+    dal: true
+    biz: true
+    api: true
   tpl_type: "tree"
   fields:
     - name: Code
