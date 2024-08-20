@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/jinzhu/inflection v1.0.0
 	github.com/json-iterator/go v1.1.12
+	github.com/spf13/cast v1.7.0
 	github.com/urfave/cli/v2 v2.25.1
 	go.uber.org/zap v1.24.0
 	golang.org/x/mod v0.10.0

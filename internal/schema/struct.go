@@ -29,7 +29,7 @@ type S struct {
 	DisableDefaultFields bool                   `yaml:"disable_default_fields,omitempty" json:"disable_default_fields,omitempty"`
 	FillGormCommit       bool                   `yaml:"fill_gorm_commit,omitempty" json:"fill_gorm_commit,omitempty"`
 	FillRouterPrefix     bool                   `yaml:"fill_router_prefix,omitempty" json:"fill_router_prefix,omitempty"`
-	Fields               []*Field               `yaml:"fields,omitempty" json:"fields,omitempty"`
+	Fields               Fields                 `yaml:"fields,omitempty" json:"fields,omitempty"`
 	GenerateFE           bool                   `yaml:"generate_fe,omitempty" json:"generate_fe,omitempty"`
 	FETpl                string                 `yaml:"fe_tpl,omitempty" json:"fe_tpl,omitempty"`         // react/react-v5-i18n
 	FEMapping            map[string]string      `yaml:"fe_mapping,omitempty" json:"fe_mapping,omitempty"` // tpl -> file
@@ -42,7 +42,7 @@ func (a *S) Format() *S {
 	}
 
 	if !a.DisableDefaultFields {
-		var fields []*Field
+		var fields Fields
 		fields = append(fields, &Field{
 			Name:    "ID",
 			Type:    "string",
@@ -132,6 +132,7 @@ type Field struct {
 	Order     string                 `yaml:"order,omitempty" json:"order,omitempty"`
 	Form      *FieldForm             `yaml:"form,omitempty" json:"form,omitempty"`
 	Unique    bool                   `yaml:"unique,omitempty" json:"unique,omitempty"`
+	Sequence  int                    `yaml:"sequence,omitempty" json:"sequence,omitempty"`
 	Extra     map[string]interface{} `yaml:"extra,omitempty" json:"extra,omitempty"`
 }
 
@@ -201,4 +202,18 @@ type FieldForm struct {
 	BindingTag string `yaml:"binding_tag,omitempty" json:"binding_tag,omitempty"`
 	CustomTag  string `yaml:"custom_tag,omitempty" json:"custom_tag,omitempty"`
 	Comment    string `yaml:"comment,omitempty" json:"comment,omitempty"`
+}
+
+type Fields []*Field
+
+func (a Fields) Len() int {
+	return len(a)
+}
+
+func (a Fields) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
+func (a Fields) Less(i, j int) bool {
+	return a[i].Sequence < a[j].Sequence
 }
