@@ -49,7 +49,7 @@ func (a *{{$name}}) Query(ctx context.Context, params schema.{{$name}}QueryParam
 }
 
 {{- if $treeTpl}}
-func (a *{{$name}}) appendChildren(ctx context.Context, data schema.{{plural .Name}}) (schema.{{plural .Name}}, error) {
+func (a *{{$name}}) appendChildren(ctx context.Context, data schema.{{.Name}}List) (schema.{{.Name}}List, error) {
 	if len(data) == 0 {
 		return data, nil
 	}

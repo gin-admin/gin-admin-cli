@@ -47,32 +47,32 @@ type {{$name}}QueryOptions struct {
 
 // Defining the query result for the `{{$name}}` struct.
 type {{$name}}QueryResult struct {
-	Data       {{plural .Name}}
+	Data       {{.Name}}List
 	PageResult *util.PaginationResult
 }
 
 // Defining the slice of `{{$name}}` struct.
-type {{plural .Name}} []*{{$name}}
+type {{.Name}}List []*{{$name}}
 
 {{- if $includeSequence}}
-func (a {{plural .Name}}) Len() int {
+func (a {{.Name}}List) Len() int {
 	return len(a)
 }
 
-func (a {{plural .Name}}) Less(i, j int) bool {
+func (a {{.Name}}List) Less(i, j int) bool {
 	if a[i].Sequence == a[j].Sequence {
 		return a[i].CreatedAt.Unix() > a[j].CreatedAt.Unix()
 	}
 	return a[i].Sequence > a[j].Sequence
 }
 
-func (a {{plural .Name}}) Swap(i, j int) {
+func (a {{.Name}}List) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
 {{- end}}
 
 {{- if $treeTpl}}
-func (a {{plural .Name}}) ToMap() map[string]*{{$name}} {
+func (a {{.Name}}List) ToMap() map[string]*{{$name}} {
 	m := make(map[string]*{{$name}})
 	for _, item := range a {
 		m[item.ID] = item
@@ -80,7 +80,7 @@ func (a {{plural .Name}}) ToMap() map[string]*{{$name}} {
 	return m
 }
 
-func (a {{plural .Name}}) SplitParentIDs() []string {
+func (a {{.Name}}List) SplitParentIDs() []string {
 	parentIDs := make([]string, 0, len(a))
 	idMapper := make(map[string]struct{})
 	for _, item := range a {
@@ -104,8 +104,8 @@ func (a {{plural .Name}}) SplitParentIDs() []string {
 	return parentIDs
 }
 
-func (a {{plural .Name}}) ToTree() {{plural .Name}} {
-	var list {{plural .Name}}
+func (a {{.Name}}List) ToTree() {{.Name}}List {
+	var list {{.Name}}List
 	m := a.ToMap()
 	for _, item := range a {
 		if item.ParentID == "" {
@@ -114,7 +114,7 @@ func (a {{plural .Name}}) ToTree() {{plural .Name}} {
 		}
 		if parent, ok := m[item.ParentID]; ok {
 			if parent.Children == nil {
-				children := {{plural .Name}}{item}
+				children := {{.Name}}List{item}
 				parent.Children = &children
 				continue
 			}
